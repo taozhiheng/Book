@@ -87,30 +87,47 @@ def html_to_markdown(html):
   return mark
 
 
-colurllist=['/collection/970b5472116e', \
+colurllist=['/collection/GQ5FAs', \
 '/collection/ec7f078605ab', \
 '/collection/f16b3d483ec2']
+#to search title
 titlestr='<title>(.*?) (.*?)</title>'
 titleobj=re.compile(titlestr)
+#to search next layer url
 contentstr='<h4><a href=\"(.*?)\" target=\"_blank\">(.*?)</a></h4>'
 contentobj=re.compile(contentstr)
+#to search the hide content url
+hidestr='data-url=\"(.*?)\"'
+hideobj=re.compile(hidestr,re.S)
 for colurl in colurllist:
+  #colhtml:every page html_content
+  #colres:title object
+  #urlres:url set of passages 
   colhtml=urllib2.urlopen(urlhead+colurl).read()
   colres=titleobj.search(colhtml)
   urlres=contentobj.findall(colhtml)
   print colres.group(1)
-  colfile=open('file_test/'+colres.group(1)+'/'+'index.html','w')
-  colfile.write(colhtml)
-  colfile.flush()
-  colfile.close()
-  for x in urlres:
-    url=urlhead+x[0]
-    #print(url)
-    filestr=urllib2.urlopen(url).read()
-    newFile=open('file_test/'+colres.group(1)+'/'+x[1]+'.markdown', \
-    'w')
-    filestr=html_to_markdown(filestr)
-    newFile.write(filestr)
-    newFile.flush()
-    newFile.close()
+  i=1
+  
+  while True :
+    for x in urlres:
+      url=urlhead+x[0]
+      #print(url)
+      filestr=urllib2.urlopen(url).read()
+      newFile=open('mygit/'+colres.group(1)+'/'+x[1]+'.markdown', \
+      'w')
+      filestr=html_to_markdown(filestr)
+      newFile.write(filestr)
+      newFile.flush()
+      newFile.close()
+      print x[1]+'...'+str(i)+'/108'
+      i+=1
+    #hideres:hide object to search next page
+    hideres=hideobj.search(colhtml)
+    if (hideres is None) | i>100:
+      break;
+    hideurl=hideres.group(1)
+    colhtml=urllib2.urlopen(urlhead+hideurl).read()
+    urlres=contentobj.findall(colhtml)
+   
 print('process has finished!')
