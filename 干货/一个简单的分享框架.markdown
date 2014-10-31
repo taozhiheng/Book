@@ -1,0 +1,170 @@
+
+    
+  
+    ![picture](http://tp1.sinaimg.cn/1799484684/180/22822907915/1)
+    
+
+    iMinjie
+  
+      i码农
+
+  
+  
+    ![picture](http://jianshu-prd.b0.upaiyun.com/assets/social_icons/48/weibo-e6860361a21f50530184f82f276acab3.png)
+  
+
+
+    
+      
+        #一个简单的分享框架
+        
+          
+            
+              ![picture](http://tp1.sinaimg.cn/1799484684/180/22822907915/1)
+            
+            +iMinjie
+        
+        
+    
+    发表于 
+
+    
+      iOS
+
+    2014-10-29 10:33
+
+    
+
+    阅读量: 71
+  
+
+
+        
+          ###背景
+  分享，是APP中一个基础功能，可以为APP提供传播渠道。APP中分享功能的开发主要有两种形式：
+
+
++集成各个分享平台提供的sdk。
+ 常用的社交软件，如微信、微博，都有各自的开放平台，提供各种语言的sdk。使用sdk，我们可以快速的将分享功能加到应用中。
++使用分享集成框架。
+虽然使用sdk开发已经很快了，但是不同的分享平台有不同的特点，一个一个去集成研究还是要花费一定时间。而分享功能在展现形式和交互流程上又有共通性，所以技术上也存在整合的可行性。因此，市场上出现了如友盟等第三方分享平台，开发者只需要加很少的代码，就能集成几乎所有的分享渠道。
+
+  既然友盟等已经做的这么好了，为什么还要自己做分享框架呢？
+
+  首先，技术上的不可控性。我们依赖友盟，友盟再依赖原生sdk，环节越多，中间的风险就越多。
+其次，展现上的雷同。用友盟等工具的APP基本上是一样的展现形式，如果你做的只是一款大陆货，那没问题；但想做好，雷同就是首先要避免的。
+最后，确实有时间做这个。做这个东西，集成了微信、微博、短信、邮件，总共花了三天。
+
+###实现
+
++
+  准备工作
+因为目前我们要用的分享渠道只有微信朋友圈、微信好友、新浪微博、短信、邮件。所以需要准备的sdk只有微信和新浪，把sdk大概看一遍，跑一下Demo，就可以进行设计了。
+
+
++
+  接口
+分享框架的客户是公司内部的iOS程序员，别人没有义务了解你的sdk究竟是怎么做的。以前用的友盟一行代码就能搞定，所以这个框架也必须要足够简单。因此，我还是参照了友盟的接口，设计了该框架唯一的分享接口。
+
+
+
+  <code>//LCShareSDK.h
++ (void)presentShareMenu:(NSArray*)menu
+        inViewController:(UIViewController*)viewController
+               shareItem:(LCShareItem*)item
+                delegate:(id&lt;LCShareDelegate&gt;)delegate;</code></pre>
+
++实现
+主要是采用了单例模式来开发。虽然能够覆盖现有的使用场景，但不支持多线程，而且设计模式中最鄙视单例模式，这是一种让人懒惰的模式（个人观点）。
+最上层给用户看到只有一个叫LCShareSDK的类，只有一个类方法。中间层分别对新浪微博、微信sdk进行封装，分别提供一个Manager类，也是单例。短信和邮件比较简单，逻辑处理就在LCShareSDK类里面实现。最下层是微信和新浪微博的sdk。
+此外，新浪微博我用的不是最新的sdk，是有代码的。这样我就可以在程序内部进行分享，而且可以自定义授权页面和分享界面，灵活性很好。所以作为框架的一部分，还有授权和分享两个ViewController。
+以下是结构图
+![picture](http://upload-images.jianshu.io/upload_images/16632-f852fef3b1f23475.png?imageView2/2/w/1240/q/100)
+share.png
+
+
+
+<p>新浪微博里面默认的授权页面是弹出式的页面，弹出框还没有网页打，我觉得比较丑，就用自己写的LCShareOauthViewController替换了原有的View（这就是老版本sdk的好处，最新sdk只有静态库了）。
+
+###使用
+  使用非常简单，在ViewController(非必须，但参数中是需要ViewController的)里面如下调用：
+
+  <code>LCShareItem* shareItem = [LCShareItem new];
+shareItem.title = @"XXXX";
+shareItem.desc = @"YYYY";
+shareItem.image = [UIImage imageNamed:SHARE_ICON];
+shareItem.url = @"http://www.qq.com";
+
+[LCShareSDK presentShareMenu:@[@(WXMoments),@(WXFriend),@(Weibo),@(SMS),@(Mail)]
+            inViewController:self
+                   shareItem:shareItem
+                    delegate:self];</code></pre>
+<p>然后就会弹出分享菜单：
+
+![picture](http://upload-images.jianshu.io/upload_images/16632-137ada9d0cca3657.png?imageView2/2/w/1240/q/100)
+share_menu2.png
+
+  如果之前没有授权过，下一步是打开授权页面，如果已安装微博，就会进行SSO授权。
+
+![picture](http://upload-images.jianshu.io/upload_images/16632-e60aaae234179c63.png?imageView2/2/w/1240/q/100)
+share_oauth.png
+
+  最后出现分享界面，点击发送即可分享。
+
+![picture](http://upload-images.jianshu.io/upload_images/16632-9db4f6b115712302.png?imageView2/2/w/1240/q/100)
+share_content2.png
+
+  除了那个分享接口，我们还提供了两个代理方法，用来判断用户点了哪个渠道，哪个渠道的分享结果。当然，这两个方法不是必须要实现的。
+
+  <code>@protocol LCShareDelegate &lt;NSObject&gt;
+
+@optional
+
+//点完了某个分享渠道按钮
+- (void)didSelectShareWithSource:(LCShareSource)source;
+
+//分享结果回调（成功或失败）
+- (void)didFinishShareWithResponse:(LCShareResponse*)response;
+
+@end</code></pre>
+<p>还有在AppDelegate里面要做些初始化工作，比如在程序启动时注册微信：
+
+  <code>[LCShareSDK registerWXApp:kWeiXinAppId];</code></pre>
+<p>从微信或微博返回APP时的处理：
+
+<pre><code>- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{ 
+    return [LCShareSDK handleOpenUrl:url];
+}</code></pre>
+
+        
+           背景 
+ 分享，是APP中一个基础功能，可以为APP提供传播渠道。APP中分享功能的开发主要...
+      
+    
+    
+      
+      
+      
+          
+             推荐拓展阅读
+        
+      
+    
+    
+      
+          
+     喜欢
+
+      
+      
+        +
+                  
+        +
+          ![picture](http://jianshu-prd.b0.upaiyun.com/assets/weixin_share_out-092e0f24fed532b7b2c00423fdd080f8.png)
+        
+      
+    
+  
+
+

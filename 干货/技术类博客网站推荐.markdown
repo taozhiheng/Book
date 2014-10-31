@@ -1,0 +1,237 @@
+
+    
+  
+    ![picture](http://tp4.sinaimg.cn/1751262071/180/5679233224/1)
+    
+
+    Tikitoo
+  
+      Java Coder，互联网爱好者，Android迷。
+博客：http://tikitoo.github.io/blog
+专题《互联网的世界》：
+http://www.jianshu.com/collection/bd97f28042fd
+专题《Android Dev》：
+http://www.jianshu.com/collection/6e31b7354a48
+
+  
+  
+    ![picture](http://jianshu-prd.b0.upaiyun.com/assets/social_icons/48/home-262e288438e1edb07c4cf2e2d0804dfb.png)![picture](http://jianshu-prd.b0.upaiyun.com/assets/social_icons/48/weibo-e6860361a21f50530184f82f276acab3.png)![picture](http://jianshu-prd.b0.upaiyun.com/assets/social_icons/48/douban-093d391615fe9b2bcb5a9aea3752e615.png)![picture](http://jianshu-prd.b0.upaiyun.com/assets/social_icons/48/google_plus-6297e2bef72e74a2b554863b0969da47.png)
+  
+
+
+    
+      
+        #技术类博客网站推荐
+        
+          
+            
+              ![picture](http://tp4.sinaimg.cn/1751262071/180/5679233224/1)
+            
+            +Tikitoo
+        
+        
+    
+    发表于 
+
+    
+      Developer
+
+    2014-10-20 22:47
+
+    
+
+    阅读量: 1070
+  
+
+
+        
+            前几天写的这篇《ＩＴ，科技，互联网博客推荐》，很受大家欢迎，编辑还推荐了，有点受宠若惊，因为上次的文章全是资讯，媒体类网站，当然热爱互联网怎么能不懂技术呢？所以这次就来搜罗搜罗技术类博客网站，也会有技术大牛们的个人网站，不过我还是要声明一下，我是做Java EE 开发的，对Web，Android 也有点兴趣，可能其他像PHP，Ruby，其他语言我了解的知之甚少，所以可能不会满足所有人的口味，还请谅解，不过我推荐尽量大众化，除了介绍专门做技术类的网站（当然，有的网站，几乎各类语言都有），还会有推荐业界大牛们的个人网站。
+
+###首先呢，就是推荐技术类网站
+#### 
+  这类网站主要有很么特点呢？做技术的写技术博客，首选就是这些网站，而且搜索引擎
+收录的技术博客大都是出自这些网站，而且质量很高，当然，你也可以注册之后，自己写博客；
+
+
+>
+##CSDN
+  <code>全球最大中文IT社区，为IT专业技术人员提供最全面的信息传播和服务平台</code></pre>
+
+##51CTO
+<pre><code>51CTO.COM - 技术成就梦想 - 中国领先的IT技术网站</code></pre>
+##itEye
+<pre><code>Java编程 Spring框架 Ajax技术 agile敏捷软件开发 ruby on rails实践 - 做最棒的软件开发交流社区</code></pre>
+
+##cnBlogs
+<pre><code>博客园是面向程序员的知识学习与分享社区</code></pre>
+
+##BlogJava
+<pre><code>专注于Java技术</code></pre>
+
+##BlogRead
+<pre><code>收录IT领域的优秀技术博客，在这里你可以找到Web开发、系统架构、数据库、前端技术、用户体验等领域的前沿文章</code></pre>
+
+##ChinaUnix
+<pre><code>专业IT技术博客</code></pre>
+
+##Github
+<pre><code> Build software better, together.</code></pre>
+
+##OSCHINA（oschina）
+<pre><code>找到您想要的开源项目，分享和交流</code></pre>
+
+##ITPUB(itpub)
+<pre><code>专业IT技术博客</code></pre>
+<p>
+
+
+
+###精华网站：
+  这类网站呢，质量大都比较高，都是专业人士翻译或者亲自写的文章，看着很受启发；
+
+
+##
+伯乐在线   
+  <code>投递和发现优秀原创的最佳聚合站点之一</code></pre>
+
+##
+ImportNew   
+<pre><code>专注Java &amp; Android 技术分享</code></pre>
+
+##Segmentfault
+<pre><code>  年轻开发者社区；最前沿的技术问答，最纯粹的技术切磋。</code></pre>
+
+## InfoQ
+
+<pre><code>InfoQ - 促进软件开发领域知识与创新的传播</code></pre>
+
+##V2EX
+<pre><code> V2EX 是创意工作者们的社区。这里目前汇聚了超过 75000 名主要来自互联网行业、游戏行业和媒体行业的创意工作</code></pre>
+
+<p>
+
+
+###互联网网站团队博客：
+>
+   腾讯全端 AlloyTeam 团队 Blog
+ <code>Tencent</code>  <code>前端</code>
+
+
+  奇虎360技术博客
+ <code>技术</code>
+
+
+   美团技术团队
+   <code>Android</code>
+
+
+   UC技术博客
+<code>Web</code>
+
+
+  Tecent CDC
+ <code>设计</code>
+
+
+  
+
+
+###业界大牛的个人博客推荐：
+
+  注意：个人的博客由于每个人的关注的方面
+
+>
+  阮一峰的网络日志
+
+  酷 壳
+
+  Java 译站
+
+  周良的博客
+
+  IT 宅
+
+  MacTalk-池建强的随想录
+
+  何登成的技术博客
+
+  钟超"s Blogs
+
+  刘未鹏 | MIND HACKS
+
+  四火的唠叨
+
+  云风的 BLOG
+
+  Fenng
+
+  破船之家
+
+  老赵点滴 - 追求编程之美
+
+  何登成的技术博客
+
+  BlueDavy之技术Blog
+
+  并发编程网
+
+  Tim's blog
+
+
+###本文参考来自，更多详细请参考：
+
+>
+  优秀程序员的博客有哪些？
+
+
+  程序员博客墙
+
+
+  OutOfMemory —— 牛人技术博客
+
+
+  四火的唠叨 —— 个人博客推荐
+
+
+  Mind Hacks —— 价值博客们
+
+
+  
+
+
+<pre><code>本文作者：Tikitoo
+
+地址：http://www.jianshu.com/p/ca676b17603e
+
+转帖请``注明作者``和``出处``。</code></pre>
+
+        
+           前几天写的这篇《 ＩＴ，科技，互联网博客推荐 》，很受大家欢迎，编辑还推荐了，有点受宠若惊，...
+      
+    
+    
+      
+      
+      
+          
+             推荐拓展阅读
+        
+      
+    
+    
+      
+          
+     喜欢
+
+      
+      
+        +
+                  
+        +
+          ![picture](http://jianshu-prd.b0.upaiyun.com/assets/weixin_share_out-092e0f24fed532b7b2c00423fdd080f8.png)
+        
+      
+    
+  
+
+

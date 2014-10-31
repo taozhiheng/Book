@@ -1,0 +1,158 @@
+
+    
+  
+    ![picture](http://upload.jianshu.io/users/upload_avatars/62181/c837b3549c8e.jpg?imageMogr/thumbnail/90x90/quality/100)
+    
+
+    行空
+  
+      没事瞎写写而已！欢迎访问www.5icatdog.com   www.laizpy.com  www.ecpingtai.com
+
+  
+  
+    ![picture](http://jianshu-prd.b0.upaiyun.com/assets/social_icons/48/home-262e288438e1edb07c4cf2e2d0804dfb.png)![picture](http://jianshu-prd.b0.upaiyun.com/assets/social_icons/48/weibo-e6860361a21f50530184f82f276acab3.png)![picture](http://jianshu-prd.b0.upaiyun.com/assets/social_icons/48/douban-093d391615fe9b2bcb5a9aea3752e615.png)
+  
+    
+      ![picture](http://upload.jianshu.io/users/qrcodes/62181/qrcode_for_gh_dbd9c385627f_430_(1).jpg?imageMogr/thumbnail/318x318/quality/100)
+    
+
+
+    
+      
+        #其实好多人根本不会用百度搜索
+        
+          
+            
+              ![picture](http://upload.jianshu.io/users/upload_avatars/62181/c837b3549c8e.jpg?imageMogr/thumbnail/90x90/quality/100)
+            
+            +行空
+        
+        
+    
+    发表于 
+
+    
+      科技数码
+
+    2014-10-24 17:02
+
+    
+
+    阅读量: 5280
+  
+
+
+        
+          #前言  首先跟大家澄清一下，我不是什么技术宅，就是一很普通办公室小文员，平时因为经常要在网上找文章，搜资料，整理文档。所以根据自己的经验写这篇搜索技巧以便大家能够在百度上更快的找到自己想要的资料。其实写这个文章完全是被身边的朋友在百度上搜索内容的方式打败了，所以才想写出来让那些跟我一样经常使用搜索引擎的人更加方便的找到自己需要的资料。
+  另外如果您是一个资深SEO人士，或者懂SEO的就不要看了吧，还真不想在您面前献丑，那样我会觉得我自己特别low！
+#正文  搜索引擎可以帮助使用者在Internet上找到特定的信息，但它们同时也会返回大量无关的信息。但是如果多使用一些技巧，你将发现搜索引擎会花尽可能少的时间找到你需要的确切信息。
+
+####1.简单查询  这个就是最简单便捷的使用方式，其实也是我们大多数人平时使用百度或者其他搜索引擎的方式。比如你想查培训学校，那么你的第一反应肯定就是在百度里输入【挖掘机】【挖掘机学校】【蓝翔】等词汇，所以能大家都懂的我就不多说了。而越是简单的使用方式可能就越是不好用的，这个方法搜索时系统很快会返回查询结果，这是最简单的查询方法，使用方便，但是查询的结果却不准确，可能包含着许多无用的信息。（貌似应该很多人都是有同感吧？）
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-1b222c04d3d3244a.jpg?imageView2/2/w/1240/q/100)
+百度截图001
+  如截图中显示挖掘机这个词的搜索结果，大家看到了用椭圆标记的地方，100,000,000个结果是一个特别大的数据量，从这里找到自己想要的结果真心是不宜。另外因为百度本身有那些收费的搜索推广，所以基本第一页里上下都充斥着广告，很难在最短的时间找到自己想要的资料和网页。
+####2.英文半角双引号  平时我们搜索一个关键词时，百度经常会给我们反馈一些明明跟你要搜索的词完全不一样结果，或许只是读音相近的搜索结果，那么怎样避免这样的问题呢？答案是""用它就解决啦！双引号可以实现精确的查询，这种方法要求查询结果要精确匹配，不包括演变形式。给大家上个图就明白了，就如同那句话说的一样，没图你说个JB！
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-cd01699efa63d703.jpg?imageView2/2/w/1240/q/100)
+百度截图002
+  我在百度上搜索了一下自己的名字【乌云龙】，结果你们也看见了，出来的结果完全不搭界，而且居然有2,390,000个结果，坑爹呢这是。
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-56e3dce6fb05c5dc.jpg?imageView2/2/w/1240/q/100)
+百度截图003
+  看到了吧？加了双引号之后，果然与我想要的结果更加接近了一些，第三条就是我的人人小站了，哈哈哈！另外搜索结果也从2,390,000个缩减到了9,510个，范围已经大大的缩小了。
+####3.通配符的使用（这个可能不太适合百度搜索）  什么叫通配符？举个例子，有一组数字比如1234，但是你忘记了第三位是什么了12x4，但是又要搜索这个关键词那怎么办？好办，使用通配符可以轻松解决这个问题。接下来我们就来说说通配符在搜索引擎中的使用方式，关于通配符我们普通人用到机会不会很多，一般搞科研的和经常使用英文的才会用到。谷歌搜索中反正我只知道这两个通配符&lt;*&gt;&lt;?&gt;，*号不限制字符匹配数量，?号正好与其相反限制字符匹配数量。
+>
+  举例：
+
+  输入“computer*”，就可以找到“computer、computers、computerised、computerized”等单词，
+
+  而输入“comp?ter”，则只能找到“computer、compater、competer”等单词。
+
+####4.使用圆括号  我们经常在搜索关键词时遇到这样的问题，比如我想搜【学挖掘机】这个关键词，但是从字面意义上看的话，【学】和【挖掘机】也可以被拆分为两个独立的词，这样的话百度搜索里就会出现一堆堆的乱七八糟的结果，只要是跟【学】【挖掘机】甚至包含【机】沾边的网页可能都给你呈现出来，这样的话岂不是太没效率？所以在它的外面括一个圆括号再搜索百度就会默认它是一个词来给你搜索结果。
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-d714744137aca1da.jpg?imageView2/2/w/1240/q/100)
+百度截图004
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-366c6b324f011332.jpg?imageView2/2/w/1240/q/100)
+百度截图005
+  看，有圆括号的搜索方式，明显搜索结果的数量变少尽量的把范围缩小了。
+####5.加号（+）减号（-）  在想要搜索的关键词前使用加号，也就等于告诉搜索引擎你搜索的这个词必须出现在搜索结果的网页中，如果只是网页标题中含这个关键词的就不出现，比方说，在百度搜索引擎中输入“+京东+采销+电话”就表示要查找的网页内容中必须要同时包含“京东、采销、电话”这三个关键词。看下面的图，很容易的就找到了你想要的结果了。
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-34c0c6140e524a60.jpg?imageView2/2/w/1240/q/100)
+百度截图006
+  在想要搜索的关键词前使用减号，实质是与上面有些相反的意思，则在搜索结果中不能出现前面带减号的关键词，举例，在百度搜索中输入“苹果手机 -(iPhone6)”，它就表示最后的查询结果中一定不包含“iPhone6”这个关键词。
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-97bc3af7d9f61266.jpg?imageView2/2/w/1240/q/100)
+百度截图007
+####6.搜索范围限定在网页标题中  什么是网页标题？网页的标题就是在打开网站的时候IE或者别的浏览器上面显示的文字，一般不超过80个字符。既然这样的话，其实网页标题中所包含的关键词有可能是不出现在网页中的，所以针对这种问题，你只想搜索网页标题里面的关键词，那么就需要用到【intitle:标题】这个语法了。
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-011094ec91214fba.jpg?imageView2/2/w/1240/q/100)
+百度截图008
+  这样的方式搜索出来的结果中打开第一条之后，我们看一下它在浏览器中显示的标题吧！
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-6b86415ea911983e.jpg?imageView2/2/w/1240/q/100)
+百度截图009
+  看到了吧！就是它的浏览器标题中一定含有这个关键词的，那么关于网页标题里的文字其实在网页里有时候是不存在的，那我们要怎么查看呢？别着急，在网页上单击右键选择 查看源文件 一个代码页就出来了，里面的&lt;title&gt;&lt;/title&gt;标签就是网页标题。
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-f106dedc1855b950.jpg?imageView2/2/w/1240/q/100)
+页面截图010
+####7.限定网站搜索方式  这个功能目前是我用的最多的一个功能，因为我自己也弄了几个个人网站，所以每天就看看自己网站在百度中的收录情况等等，所以就会用到这个技巧。能够大大的提高搜索效率。
+  语法结构如下：site:www.laizpy.com 呼和浩特
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-2a63f10bbfaa5204.jpg?imageView2/2/w/1240/q/100)
+百度截图011
+  这个网站中，包含【呼和浩特】这个关键词的网页就全出来啦！在这里顺便做个广告吧！
+  www.laizpy.com来找聘用信息网（专门发布内蒙古体制内单位招聘信息的网站，有需要的亲们自己去看吧）
+  www.ecpingtai.com电商平台网（电子商务相关涨姿势的网站）
+  www.5icatdog.com我爱猫狗网（一个关于宠物的网站）
+####8.限定链接url搜索  这个其实跟上上面的感觉差不多似的，但是还是有区别的。我先说下语法结构，一会在说区别。
+  语法结构：inurl:laizpy 呼和浩特
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-f0d5087af7562c97.jpg?imageView2/2/w/1240/q/100)
+百度截图012
+  与site的区别用一张图就能说明白了，骚年们看图：
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-e6fba415b3bf1887.jpg?imageView2/2/w/1240/q/100)
+百度截图013
+  截图中的四个网页URL中都包含了laizpy但是他们是不同的网站啦！就这个区别。
+####9.最后一个，专业文档搜索  这个技巧强烈推荐学生党们看看！以后你们写论文的时候，就可以酱婶儿找资料啦！
+  语法结构：filetype:doc 生物
+
+![picture](http://upload-images.jianshu.io/upload_images/62181-a32a201467e01a29.jpg?imageView2/2/w/1240/q/100)
+百度截图014
+  明白了吧？就是搜索结果中，都是word且包含了【生物】这个关键词！
+  
+
+  好了，我也就知道这些了，大家自己看看有用就用吧，如果你觉得这很小儿科，那也请你高抬贵手不要喷我就好，谢谢大家的阅读！
+
+        
+           前言  首先跟大家澄清一下，我不是什么技术宅，就是一很普通办公室小文员，平时因为经常要在网上...
+      
+    
+    
+      
+      
+      
+          
+             推荐拓展阅读
+        
+      
+    
+    
+      
+          
+     喜欢
+
+      
+      
+        +
+                  
+        +
+          ![picture](http://jianshu-prd.b0.upaiyun.com/assets/weixin_share_out-092e0f24fed532b7b2c00423fdd080f8.png)
+        
+      
+    
+  
+
+

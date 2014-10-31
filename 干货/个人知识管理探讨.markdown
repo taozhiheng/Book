@@ -1,0 +1,185 @@
+
+    
+  
+    ![picture](http://img3.douban.com/icon/u1007826-32.jpg)
+    
+
+    老杜还在
+  
+      微信公众号 “老杜工作坊”，关注个人成长和简化生活。
+
+  
+  
+    ![picture](http://jianshu-prd.b0.upaiyun.com/assets/social_icons/48/douban-093d391615fe9b2bcb5a9aea3752e615.png)![picture](http://jianshu-prd.b0.upaiyun.com/assets/social_icons/48/weibo-e6860361a21f50530184f82f276acab3.png)![picture](http://jianshu-prd.b0.upaiyun.com/assets/social_icons/48/google_plus-6297e2bef72e74a2b554863b0969da47.png)
+  
+    
+      ![picture](http://upload.jianshu.io/users/qrcodes/28167/qrcode_for_gh_2b9cfebc1ad2_258.jpg?imageMogr/thumbnail/318x318/quality/100)
+    
+
+
+    
+      
+        #个人知识管理探讨
+        
+          
+            
+              ![picture](http://img3.douban.com/icon/u1007826-32.jpg)
+            
+            +老杜还在
+        
+        
+    
+    发表于 
+
+    
+      个人管理
+
+    2014-10-22 11:08
+
+    
+
+    阅读量: 70
+  
+
+
+        
+          ###一：理论和概念
+####个人知识管理的概念
+  我的理解，个人知识管理（Personal Knowledge Management）指个人讲各类信息收集、整理、利用和输出的过程，目的是形成知识框架、强化知识积累，实现个人提升的目的。
+
+####为什么要进行个人知识管理？
+  在信息爆炸的时代，个人应该拥有自己的一套行之有效的工作流。
+
+####两个方向
+  个人知识管理，可以分成理念流程和实际操作两个方向。我总结的几个理念如下：
+
+
++挑选和限制信息输入源
++选取合适的工具
++定期整理和回顾
++多种输出方式
++工作流不断改进
+
+###二：流程
+  简图如下：
+
+![picture](http://ww2.sinaimg.cn/bmiddle/70e103c9tw1eljradz2amj20mc0ic3zs.jpg)
+个人知识管理简图
+
+###三：工具和方法
+####3.1 收集整理
+<h5>3.1.1 日程安排</h5>
+
++A6笔记本。因为事务比较少，所以直接在笔记本开辟一页（第一页）手写list，月历一页写上稍长的日程。
++每天timeline，记录一页。
++谷歌日历。用于生日、纪念日等重复性日期，短信和邮件提醒。
++随后记录放到笔记本最后页。
+
+<h5>3.1.2 思维导图</h5>
+
++用于阅读、思考的图形化整理，手绘和XMind，以及在线工具ProcessOn。
+
+<h5>3.1.3  Evernote/Evermemo</h5>
+
++手机端随手记，用Evermemo，包括记账
++微信、微博、Chrome、多看都保存到印象笔记。
++印象笔记主要的分类包括：inbox、个人、项目、学习、资料库。
++整理过的内容加标签。
++定期整理和备份。
+
+<h5>Chrome浏览器</h5>
+
++优势：简洁高效、书签同步、扩展。
++收藏夹：建立@Todo目录，便于整理待办事项。可以把最常用的网址保存为单个图标。如下图：
+![picture](http://ww1.sinaimg.cn/bmiddle/70e103c9tw1eljox3vel2j20m60fdq4j.jpg)
+chrome
+
+
++扩展：印象笔记阅读、adblock、Proxy SwitchySharp、Save to Pocket。
++网站：豆瓣、知乎、简书
+
+<h5>RSS</h5>
+
++有道阅读，简陋够用，我的订阅分享。
+
+<h5>网盘存储</h5>
+
++百度云：分享方便易用。搜索资源入口。
+
+<h5>手机端</h5>
+
++Pocket，阅读后清理，IFTTT推送到Evernote。
++微信：订阅号有好文章也有垃圾。
++浏览器：基本不用。
++参考旧文《极简主义的安卓老爷机》
+
+
+<h5>阅读</h5>
+
++kindle负责mobi，平板负责漫画、PDF。
++结合豆瓣想读，在省图借书。
++笔记直接进Evernote。
+
+####3.2 输出
+<h5>简书</h5>
+
++优势：支持Mrakdown
++每月小结
++阅读、翻译
+
+<h5>豆瓣</h5>
+
++记录书影音，简评、书评。
++找书找资源。
+
+<h5>微信公众号</h5>
+
++准备停用。
+
+###四：相关问题
+
++关于笔记：辅助记录和整理，但记忆的过程需要自己处理，单向的堆积是无用的。看到好文章可以先保存到一个笔记本，过一段时间再读一遍，可以吸收的部分就记录下来，这样多半会直接删掉。
++关于移动端：浪费时间的黑洞。
+
+>  文章版本：20141022初版
+
+
+  参考文章：
+
+
++个人知识管理的方法
++萧秋水：我的个人知识管理工具套餐
+
+
+        
+           一：理论和概念 
+ 个人知识管理的概念 
+ 我的理解，个人知识管理（Personal Kno...
+      
+    
+    
+      
+      
+      
+          
+             推荐拓展阅读
+        
+      
+    
+    
+      
+          
+     喜欢
+
+      
+      
+        +
+                  
+        +
+          ![picture](http://jianshu-prd.b0.upaiyun.com/assets/weixin_share_out-092e0f24fed532b7b2c00423fdd080f8.png)
+        
+      
+    
+  
+
+
