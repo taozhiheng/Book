@@ -16,12 +16,14 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:scrollbars="none"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        >
     <TextView
+        android:selectAllOnFocus="true"
         android:id="@+id/display"
         android:layout_width="fill_parent"
         android:layout_height="80dp"
-        android:textSize="50dp"
+        android:textSize="40dp"
         android:textColor="@android:color/black"
         android:gravity="right|center_vertical"
         android:ellipsize="marquee"
@@ -44,7 +46,7 @@
             android:textSize="50dp"
             android:text=".."
             android:layout_margin="5dp"
-            android:background="#ddddff"
+            android:background="@drawable/gray"
             />
         <Button
             android:id="@+id/btn_clear"
@@ -54,7 +56,7 @@
             android:textSize="50dp"
             android:text="C"
             android:layout_margin="5dp"
-            android:background="#ff0000"
+            android:background="@drawable/red"
             />
         <Button
             android:id="@+id/btn_delete"
@@ -64,7 +66,7 @@
             android:textSize="50dp"
             android:text="D"
             android:layout_margin="5dp"
-            android:background="#ff0000"
+            android:background="@drawable/red"
            />
     </LinearLayout>
 
@@ -89,7 +91,7 @@
                 android:layout_height="match_parent"
                 android:text="7"
                 android:layout_margin="5dp"
-                android:background="#ffffff"/>
+                android:background="@drawable/white"/>
             <Button
                 android:id="@+id/btn_8"
                 android:layout_weight="1"
@@ -97,7 +99,7 @@
                 android:layout_height="match_parent"
                 android:text="8"
                 android:layout_margin="5dp"
-                android:background="#ffffff"/>
+                android:background="@drawable/white"/>
             <Button
                 android:id="@+id/btn_9"
                 android:layout_weight="1"
@@ -105,7 +107,7 @@
                 android:layout_height="match_parent"
                 android:text="9"
                 android:layout_margin="5dp"
-                android:background="#ffffff"/>
+                android:background="@drawable/white"/>
             <Button
                 android:id="@+id/btn_div"
                 android:layout_weight="1"
@@ -113,7 +115,7 @@
                 android:layout_height="match_parent"
                 android:text="/"
                 android:layout_margin="5dp"
-                android:background="#ddddff"
+                android:background="@drawable/gray"
                 />
         </TableRow>
 
@@ -129,7 +131,7 @@
                 android:layout_height="match_parent"
                 android:text="4"
                 android:layout_margin="5dp"
-                android:background="#ffffff"/>
+                android:background="@drawable/white"/>
             <Button
                 android:id="@+id/btn_5"
                 android:layout_weight="1"
@@ -137,7 +139,7 @@
                 android:layout_height="match_parent"
                 android:text="5"
                 android:layout_margin="5dp"
-                android:background="#ffffff"/>
+                android:background="@drawable/white"/>
             <Button
                 android:id="@+id/btn_6"
                 android:layout_weight="1"
@@ -145,7 +147,7 @@
                 android:layout_height="match_parent"
                 android:text="6"
                 android:layout_margin="5dp"
-                android:background="#ffffff"/>
+                android:background="@drawable/white"/>
             <Button
                 android:id="@+id/btn_mul"
                 android:layout_weight="1"
@@ -153,7 +155,7 @@
                 android:layout_height="match_parent"
                 android:text="*"
                 android:layout_margin="5dp"
-                android:background="#ddddff"
+                android:background="@drawable/gray"
                 />
         </TableRow>
 
@@ -169,7 +171,7 @@
                 android:layout_height="match_parent"
                 android:text="1"
                 android:layout_margin="5dp"
-                android:background="#ffffff"/>
+                android:background="@drawable/white"/>
             <Button
                 android:id="@+id/btn_2"
                 android:layout_weight="1"
@@ -177,7 +179,7 @@
                 android:layout_height="match_parent"
                 android:text="2"
                 android:layout_margin="5dp"
-                android:background="#ffffff"/>
+                android:background="@drawable/white"/>
             <Button
                 android:id="@+id/btn_3"
                 android:layout_weight="1"
@@ -185,7 +187,7 @@
                 android:layout_height="match_parent"
                 android:text="3"
                 android:layout_margin="5dp"
-                android:background="#ffffff"/>
+                android:background="@drawable/white"/>
             <Button
                 android:id="@+id/btn_red"
                 android:layout_weight="1"
@@ -193,7 +195,7 @@
                 android:layout_height="match_parent"
                 android:text="-"
                 android:layout_margin="5dp"
-                android:background="#ddddff"
+                android:background="@drawable/gray"
                 />
             </TableRow>
 
@@ -209,22 +211,23 @@
                 android:layout_height="match_parent"
                 android:text="."
                 android:layout_margin="5dp"
-                android:background="#ffffff"/>
+                android:background="@drawable/white"/>
 
             <Button
+
                 android:id="@+id/btn_0"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:text="0"
                 android:layout_margin="5dp"
-                android:background="#ffffff"/>
+                android:background="@drawable/white"/>
             <Button
                 android:id="@+id/btn_equ"
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:text="="
                 android:layout_margin="5dp"
-                android:background="#ffff00"
+                android:background="@drawable/yellow"
                 />
             <Button
                 android:id="@+id/btn_add"
@@ -232,7 +235,7 @@
                 android:layout_height="match_parent"
                 android:text="+"
                 android:layout_margin="5dp"
-                android:background="#ddddff"
+                android:background="@drawable/gray"
                 />
             </TableRow>
 
@@ -245,7 +248,7 @@
         android:layout_below="@+id/linearLayout"
         android:layout_centerHorizontal="true"
         android:orientation="vertical"
-        android:visibility="invisible"
+        android:visibility="gone"
         >
 
         <TableRow
@@ -260,7 +263,7 @@
                 android:layout_height="fill_parent"
                 android:text="sin"
                 android:textColor="#ffffff"
-                android:background="#808080"
+                android:background="@drawable/dark"
                 android:layout_margin="6dp"/>
             <Button
                 android:id="@+id/btn_cos"
@@ -269,7 +272,7 @@
                 android:layout_height="fill_parent"
                 android:text="cos"
                 android:textColor="#ffffff"
-                android:background="#808080"
+                android:background="@drawable/dark"
                 android:layout_margin="6dp"/>
             <Button
                 android:id="@+id/btn_tan"
@@ -278,7 +281,16 @@
                 android:layout_height="fill_parent"
                 android:text="tan"
                 android:textColor="#ffffff"
-                android:background="#808080"
+                android:background="@drawable/dark"
+                android:layout_margin="6dp"/>
+            <Button
+                android:id="@+id/btn_MC"
+                android:layout_weight="1"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="MC"
+                android:textColor="#ffffff"
+                android:background="@drawable/dark"
                 android:layout_margin="6dp"/>
 
         </TableRow>
@@ -295,7 +307,7 @@
                 android:layout_height="fill_parent"
                 android:text="ln"
                 android:textColor="#ffffff"
-                android:background="#808080"
+                android:background="@drawable/dark"
                 android:layout_margin="6dp"/>
             <Button
                 android:id="@+id/btn_exp"
@@ -304,7 +316,7 @@
                 android:layout_height="fill_parent"
                 android:text="exp"
                 android:textColor="#ffffff"
-                android:background="#808080"
+                android:background="@drawable/dark"
                 android:layout_margin="6dp"/>
             <Button
                 android:id="@+id/btn_j"
@@ -313,7 +325,16 @@
                 android:layout_height="fill_parent"
                 android:text="!"
                 android:textColor="#ffffff"
-                android:background="#808080"
+                android:background="@drawable/dark"
+                android:layout_margin="6dp"/>
+            <Button
+                android:id="@+id/btn_MA"
+                android:layout_weight="1"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="M+"
+                android:textColor="#ffffff"
+                android:background="@drawable/dark"
                 android:layout_margin="6dp"/>
 
         </TableRow>
@@ -330,7 +351,7 @@
                 android:layout_height="fill_parent"
                 android:text="π"
                 android:textColor="#ffffff"
-                android:background="#808080"
+                android:background="@drawable/dark"
                 android:layout_margin="6dp"/>
             <Button
                 android:id="@+id/btn_E"
@@ -339,7 +360,7 @@
                 android:layout_height="fill_parent"
                 android:text="E"
                 android:textColor="#ffffff"
-                android:background="#808080"
+                android:background="@drawable/dark"
                 android:layout_margin="6dp"/>
             <Button
                 android:id="@+id/btn_m"
@@ -348,7 +369,16 @@
                 android:layout_height="fill_parent"
                 android:text="^"
                 android:textColor="#ffffff"
-                android:background="#808080"
+                android:background="@drawable/dark"
+                android:layout_margin="6dp"/>
+            <Button
+                android:id="@+id/btn_M"
+                android:layout_weight="1"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="M"
+                android:textColor="#ffffff"
+                android:background="@drawable/dark"
                 android:layout_margin="6dp"/>
 
         </TableRow>
@@ -365,7 +395,7 @@
                 android:layout_height="fill_parent"
                 android:text="("
                 android:textColor="#ffffff"
-                android:background="#808080"
+                android:background="@drawable/dark"
                 android:layout_margin="6dp"/>
             <Button
                 android:id="@+id/btn_right"
@@ -374,7 +404,7 @@
                 android:layout_height="fill_parent"
                 android:text=")"
                 android:textColor="#ffffff"
-                android:background="#808080"
+                android:background="@drawable/dark"
                 android:layout_margin="6dp"/>
             <Button
                 android:id="@+id/btn_sqr"
@@ -383,9 +413,18 @@
                 android:layout_height="fill_parent"
                 android:text="√"
                 android:textColor="#ffffff"
-                android:background="#808080"
+                android:background="@drawable/dark"
                 android:layout_margin="6dp"
                 />
+            <Button
+                android:id="@+id/btn_ANS"
+                android:layout_weight="1"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:text="ANS"
+                android:textColor="#ffffff"
+                android:background="@drawable/dark"
+                android:layout_margin="6dp"/>
 
         </TableRow>
 

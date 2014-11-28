@@ -2,6 +2,7 @@ package com.example.taozhiheng.application19;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import java.math.BigDecimal;
 import java.util.Stack;
 import java.util.zip.Inflater;
 
@@ -52,24 +54,33 @@ public class MainActivity extends Activity implements View.OnClickListener{
     private Button btn_tan;
 
     private Button btn_ln;
-    private Button btn_E;
+    private Button btn_E;      //10的次方
     private Button btn_j;
 
-    private Button btn_pi;
-    private Button btn_exp;
-    private Button btn_m;
+    private Button btn_pi;     //圆周率
+    private Button btn_exp;    //e的次方
+    private Button btn_m;      //乘幂
 
     private Button btn_left;
     private Button btn_right;
     private Button btn_sqr;
 
-    private TableLayout firstView;
-    private TableLayout secondView;
+    private Button btn_MC;
+    private Button btn_MA;
+    private Button btn_M;
+    private Button btn_ANS;
+
+    private TableLayout firstView;  //第一个按键视图
+    private TableLayout secondView; //第二个按键视图
+
+    private SharedPreferences pref; //记录键值对
+    private double ANS=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        pref=getSharedPreferences("pref",MODE_PRIVATE);
         firstView=(TableLayout)findViewById(R.id.board1);
         secondView=(TableLayout)findViewById(R.id.board2);
         display=(TextView)findViewById(R.id.display);
@@ -138,7 +149,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
         btn_right.setOnClickListener(this);
         btn_sqr=(Button)findViewById(R.id.btn_sqr);
         btn_sqr.setOnClickListener(this);
-
+        btn_MC=(Button)findViewById(R.id.btn_MC);
+        btn_MC.setOnClickListener(this);
+        btn_MA=(Button)findViewById(R.id.btn_MA);
+        btn_MA.setOnClickListener(this);
+        btn_M=(Button)findViewById(R.id.btn_M);
+        btn_M.setOnClickListener(this);
+        btn_ANS=(Button)findViewById(R.id.btn_ANS);
+        btn_ANS.setOnClickListener(this);
         display.setText("0");
     }
 
@@ -187,7 +205,19 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 {
                     if(show.length()>1)
                     {
-                        show.deleteCharAt(show.length()-1);
+                        if((show.charAt(show.length()-1)=='S'||show.charAt(show.length()-1)=='s'||show.charAt(show.length()-1)=='n')
+                                &&show.charAt(show.length()-2)!='l')
+                        {
+                            show.delete(show.length()-3,show.length());
+                        }
+                        else if(show.charAt(show.length()-2)=='l')
+                        {
+                            show.delete(show.length()-2,show.length());
+                        }
+                        else
+                        {
+                            show.deleteCharAt(show.length()-1);
+                        }
                     }
                     else
                     {
@@ -197,8 +227,15 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 break;
            //小数点键
             case R.id.btn_dot:
+                if(!flag)
+                {
+                    show.setLength(0);
+                    show.append("0");
+                }
                 if(show.charAt(show.length()-1)=='+'||show.charAt(show.length()-1)=='-'
-                        ||show.charAt(show.length()-1)=='*'||show.charAt(show.length()-1)=='/'||show.charAt(show.length()-1)=='(')
+                        ||show.charAt(show.length()-1)=='*'||show.charAt(show.length()-1)=='/'
+                        ||show.charAt(show.length()-1)=='('||show.charAt(show.length()-1)=='^'
+                        ||show.charAt(show.length()-1)=='E')
                 {
                     show.append("0.");
                 }
@@ -219,12 +256,13 @@ public class MainActivity extends Activity implements View.OnClickListener{
             case R.id.btn_equ:
                 try
                 {
-                    show.replace(0,show.length(),calculate(show.toString()));
+                    show.replace(0,show.length(),cal(show.toString()));
                 }catch(Exception e)
                 {
                     show.setLength(0);
                     show.append("出错");
                 }
+                flag=false;
                 break;
             //部分函数键sin cos tan ln log
             case R.id.btn_sin:
@@ -286,7 +324,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     show.append("0");
                 }
                 if(show.charAt(show.length()-1)=='+'||show.charAt(show.length()-1)=='-'
-                        ||show.charAt(show.length()-1)=='*'||show.charAt(show.length()-1)=='/'||show.charAt(show.length()-1)=='(')
+                        ||show.charAt(show.length()-1)=='*'||show.charAt(show.length()-1)=='/'
+                        ||show.charAt(show.length()-1)=='('||show.charAt(show.length()-1)=='^'
+                        ||show.charAt(show.length()-1)=='E')
                 {
                     show.append("(");
                 }
@@ -311,237 +351,198 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 if(left>right)
                     show.append(")");
                 break;
+            case R.id.btn_MC:
+                SharedPreferences.Editor editor=pref.edit();
+                editor.putString("M","0");
+                editor.commit();
+                break;
+            case R.id.btn_MA:
+                btn_equ.performClick();
+                SharedPreferences.Editor editor2=pref.edit();
+                editor2.putString("M",String.valueOf(Double.parseDouble(pref.getString("M","0"))+ANS));
+                editor2.commit();
+                break;
+            case R.id.btn_M:
+                appendNumber("M");
+                break;
+            case R.id.btn_ANS:
+                appendNumber("ANS");
+                break;
         }
-        if(v.getId()!=R.id.btn_equ&&v.getId()!=R.id.btn_delete&&v.getId()!=R.id.btn_more)
+        if(v.getId()!=R.id.btn_equ&&v.getId()!=R.id.btn_delete&&v.getId()!=R.id.btn_more&&v.getId()!=R.id.btn_dot)
             flag=true;
         display.setText(show);
     }
 
-    //由输入字符串求值
-    protected String calculate(String str)
+
+    //０～９键处理
+    private void appendNumber(String str)
     {
+        //若为结果，先重置为初始状态
+       if(!flag)
+       {
+           show.setLength(0);
+           show.append("0");
+       }
+        //若为初始状态，替换掉０
+       if(show.toString().equals("0"))
+       {
+           show.replace(0,1,str);
+       }
+       //若前一个为０，再前一个为+ - * /,替换掉０
+       else if(show.length()>1&&show.charAt(show.length()-1)=='0'&&(show.charAt(show.length()-2)=='+'||
+          show.charAt(show.length()-2)=='-'||show.charAt(show.length()-2)=='*'||show.charAt(show.length()-2)=='/'))
+       {
+           show.deleteCharAt(show.length()-1);
+           show.append(str);
+       }
+       else
+       {
+        show.append(str);
+       }
+    }
+    //+ - * /处理
+    private void appendChar(String str)
+    {
+        //若为结果，用ANS替换掉上一次结果
+        if(!flag)
+        {
+            show.replace(0,show.length(),"ANS");
+        }
+        //若前一个符号为+ - * /,替换掉前一个符号
+        if(show.charAt(show.length()-1)=='+'||show.charAt(show.length()-1)=='-'
+                ||show.charAt(show.length()-1)=='*'||show.charAt(show.length()-1)=='/')
+        {
+            show.deleteCharAt(show.length()-1);
+            show.append(str);
+        }
+        //若前一个为. ,在最后追加一个０
+        else if(show.charAt(show.length()-1)=='.')
+        {
+            show.append("0"+str);
+        }
+        else
+        {
+            show.append(str);
+        }
+    }
+
+    private void changeView()
+    {
+        //切换显示键盘
+        if(firstView.getVisibility()==View.VISIBLE)
+        {
+            firstView.setVisibility(View.GONE);
+            secondView.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            firstView.setVisibility(View.VISIBLE);
+            secondView.setVisibility(View.GONE);
+        }
+
+    }
+
+    //逆波兰解析计算
+    private String cal(String str)
+    {
+        //处理M,ANS
+        str=str.replace("M",pref.getString("M","0"));
+        str=str.replace("ANS",String.valueOf(ANS));
+        //处理正负号
+        if(str.charAt(0)=='+'||str.charAt(0)=='-')
+            str='0'+str;
         str=str.replace("(-","(0-");
         str=str.replace("(+","(0+");
-        if(str.charAt(0)=='-')
-        {
-            str="0"+str;
-        }
-        //处理PI
+        //处理π
         str=str.replace("π",String.valueOf(Math.PI));
-
-        //过滤单操作数运算
-        int index;
-        //处理Ｅ
-        if((index=str.indexOf("E-"))!=-1)
-        {
-            str=str.replace("E-","E(0-");
-            while((str.charAt(index)>='0'&&str.charAt(index)<='9')||str.charAt(index)=='.')
-                index++;
-            str=str.substring(0,index)+")"+str.substring(index,str.length());
-        }
-        int left=0;
-        int right=0;
-        StringBuffer strb=new StringBuffer();
-        //处理sin
-        if((index=str.indexOf("sin"))!=-1)
-        {
-            index+=3;
-            do
-            {
-                if(str.charAt(index)=='(')
-                    left++;
-                if(str.charAt(index)==')')
-                    right++;
-                strb.append(str.charAt(index));
-                index++;
-            }while(left>right&&index<str.length());
-            String firstRes=calculate(strb.toString());
-            firstRes=String.valueOf(Math.sin(Double.parseDouble(firstRes)));
-            Log.v("sin的值",firstRes);
-            Log.v("calculate的参数",str.substring(0,str.indexOf("sin"))+firstRes+str.substring(index,str.length()));
-            return calculate(str.substring(0,str.indexOf("sin"))+firstRes+str.substring(index,str.length()));
-        }
-        //处理cos
-        strb.setLength(0);
-        if((index=str.indexOf("cos"))!=-1)
-        {
-            index+=3;
-            do
-            {
-                if(str.charAt(index)=='(')
-                    left++;
-                if(str.charAt(index)==')')
-                    right++;
-                strb.append(str.charAt(index));
-                index++;
-            }while(left>right);
-            String firstRes=calculate(strb.toString());
-            firstRes=String.valueOf(Math.cos(Double.parseDouble(firstRes)));
-            return calculate(str.substring(0,str.indexOf("cos"))+firstRes+str.substring(index,str.length()));
-        }
-        //处理tan
-        strb.setLength(0);
-        if((index=str.indexOf("tan"))!=-1)
-        {
-            index+=3;
-            do
-            {
-                if(str.charAt(index)=='(')
-                    left++;
-                if(str.charAt(index)==')')
-                    right++;
-                strb.append(str.charAt(index));
-                index++;
-            }while(left>right);
-            String firstRes=calculate(strb.toString());
-            firstRes=String.valueOf(Math.tan(Double.parseDouble(firstRes)));
-            return calculate(str.substring(0,str.indexOf("tan"))+firstRes+str.substring(index,str.length()));
-        }
-        //处理ln
-        strb.setLength(0);
-        if((index=str.indexOf("ln"))!=-1)
-        {
-            index+=2;
-            do
-            {
-                if(str.charAt(index)=='(')
-                    left++;
-                if(str.charAt(index)==')')
-                    right++;
-                strb.append(str.charAt(index));
-                index++;
-            }while(left>right);
-            String firstRes=calculate(strb.toString());
-            firstRes=String.valueOf(Math.log(Double.parseDouble(firstRes)));
-            return calculate(str.substring(0,str.indexOf("ln"))+firstRes+str.substring(index,str.length()));
-        }
-        //处理exp
-        strb.setLength(0);
-        if((index=str.indexOf("exp"))!=-1)
-        {
-            index+=3;
-            do
-            {
-                if(str.charAt(index)=='(')
-                    left++;
-                if(str.charAt(index)==')')
-                    right++;
-                strb.append(str.charAt(index));
-                index++;
-            }while(left>right);
-            String firstRes=calculate(strb.toString());
-            firstRes=String.valueOf(Math.exp(Double.parseDouble(firstRes)));
-            return calculate(str.substring(0,str.indexOf("exp"))+firstRes+str.substring(index,str.length()));
-        }
-        //处理根号
-        strb.setLength(0);
-        if((index=str.indexOf("√"))!=-1)
-        {
-            index+=1;
-            do
-            {
-                if(str.charAt(index)=='(')
-                    left++;
-                if(str.charAt(index)==')')
-                    right++;
-                strb.append(str.charAt(index));
-                index++;
-            }while(left>right);
-            String firstRes=calculate(strb.toString());
-            firstRes=String.valueOf(Math.sqrt(Double.parseDouble(firstRes)));
-            return calculate(str.substring(0,str.indexOf("√"))+firstRes+str.substring(index,str.length()));
-        }
-        //处理阶乘
-        strb.setLength(0);
-        if((index=str.indexOf("!"))!=-1)
-        {
-            index-=1;
-            while(index>=0&&str.charAt(index)>='0'&&str.charAt(index)<='9')
-            {
-                strb.append(str.charAt(index));
-                index--;
-            }
-            int max=Integer.parseInt(strb.reverse().toString());
-            int deal=1;
-            while(max>0)
-            {
-                deal*=max;
-                max--;
-            }
-            Log.v("deal",String.valueOf(deal));
-            return calculate(str.substring(0,index+1)+String.valueOf(deal)+str.substring(str.indexOf("!")+1,str.length()));
-        }
+        Stack<Character> number=new Stack<Character>();
+        Stack<Character> symbol=new Stack<Character>();
         char[] input=str.toCharArray();
-        //转为逆波兰表达式
-        Stack<Character> stack=new Stack<Character>();
-        Stack<Character> out=new Stack<Character>();
         int i=0;
         while(i<input.length)
         {
             switch(input[i])
             {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                case '.':
-                    out.push(input[i]);
+                case '0':case'1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':case '.':
+                    number.push(input[i]);
                     break;
-                case '+':
-                case '-':
-                    while(!stack.isEmpty()&&stack.peek()!='(')
+                case '+':case '-':
+                  //symbol出栈
+                    while(!symbol.isEmpty()&&symbol.peek()!='(')
                     {
-                        out.push(' ');
-                        out.push(stack.pop());
+                        number.push(' ');
+                        number.push(symbol.pop());
                     }
-                    out.push(' ');
-                    stack.push(input[i]);
+                    number.push(' ');
+                    symbol.push(input[i]);
                     break;
-                case '*':
-                case '/':
-                    if(!stack.isEmpty()&&stack.peek()!='+'&&stack.peek()!='-')
+                case '*':case '/':
+                    if(!symbol.isEmpty()&&symbol.peek()!='+'&&symbol.peek()!='-')
                     {
-                        while(!stack.isEmpty()&&stack.peek()!='(')
+                        while(!symbol.isEmpty()&&symbol.peek()!='('&&symbol.peek()!='+'&&symbol.peek()!='-')
                         {
-                            out.push(' ');
-                            out.push(stack.pop());
+                            number.push(' ');
+                            number.push(symbol.pop());
                         }
                     }
-                    out.push(' ');
-                    stack.push(input[i]);
+                    number.push(' ');
+                    symbol.push(input[i]);
                     break;
-                case '^':
-                case 'E':
-                    if(!stack.isEmpty()&&(stack.peek()=='^'||stack.peek()=='E'))
+                case 's':case 'c':case 't':case 'e':
+                    if(!symbol.isEmpty()&&symbol.peek()!='+'&&symbol.peek()!='-'&&symbol.peek()!='*'&&symbol.peek()!='/')
                     {
-                        while(!stack.isEmpty()&&stack.peek()!='(')
+                        while(!symbol.isEmpty()&&symbol.peek()!='('
+                                &&symbol.peek()!='+'&&symbol.peek()!='-'&&symbol.peek()!='*'&&symbol.peek()!='/')
                         {
-                            out.push(' ');
-                            out.push(stack.pop());
+                            number.push(' ');
+                            number.push(symbol.pop());
                         }
                     }
-                    out.push(' ');
-                    stack.push(input[i]);
+                    number.push(' ');
+                    symbol.push(input[i]);
+                    i+=2;
+                    break;
+                case 'l':
+                    if(!symbol.isEmpty()&&symbol.peek()!='+'&&symbol.peek()!='-'&&symbol.peek()!='*'&&symbol.peek()!='/')
+                    {
+                        while(!symbol.isEmpty()&&symbol.peek()!='('
+                                &&symbol.peek()!='+'&&symbol.peek()!='-'&&symbol.peek()!='*'&&symbol.peek()!='/')
+                        {
+                            number.push(' ');
+                            number.push(symbol.pop());
+                        }
+                    }
+                    number.push(' ');
+                    symbol.push(input[i]);
+                    i+=1;
+                    break;
+                case '!':case 'E':case '^':case '√':
+                    if(!symbol.isEmpty()&&symbol.peek()!='+'&&symbol.peek()!='-'&&symbol.peek()!='*'&&symbol.peek()!='/')
+                    {
+                        while(!symbol.isEmpty()&&symbol.peek()!='('
+                                &&symbol.peek()!='+'&&symbol.peek()!='-'&&symbol.peek()!='*'&&symbol.peek()!='/')
+                        {
+                            number.push(' ');
+                            number.push(symbol.pop());
+                        }
+                    }
+                    number.push(' ');
+                    symbol.push(input[i]);
                     break;
                 case '(':
-                    out.push(' ');
-                    stack.push(input[i]);
+                    number.push(' ');
+                    symbol.push(input[i]);
                     break;
                 case ')':
-                    while(!stack.isEmpty()&&stack.peek()!='(')
+                    while(!symbol.isEmpty()&&symbol.peek()!='(')
                     {
-                        out.push(' ');
-                        out.push(stack.pop());
+                        number.push(' ');
+                        number.push(symbol.pop());
                     }
-                    if(!stack.isEmpty()&&stack.peek()=='(')
+                    if(!symbol.isEmpty()&&symbol.peek()=='(')
                     {
-                        stack.pop();
+                        symbol.pop();
                     }
                     break;
                 default:
@@ -549,45 +550,32 @@ public class MainActivity extends Activity implements View.OnClickListener{
             }
             i++;
         }
-        while(!stack.isEmpty())
+        //全部整合到一个栈中
+        while(!symbol.isEmpty())
         {
-            out.push(' ');
-            out.push(stack.pop());
+            number.push(' ');
+            number.push(symbol.pop());
         }
+        Log.v("逆波兰表达式：",number.toString());
+        //颠倒栈的顺序
+        while(!number.isEmpty())
+        {
+            symbol.push(number.pop());
+        }
+        Log.v("逆波兰反序后：",symbol.toString());
 
         //对逆波兰表达式求值
-        while(!out.isEmpty())
-        {
-            stack.push(out.pop());
-        }
-        String res=getResult(stack);
-        flag=false;
-        return res;
-    }
-    //由逆波兰表达式求值
-    private String getResult(Stack<Character> input)
-    {
         Stack<Double> stack=new Stack<Double>();
-        StringBuffer str=new StringBuffer(); //未自行转换
-        Double right=0.0;
+        StringBuffer std=new StringBuffer(); //未自行转换
+        double right=0.0;
         char ch;
-        while(!input.isEmpty())
+        while(!symbol.isEmpty())
         {
-            ch=input.pop();
+            ch=symbol.pop();
             switch (ch)
             {
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                case '.':
-                    str.append(ch);
+                case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':case '.':
+                    std.append(ch);
                     break;
                 case '+':
                     right=stack.pop();
@@ -605,6 +593,32 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     right=stack.pop();
                     stack.push(stack.pop()/right);
                     break;
+                case 's':
+                    stack.push(Math.sin(stack.pop()));
+                    break;
+                case 'c':
+                    stack.push(Math.cos(stack.pop()));
+                    break;
+                case 't':
+                    stack.push(Math.tan(stack.pop()));
+                    break;
+                case 'l':
+                    stack.push(Math.log(stack.pop()));
+                    break;
+                case 'e':
+                    stack.push(Math.exp(stack.pop()));
+                    break;
+                case '!':
+                    right=stack.pop();
+                    int max=(int)right;
+                    int end=1;
+                    while(max>0)
+                    {
+                        end*=max;
+                        max--;
+                    }
+                    stack.push((double)end);
+                    break;
                 case '^':
                     right=stack.pop();
                     stack.push(Math.pow(stack.pop(),right));
@@ -612,76 +626,339 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 case 'E':
                     right=stack.pop();
                     stack.push(stack.pop()*Math.pow(10,right));
+                    break;
+                case '√':
+                    stack.push(Math.sqrt(stack.pop()));
+                    break;
                 case ' ':
-                    if(str.length()!=0)
+                    if(std.length()!=0)
                     {
-                        stack.push(Double.parseDouble(str.toString()));
-                        str.setLength(0);
+                        stack.push(Double.parseDouble(std.toString()));
+                        std.setLength(0);
                     }
                     break;
             }
         }
-        if(str.length()!=0)
+        if(std.length()!=0)
         {
-            stack.push(Double.parseDouble(str.toString()));
-            str.setLength(0);
+            stack.push(Double.parseDouble(std.toString()));
+            std.setLength(0);
         }
-        return stack.pop().toString();
+        ANS=stack.peek();
+        BigDecimal bd=new BigDecimal(stack.pop().toString());
+        double d=Double.parseDouble(bd.setScale(10,BigDecimal.ROUND_HALF_UP).toString());
+        Log.v("bd",""+bd.toString());
+        return String.valueOf(d);
     }
-    //０～９键处理
-    private void appendNumber(String str)
-    {
-       if(!flag)
-       {
-           show.setLength(0);
-           show.append("0");
-       }
-       if(show.toString().equals("0"))
-       {
-           show.replace(0,1,str);
-       }
-       else if(show.length()>1&&show.charAt(show.length()-1)=='0'&&(show.charAt(show.length()-2)=='+'||
-          show.charAt(show.length()-2)=='-'||show.charAt(show.length()-2)=='*'||show.charAt(show.length()-2)=='/'))
-       {
-           show.deleteCharAt(show.length()-1);
-           show.append(str);
-       }
-       else
-       {
-        show.append(str);
-       }
-    }
-    //+ - * /处理
-    private void appendChar(String str)
-    {
-        if(show.charAt(show.length()-1)=='+'||show.charAt(show.length()-1)=='-'
-                ||show.charAt(show.length()-1)=='*'||show.charAt(show.length()-1)=='/')
-        {
-            show.deleteCharAt(show.length()-1);
-            show.append(str);
-        }
-        else if(show.charAt(show.length()-1)=='.')
-        {
-            show.append("0"+str);
-        }
-        else
-        {
-            show.append(str);
-        }
-    }
-
-    private void changeView()
-    {
-        if(firstView.getVisibility()==View.VISIBLE)
-        {
-            firstView.setVisibility(View.INVISIBLE);
-            secondView.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            firstView.setVisibility(View.VISIBLE);
-            secondView.setVisibility(View.INVISIBLE);
-        }
-
-    }
+//    //由输入字符串求值
+//    protected String calculate(String str)
+//    {
+//        str=str.replace("(-","(0-");
+//        str=str.replace("(+","(0+");
+//        if(str.charAt(0)=='-')
+//        {
+//            str="0"+str;
+//        }
+//        //处理PI
+//        str=str.replace("π",String.valueOf(Math.PI));
+//
+//        //过滤单操作数运算
+//        int index;
+//        //处理Ｅ
+//        if((index=str.indexOf("E-"))!=-1)
+//        {
+//            str=str.replace("E-","E(0-");
+//            while((str.charAt(index)>='0'&&str.charAt(index)<='9')||str.charAt(index)=='.')
+//                index++;
+//            str=str.substring(0,index)+")"+str.substring(index,str.length());
+//        }
+//        int left=0;
+//        int right=0;
+//        StringBuffer strb=new StringBuffer();
+//        //处理sin
+//        if((index=str.indexOf("sin"))!=-1)
+//        {
+//            index+=3;
+//            do
+//            {
+//                if(str.charAt(index)=='(')
+//                    left++;
+//                if(str.charAt(index)==')')
+//                    right++;
+//                strb.append(str.charAt(index));
+//                index++;
+//            }while(left>right&&index<str.length());
+//            String firstRes=calculate(strb.toString());
+//            firstRes=String.valueOf(Math.sin(Double.parseDouble(firstRes)));
+//            Log.v("sin的值",firstRes);
+//            Log.v("calculate的参数",str.substring(0,str.indexOf("sin"))+firstRes+str.substring(index,str.length()));
+//            return calculate(str.substring(0,str.indexOf("sin"))+firstRes+str.substring(index,str.length()));
+//        }
+//        //处理cos
+//        strb.setLength(0);
+//        if((index=str.indexOf("cos"))!=-1)
+//        {
+//            index+=3;
+//            do
+//            {
+//                if(str.charAt(index)=='(')
+//                    left++;
+//                if(str.charAt(index)==')')
+//                    right++;
+//                strb.append(str.charAt(index));
+//                index++;
+//            }while(left>right);
+//            String firstRes=calculate(strb.toString());
+//            firstRes=String.valueOf(Math.cos(Double.parseDouble(firstRes)));
+//            return calculate(str.substring(0,str.indexOf("cos"))+firstRes+str.substring(index,str.length()));
+//        }
+//        //处理tan
+//        strb.setLength(0);
+//        if((index=str.indexOf("tan"))!=-1)
+//        {
+//            index+=3;
+//            do
+//            {
+//                if(str.charAt(index)=='(')
+//                    left++;
+//                if(str.charAt(index)==')')
+//                    right++;
+//                strb.append(str.charAt(index));
+//                index++;
+//            }while(left>right);
+//            String firstRes=calculate(strb.toString());
+//            firstRes=String.valueOf(Math.tan(Double.parseDouble(firstRes)));
+//            return calculate(str.substring(0,str.indexOf("tan"))+firstRes+str.substring(index,str.length()));
+//        }
+//        //处理ln
+//        strb.setLength(0);
+//        if((index=str.indexOf("ln"))!=-1)
+//        {
+//            index+=2;
+//            do
+//            {
+//                if(str.charAt(index)=='(')
+//                    left++;
+//                if(str.charAt(index)==')')
+//                    right++;
+//                strb.append(str.charAt(index));
+//                index++;
+//            }while(left>right);
+//            String firstRes=calculate(strb.toString());
+//            firstRes=String.valueOf(Math.log(Double.parseDouble(firstRes)));
+//            return calculate(str.substring(0,str.indexOf("ln"))+firstRes+str.substring(index,str.length()));
+//        }
+//        //处理exp
+//        strb.setLength(0);
+//        if((index=str.indexOf("exp"))!=-1)
+//        {
+//            index+=3;
+//            do
+//            {
+//                if(str.charAt(index)=='(')
+//                    left++;
+//                if(str.charAt(index)==')')
+//                    right++;
+//                strb.append(str.charAt(index));
+//                index++;
+//            }while(left>right);
+//            String firstRes=calculate(strb.toString());
+//            firstRes=String.valueOf(Math.exp(Double.parseDouble(firstRes)));
+//            return calculate(str.substring(0,str.indexOf("exp"))+firstRes+str.substring(index,str.length()));
+//        }
+//        //处理根号
+//        strb.setLength(0);
+//        if((index=str.indexOf("√"))!=-1)
+//        {
+//            index+=1;
+//            do
+//            {
+//                if(str.charAt(index)=='(')
+//                    left++;
+//                if(str.charAt(index)==')')
+//                    right++;
+//                strb.append(str.charAt(index));
+//                index++;
+//            }while(left>right);
+//            String firstRes=calculate(strb.toString());
+//            firstRes=String.valueOf(Math.sqrt(Double.parseDouble(firstRes)));
+//            return calculate(str.substring(0,str.indexOf("√"))+firstRes+str.substring(index,str.length()));
+//        }
+//        //处理阶乘
+//        strb.setLength(0);
+//        if((index=str.indexOf("!"))!=-1)
+//        {
+//            index-=1;
+//            while(index>=0&&str.charAt(index)>='0'&&str.charAt(index)<='9')
+//            {
+//                strb.append(str.charAt(index));
+//                index--;
+//            }
+//            int max=Integer.parseInt(strb.reverse().toString());
+//            int deal=1;
+//            while(max>0)
+//            {
+//                deal*=max;
+//                max--;
+//            }
+//            Log.v("deal",String.valueOf(deal));
+//            return calculate(str.substring(0,index+1)+String.valueOf(deal)+str.substring(str.indexOf("!")+1,str.length()));
+//        }
+//        char[] input=str.toCharArray();
+//        //转为逆波兰表达式
+//        Stack<Character> stack=new Stack<Character>();
+//        Stack<Character> out=new Stack<Character>();
+//        int i=0;
+//        while(i<input.length)
+//        {
+//            switch(input[i])
+//            {
+//                case '0':
+//                case '1':
+//                case '2':
+//                case '3':
+//                case '4':
+//                case '5':
+//                case '6':
+//                case '7':
+//                case '8':
+//                case '9':
+//                case '.':
+//                    out.push(input[i]);
+//                    break;
+//                case '+':
+//                case '-':
+//                    while(!stack.isEmpty()&&stack.peek()!='(')
+//                    {
+//                        out.push(' ');
+//                        out.push(stack.pop());
+//                    }
+//                    out.push(' ');
+//                    stack.push(input[i]);
+//                    break;
+//                case '*':
+//                case '/':
+//                    if(!stack.isEmpty()&&stack.peek()!='+'&&stack.peek()!='-')
+//                    {
+//                        while(!stack.isEmpty()&&stack.peek()!='(')
+//                        {
+//                            out.push(' ');
+//                            out.push(stack.pop());
+//                        }
+//                    }
+//                    out.push(' ');
+//                    stack.push(input[i]);
+//                    break;
+//                case '^':
+//                case 'E':
+//                    if(!stack.isEmpty()&&(stack.peek()=='^'||stack.peek()=='E'))
+//                    {
+//                        while(!stack.isEmpty()&&stack.peek()!='(')
+//                        {
+//                            out.push(' ');
+//                            out.push(stack.pop());
+//                        }
+//                    }
+//                    out.push(' ');
+//                    stack.push(input[i]);
+//                    break;
+//                case '(':
+//                    out.push(' ');
+//                    stack.push(input[i]);
+//                    break;
+//                case ')':
+//                    while(!stack.isEmpty()&&stack.peek()!='(')
+//                    {
+//                        out.push(' ');
+//                        out.push(stack.pop());
+//                    }
+//                    if(!stack.isEmpty()&&stack.peek()=='(')
+//                    {
+//                        stack.pop();
+//                    }
+//                    break;
+//                default:
+//                    System.out.println("Illegal input!");
+//            }
+//            i++;
+//        }
+//        while(!stack.isEmpty())
+//        {
+//            out.push(' ');
+//            out.push(stack.pop());
+//        }
+//
+//        //对逆波兰表达式求值
+//        while(!out.isEmpty())
+//        {
+//            stack.push(out.pop());
+//        }
+//        String res=getResult(stack);
+//        flag=false;
+//        return res;
+//    }
+//    //由逆波兰表达式求值
+//    private String getResult(Stack<Character> input)
+//    {
+//        Stack<Double> stack=new Stack<Double>();
+//        StringBuffer str=new StringBuffer(); //未自行转换
+//        Double right=0.0;
+//        char ch;
+//        while(!input.isEmpty())
+//        {
+//            ch=input.pop();
+//            switch (ch)
+//            {
+//                case '0':
+//                case '1':
+//                case '2':
+//                case '3':
+//                case '4':
+//                case '5':
+//                case '6':
+//                case '7':
+//                case '8':
+//                case '9':
+//                case '.':
+//                    str.append(ch);
+//                    break;
+//                case '+':
+//                    right=stack.pop();
+//                    stack.push(stack.pop()+right);
+//                    break;
+//                case '-':
+//                    right=stack.pop();
+//                    stack.push(stack.pop()-right);
+//                    break;
+//                case '*':
+//                    right=stack.pop();
+//                    stack.push(stack.pop()*right);
+//                    break;
+//                case '/':
+//                    right=stack.pop();
+//                    stack.push(stack.pop()/right);
+//                    break;
+//                case '^':
+//                    right=stack.pop();
+//                    stack.push(Math.pow(stack.pop(),right));
+//                    break;
+//                case 'E':
+//                    right=stack.pop();
+//                    stack.push(stack.pop()*Math.pow(10,right));
+//                case ' ':
+//                    if(str.length()!=0)
+//                    {
+//                        stack.push(Double.parseDouble(str.toString()));
+//                        str.setLength(0);
+//                    }
+//                    break;
+//            }
+//        }
+//        if(str.length()!=0)
+//        {
+//            stack.push(Double.parseDouble(str.toString()));
+//            str.setLength(0);
+//        }
+//        return stack.pop().toString();
+//    }
 }
