@@ -212,10 +212,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
                                 &&show.charAt(show.length()-2)!='l')
                         {
                             show.delete(show.length()-3,show.length());
+                            if(show.length()==0)
+                                show.append("0");
                         }
                         else if(show.charAt(show.length()-2)=='l')
                         {
                             show.delete(show.length()-2,show.length());
+                            if(show.length()==0)
+                                show.append("0");
                         }
                         //一般删除最后一个
                         else
