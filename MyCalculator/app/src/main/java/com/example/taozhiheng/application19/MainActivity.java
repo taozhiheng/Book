@@ -693,7 +693,9 @@ public class MainActivity extends Activity implements View.OnClickListener{
         BigDecimal bd=new BigDecimal(stack.pop().toString());
         double d=Double.parseDouble(bd.setScale(10,BigDecimal.ROUND_HALF_UP).toString());
         Log.v("bd",""+bd.toString());
-        return String.valueOf(d);
+        if(finalStr.endsWith(".0"))
+            finalStr=finalStr.substring(0,finalStr.length()-2);
+        return finalStr;
     }
 
 }
