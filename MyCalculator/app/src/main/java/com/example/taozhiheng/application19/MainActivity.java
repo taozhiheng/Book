@@ -254,7 +254,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     {
                         i--;
                     }
-                    if(show.charAt(i)!='.')
+                   if(show.charAt(i)!='.'&&show.charAt(i)!=')')
                     {
                         show.append('.');
                     }
