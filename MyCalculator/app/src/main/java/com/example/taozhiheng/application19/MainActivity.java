@@ -18,7 +18,7 @@ import java.util.zip.Inflater;
 
 public class MainActivity extends Activity implements View.OnClickListener{
 
-    private boolean flag=true;  //是否可以用作表达式
+    private boolean flag=false;  //是否可以用作表达式
     private StringBuffer show=new StringBuffer("0");  //记录显示框内的字符
     private TextView display;    //显示框
     //第一行按钮
@@ -153,8 +153,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
         btn_M.setOnClickListener(this);
         btn_ANS=(Button)findViewById(R.id.btn_ANS);
         btn_ANS.setOnClickListener(this);
-        //显示框初始化
-        display.setText("0");
+        //初始化
+        show.append(pref.getString("result","0"));
+        display.setText(show.toString());
+        ANS=Double.valueOf(show.toString());
     }
 
     @Override
@@ -709,5 +711,15 @@ public class MainActivity extends Activity implements View.OnClickListener{
         if(finalStr.endsWith(".0"))
             finalStr=finalStr.substring(0,finalStr.length()-2);
         return finalStr;
+    }
+    @Override
+    protected void onDestroy() {
+        SharedPreferences.Editor editor=pref.edit();
+        String result=String.valueOf(ANS);
+        if(result.endsWith(".0"))
+            result=result.substring(0,result.length()-2);
+        editor.putString("result",result);
+        editor.commit();
+        super.onDestroy();
     }
 }
