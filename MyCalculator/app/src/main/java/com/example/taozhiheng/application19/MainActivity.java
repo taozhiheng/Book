@@ -394,8 +394,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 appendNumber("ANS");
                 break;
         }
-        //如果按下的不是等号，退格，视图切换，小数点　，　认为在输入表达式
-        if(v.getId()!=R.id.btn_equ&&v.getId()!=R.id.btn_delete&&v.getId()!=R.id.btn_more&&v.getId()!=R.id.btn_dot)
+        //如果按下的不是等号，退格，视图切换，小数点 M+　，　认为在输入表达式
+        if(v.getId()!=R.id.btn_equ&&v.getId()!=R.id.btn_delete&&v.getId()!=R.id.btn_more&&v.getId()!=R.id.btn_dot&&v.getId()!=R.id.btn_MA
             flag=true;
         //改变显示框内容
         display.setText(show);
@@ -700,7 +700,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
             std.setLength(0);
         }
         //记下计算结果
-        ANS=stack.peek();
+        if(!(Double.isInfinite(stack.peek())||Double.isNaN(stack.peek())))
+            ANS=stack.peek();
         //保留10位小数，四舍五入
         BigDecimal bd=new BigDecimal(stack.pop().toString());
         double d=Double.parseDouble(bd.setScale(10,BigDecimal.ROUND_HALF_UP).toString());
