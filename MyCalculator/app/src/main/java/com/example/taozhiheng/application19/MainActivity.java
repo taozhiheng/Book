@@ -403,14 +403,14 @@ public class MainActivity extends Activity implements View.OnClickListener{
             flag=true;
         //改变显示框内容
         display.setText(show);
-        scroll.post(new Runnable() 
-        {
-            @Override
-            public void run() 
-            {
-                scroll.fullScroll(View.FOCUS_RIGHT);
-            }
-        });
+        // scroll.post(new Runnable() 
+        // {
+        //     @Override
+        //     public void run() 
+        //     {
+        //         scroll.fullScroll(View.FOCUS_RIGHT);
+        //     }
+        // });
     }
 
 
