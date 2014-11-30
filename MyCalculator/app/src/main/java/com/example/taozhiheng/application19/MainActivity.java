@@ -12,18 +12,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TextView;
-
 import java.math.BigDecimal;
 import java.util.Stack;
 import java.util.zip.Inflater;
-
 
 public class MainActivity extends Activity implements View.OnClickListener{
 
     private boolean flag=true;  //是否可以用作表达式
     private StringBuffer show=new StringBuffer("0");  //记录显示框内的字符
     private TextView display;    //显示框
-
     //第一行按钮
     private Button btn_more;     //更多功能键
     private Button btn_clear;    //清空
@@ -123,7 +120,6 @@ public class MainActivity extends Activity implements View.OnClickListener{
         btn_equ.setOnClickListener(this);
         btn_add=(Button)findViewById(R.id.btn_add);
         btn_add.setOnClickListener(this);
-
 
         btn_sin=(Button)findViewById(R.id.btn_sin);
         btn_sin.setOnClickListener(this);
@@ -403,17 +399,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             flag=true;
         //改变显示框内容
         display.setText(show);
-        // scroll.post(new Runnable() 
-        // {
-        //     @Override
-        //     public void run() 
-        //     {
-        //         scroll.fullScroll(View.FOCUS_RIGHT);
-        //     }
-        // });
     }
-
-
     //０～９键处理
     private void appendNumber(String str)
     {
@@ -465,7 +451,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             show.append(str);
         }
     }
-
+    //改变按钮显示
     private void changeView()
     {
         //切换显示键盘
@@ -479,9 +465,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
             firstView.setVisibility(View.VISIBLE);
             secondView.setVisibility(View.GONE);
         }
-
     }
-
     //逆波兰解析计算
     private String cal(String str)
     {
@@ -700,5 +684,4 @@ public class MainActivity extends Activity implements View.OnClickListener{
             finalStr=finalStr.substring(0,finalStr.length()-2);
         return finalStr;
     }
-
 }
