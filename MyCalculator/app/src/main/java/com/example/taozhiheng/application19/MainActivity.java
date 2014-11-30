@@ -643,7 +643,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     break;
                 case 't':
                     double tanValue=Math.tan(stack.pop());
-                    if(tanValue>1E16)
+                    if(Math.abs(tanValue)>5E15)
                         tanValue=0;
                     stack.push(tanValue);
                     break;
