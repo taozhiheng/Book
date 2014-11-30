@@ -466,6 +466,30 @@ public class MainActivity extends Activity implements View.OnClickListener{
             secondView.setVisibility(View.GONE);
         }
     }
+    //将StringBuffer转化为double
+    double StrToDouble(StringBuffer str)
+    {
+        int first=0;    //整数部分
+        int second=0;   //小数部分
+        int index=0;
+        char ch;
+        while(index<str.length()&&(ch=str.charAt(index))!='.')
+        {
+            first=first*10+ch-'0';
+            index++;
+        }
+        //如果只有整数部分，返回
+        if(index==str.length())
+            return (double)first;
+        int len=str.length()-1-index;
+        index++;
+        while(index<str.length())
+        {
+            second=second*10+str.charAt(index)-'0';
+            index++;
+        }
+        return (double)first+second*Math.pow(0.1,len);
+    }
     //逆波兰解析计算
     private String cal(String str)
     {
@@ -662,7 +686,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
                 case ' ':
                     if(std.length()!=0)
                     {
-                        stack.push(Double.parseDouble(std.toString()));
+                        stack.push(StrToDouble(std));
                         std.setLength(0);
                     }
                     break;
@@ -671,7 +695,7 @@ public class MainActivity extends Activity implements View.OnClickListener{
         //表达式只有一个操作数，没有任何运算符
         if(std.length()!=0)
         {
-            stack.push(Double.parseDouble(std.toString()));
+            stack.push(StrToDouble(std));
             std.setLength(0);
         }
         //记下计算结果
