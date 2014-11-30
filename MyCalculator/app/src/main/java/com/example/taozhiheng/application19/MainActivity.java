@@ -642,7 +642,10 @@ public class MainActivity extends Activity implements View.OnClickListener{
                     stack.push(Math.cos(stack.pop()));
                     break;
                 case 't':
-                    stack.push(Math.tan(stack.pop()));
+                    double tanValue=Math.tan(stack.pop());
+                    if(tanValue>1E16)
+                        tanValue=0;
+                    stack.push(tanValue);
                     break;
                 case 'l':
                     stack.push(Math.log(stack.pop()));
