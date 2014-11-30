@@ -469,8 +469,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
     //将StringBuffer转化为double
     double StrToDouble(StringBuffer str)
     {
-        int first=0;    //整数部分
-        int second=0;   //小数部分
+        long first=0;    //整数部分
+        long second=0;   //小数部分
         int index=0;
         char ch;
         while(index<str.length()&&(ch=str.charAt(index))!='.')
