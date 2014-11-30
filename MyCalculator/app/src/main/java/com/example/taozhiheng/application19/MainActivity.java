@@ -423,7 +423,8 @@ public class MainActivity extends Activity implements View.OnClickListener{
        }
        else
        {
-        show.append(str);
+           if(show.charAt(show.length()-1)!='S'&&show.charAt(show.length()-1)!='π')
+               show.append(str);
        }
     }
     //+ - * /处理
