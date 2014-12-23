@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:background="@android:color/white"
+    >
+
+    <ImageView
+        android:id="@+id/notify_icon"
+        android:src="@drawable/music"
+        android:layout_alignParentLeft="true"
+        android:layout_width="64dp"
+        android:layout_height="match_parent" />
+    <TextView
+        android:id="@+id/notify_song"
+        android:layout_toRightOf="@id/notify_icon"
+        android:layout_toLeftOf="@+id/notify_last"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/notify_singer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:text="当前歌曲名称"/>
+    <TextView
+        android:id="@+id/notify_singer"
+        android:layout_toRightOf="@id/notify_icon"
+        android:layout_toLeftOf="@+id/notify_last"
+        android:layout_alignParentBottom="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:text="当前歌手名称"/>
+    <Button
+        android:id="@+id/notify_last"
+        android:background="@drawable/last"
+        android:layout_alignTop="@id/notify_icon"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/notify_next"
+        android:layout_marginRight="60dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/notify_play"
+            android:background="@drawable/play"
+            android:layout_alignTop="@id/notify_icon"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@+id/notify_next"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+        <Button
+            android:id="@+id/notify_pause"
+            android:background="@drawable/pause"
+            android:layout_alignTop="@id/notify_icon"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@+id/notify_next"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/notify_next"
+        android:background="@drawable/next"
+        android:layout_alignTop="@id/notify_icon"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/notify_exit"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/notify_exit"
+        android:background="@android:drawable/ic_notification_clear_all"
+        android:layout_alignTop="@id/notify_icon"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content" />
+</RelativeLayout>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/child"
+    >
+    <ImageView
+        android:id="@+id/songIcon"
+        android:layout_alignParentLeft="true"
+        android:layout_width="80dp"
+        android:layout_height="70dp"
+        android:src="@drawable/app"/>
+.
+    <TextView
+        android:id="@+id/songName"
+        android:layout_toRightOf="@id/songIcon"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:textColor="@android:color/holo_orange_light"
+        android:textSize="25dp"
+        android:text="风居住的街道"
+        android:ellipsize="marquee"
+        android:singleLine="true"
+        />
+        <TextView
+            android:id="@+id/singerName"
+            android:layout_toRightOf="@id/songIcon"
+            android:layout_alignParentRight="true"
+            android:layout_below="@id/songName"
+            android:layout_alignBottom="@id/songIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_vertical"
+            android:text="未知歌手"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            />
+</RelativeLayout>

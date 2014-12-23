@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/common_background">
+    <ViewFlipper
+        android:id="@+id/viewFlipper"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bottom_icon">
+    <include
+        android:id="@+id/main"
+        layout="@layout/main"/>
+    <include
+        android:id="@+id/activity_main"
+        layout="@layout/musiclist"
+        />
+    </ViewFlipper>
+    <ImageView
+        android:id="@+id/bottom_icon"
+        android:src="@drawable/app"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_width="60dp"
+        android:layout_height="60dp" />
+
+    <com.example.taozhiheng.musicplayer.MyTextView
+        android:id="@+id/bottom_song"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/bottom_icon"
+        android:layout_toLeftOf="@+id/bottom_last"
+        android:layout_alignTop="@id/bottom_icon"
+        android:singleLine="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:scrollHorizontally="true"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:ellipsize="marquee"
+        android:textSize="20dp"
+        android:textColor="@color/grey"
+        android:text="当前歌曲名称"/>
+    <com.example.taozhiheng.musicplayer.MyTextView
+        android:id="@+id/bottom_singer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/bottom_icon"
+        android:layout_toLeftOf="@+id/bottom_last"
+        android:layout_below="@id/bottom_song"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@id/bottom_song"
+        android:layout_gravity="center_horizontal"
+        android:lines="1"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:scrollHorizontally="true"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:ellipsize="marquee"
+        android:textColor="@color/grey"
+        android:text="风居住的街道"
+        android:singleLine="true"
+        />
+
+    <Button
+        android:id="@+id/bottom_last"
+        android:background="@drawable/last"
+        android:layout_toLeftOf="@+id/bottom_playOrPause"
+        android:layout_alignTop="@id/bottom_icon"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/bottom_playOrPause"
+        android:background="@drawable/pause"
+        android:layout_alignTop="@id/bottom_icon"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/bottom_next"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/bottom_next"
+        android:background="@drawable/next"
+        android:layout_alignTop="@id/bottom_icon"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>

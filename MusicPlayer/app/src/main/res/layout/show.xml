@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.example.taozhiheng.musicplayer.MyTextView
+        android:id="@+id/show_song"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:singleLine="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:scrollHorizontally="true"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:ellipsize="marquee"
+        android:textSize="20dp"
+        android:text="当前歌曲名称"/>
+    <TextView
+
+        android:id="@+id/show_singer"
+        android:layout_below="@id/show_song"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:maxHeight="30dp"
+        android:gravity="center"
+        android:text="歌手名称"/>
+    <ImageView
+
+        android:id="@+id/show_icon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/show_singer"
+        android:layout_above="@+id/show_progress"
+        android:src="@drawable/app"/>
+    <com.example.taozhiheng.musicplayer.LrcView
+        android:id="@+id/lyric"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/show_singer"
+        android:layout_above="@+id/show_progress"
+        android:gravity="center_horizontal"
+
+        android:textStyle="italic"
+        />
+    <SeekBar
+
+        android:id="@+id/show_progress"
+        android:layout_above="@+id/currentTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+        <TextView
+            android:id="@+id/currentTime"
+            android:layout_alignParentLeft="true"
+            android:layout_above="@+id/show_last"
+            android:layout_width="120dp"
+            android:gravity="left|center_vertical"
+            android:layout_height="50dp"
+            android:text="当前时间"
+            />
+
+        <TextView
+            android:id="@+id/maxTime"
+            android:layout_above="@+id/show_last"
+            android:layout_alignParentRight="true"
+            android:layout_width="120dp"
+            android:gravity="right|center_vertical"
+            android:layout_height="50dp"
+            android:text="歌曲时长"
+            />
+
+        <Button
+            android:id="@+id/show_mode"
+            android:background="@drawable/loop"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_width="60dp"
+            android:layout_height="50dp" />
+
+        <Button
+
+            android:id="@+id/show_last"
+            android:background="@drawable/last"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@id/show_mode"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
+            <Button
+                android:id="@+id/show_playOrPause"
+                android:background="@drawable/pause"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp" />
+
+
+        <Button
+            android:layout_weight="1"
+            android:id="@+id/show_next"
+            android:background="@drawable/next"
+            android:layout_alignParentBottom="true"
+            android:layout_toLeftOf="@+id/favor"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
+        <ImageView
+            android:id="@+id/favor"
+            android:src="@drawable/unfavor"
+            android:tag="unfavor"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_width="60dp"
+            android:layout_height="50dp" />
+
+</RelativeLayout>
