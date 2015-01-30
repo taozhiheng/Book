@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/drawerLayout"
+    >
+    <fragment
+        android:name="com.example.taozhiheng.weather.MyFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <ListView
+        android:id="@+id/left_list"
+        android:layout_width="200dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="10dp"
+        android:background="@android:color/background_dark"/>
+    <ListView
+        android:id="@+id/right_list"
+        android:layout_width="220dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="20dp"
+        android:background="@android:color/background_dark"/>
+
+</android.support.v4.widget.DrawerLayout>
