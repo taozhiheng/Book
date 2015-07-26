@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fitsSystemWindows="true"
+    android:focusable="false"
+    android:background="@color/white"
+    android:layout_height="match_parent">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/add_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/toolbar"/>
+    <android.support.v7.widget.SearchView
+        android:id="@+id/add_search"
+        android:layout_below="@id/add_toolbar"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/search_border"
+        app:iconifiedByDefault="false"
+        app:queryBackground="@null"
+        android:theme="@style/Theme.AppCompat.Light"
+        app:defaultQueryHint="书名/作者/ISBN"
+        android:layout_centerHorizontal="true"
+        android:layout_width="251dp"
+        android:layout_height="46dp"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/add_recycler"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/add_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:id="@+id/add_empty"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/add_search"
+        android:padding="10dp"
+        android:gravity="center"
+        android:text="毛都没有^_^"
+        android:textColor="@color/search_other_text"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>

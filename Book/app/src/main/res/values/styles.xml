@@ -1,0 +1,114 @@
+<resources>
+
+
+    <style name="AppTheme.Dialog" parent="Theme.AppCompat.Light">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <!--<item name="android:background">@android:color/white</item>-->
+        <!--<item name="android:windowBackground">@android:color/transparent</item>-->
+    </style>
+
+    <style name="AppTheme.Base" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/accent_material_light</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+        <item name="android:windowBackground">@color/dim_foreground_material_dark</item>
+    </style>
+
+    <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">true</item>
+        <item name="color">@android:color/white</item>
+    </style>
+
+
+    <style name="Widget">
+    </style>
+
+    <style name="Widget.TabPageIndicator" parent="Widget">
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/vp_tab_indicator</item>
+        <item name="android:paddingLeft">22dip</item>
+        <item name="android:paddingRight">22dip</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.TabPageIndicator</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="TextAppearance.TabPageIndicator" parent="Widget">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/vp_dark_theme</item>
+    </style>
+
+    <style name="Widget.IconPageIndicator" parent="Widget">
+        <item name="android:layout_marginLeft">6dp</item>
+        <item name="android:layout_marginRight">6dp</item>
+    </style>
+
+
+    <style name="AppTheme" parent="AppTheme.BLUE_LIGHT">
+
+    </style>
+
+    <style name="AppTheme.BLUE_LIGHT" parent="Theme.AppCompat">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentNavigation" >true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:listDivider">@drawable/divider</item>
+        <item name="android:textColorHint">@color/bookshelf_plan_hint_text</item>
+        <!-- Actionbar color -->
+        <item name="colorPrimary">@color/toolbar</item>
+        <!--Status bar color-->
+        <item name="colorPrimaryDark">@color/accent_material_dark</item>
+        <!--Window color-->
+        <item name="android:windowBackground">@color/dim_foreground_material_dark</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <style name="AppTheme.BLUE_DARK" parent="Theme.AppCompat">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <!-- Actionbar color -->
+        <item name="colorPrimary">@color/accent_material_dark</item>
+        <!--Status bar color-->
+        <item name="colorPrimaryDark">@color/accent_material_light</item>
+        <!--Window color-->
+        <item name="android:windowBackground">@color/dim_foreground_material_dark</item>
+        <!--<item name="android:windowIsTranslucent">true</item>-->
+    </style>
+    <style name="AppTheme.ORANGE_DARK" parent="Theme.AppCompat">
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <!-- Actionbar color -->
+        <item name="colorPrimary">@android:color/holo_orange_dark</item>
+        <!--Status bar color-->
+        <!--<item name="colorPrimaryDark">@color/accent_material_light</item>-->
+        <!--Window color-->
+        <item name="android:windowBackground">@color/dim_foreground_material_dark</item>
+        <!--<item name="android:windowIsTranslucent">true</item>-->
+    </style>
+    <style name="AppTheme.ORANGE_LIGHT" parent="Theme.AppCompat">
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <!-- Actionbar color -->
+        <item name="colorPrimary">@android:color/holo_orange_light</item>
+        <!--Status bar color-->
+        <!--<item name="colorPrimaryDark">@color/accent_material_light</item>-->
+        <!--Window color-->
+        <item name="android:windowBackground">@color/dim_foreground_material_dark</item>
+        <!--<item name="android:windowIsTranslucent">true</item>-->
+
+    </style>
+    <style name="AppTheme.BLANK" parent="Theme.AppCompat">
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+</resources>

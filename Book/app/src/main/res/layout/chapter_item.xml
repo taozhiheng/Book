@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/recycler_item_background"
+    android:layout_width="match_parent"
+    android:layout_height="63dp">
+    <View
+        android:id="@+id/chapter_icon"
+        android:layout_width="9dp"
+        android:layout_height="9dp"
+        android:background="@drawable/chapter_background"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="34dp"
+        />
+    <TextView
+        android:id="@+id/chapter_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/chapter_icon"
+        android:textSize="18sp"
+        android:textColor="@color/create_chapter_text"
+        android:background="@null"
+        android:layout_centerVertical="true"
+        android:singleLine="true"
+        android:layout_marginLeft="10dp" />
+    <ImageView
+        android:id="@+id/chapter_flag"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/chapter_icon_background"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true" />
+</RelativeLayout>

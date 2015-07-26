@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="63dp"
+	android:orientation="horizontal" >
+
+	<ui.Pointwithcolor
+		android:id="@+id/add_pointwithcolor"
+		android:layout_width="9dp"
+		android:layout_height="9dp"
+		android:layout_gravity="center_vertical"
+		android:layout_marginLeft="34dp"
+		/>
+	<EditText
+		android:id="@+id/add_name"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:textColor="@color/create_chapter_text"
+		android:background="@null"
+		android:textSize="18sp"
+		android:layout_gravity="center_vertical"
+		android:singleLine="true"
+		android:maxLength="16"
+		android:layout_marginLeft="10dp"
+		android:text=""/>
+</LinearLayout>
