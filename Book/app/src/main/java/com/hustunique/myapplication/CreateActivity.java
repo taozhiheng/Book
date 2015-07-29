@@ -22,6 +22,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.DatePicker;
@@ -42,6 +43,7 @@ import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
 import service.AddTask;
 import service.EditTask;
 import ui.DividerItemDecoration;
+import ui.StickyLayout;
 import util.Constant;
 import util.TimeUtil;
 
@@ -78,6 +80,9 @@ public class CreateActivity extends AppCompatActivity {
     private ProgressDialog mProgressDialog;
     private DatePicker mPicker;
     private EditText mTime;
+    private StickyLayout mStickyLayout;
+
+    private boolean mChanged;
 
 
     private int colorSelected = Color.rgb(0xe9, 0x1e, 0x63);
@@ -88,7 +93,7 @@ public class CreateActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mAction = getIntent().getIntExtra(Constant.KEY_ACTION, Constant.VIEW_BOOK);
 
-        setContentView(R.layout.create);
+        setContentView(R.layout.activity_create);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -113,6 +118,18 @@ public class CreateActivity extends AppCompatActivity {
         mRecycler.setItemAnimator(new SlideInDownAnimator());
         mRecycler.addItemDecoration(new DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL_LIST, 1));
+        mStickyLayout =(StickyLayout)findViewById(R.id.create_sticky);
+        mStickyLayout.setOnGiveUpTouchEventListener(new StickyLayout.OnGiveUpTouchEventListener() {
+            @Override
+            public boolean giveUpTouchEvent(MotionEvent event) {
+                View view = mRecycler.getChildAt(0);
+                if (view != null && view.getTop() >= 0)
+                    return true;
+                else if (mRecycler.getChildCount() == 0 && mRecycler.getTop() >= 0)
+                    return true;
+                return false;
+            }
+        });
 
         if(mAction != Constant.ACTION_EDIT_BOOK)
             mToolbar.setTitle("创建书籍");
@@ -126,6 +143,8 @@ public class CreateActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        mChanged = false;
 
         setListeners();
 
@@ -239,6 +258,8 @@ public class CreateActivity extends AppCompatActivity {
                 mChapterNum.setText(mBook.getFinishNum()+"/"+mBook.getChapterNum()+"章");
                 mAdapter.notifyItemChanged(position);
                 mAdapter.notifyItemInserted(position+1);
+                if(!mChanged)
+                    mChanged = true;
             }
 
             //删除一项时，chapterNum减少１
@@ -261,12 +282,16 @@ public class CreateActivity extends AppCompatActivity {
                 mGroupList.remove(position);
                 mAdapter.notifyItemRemoved(position);
                 mAdapter.notifyItemChanged(mGroupList.size());
+                if(!mChanged)
+                    mChanged = true;
             }
 
             @Override
             public void onItemModify(int position, String str) {
                 ChapterInfo chapterInfo = mGroupList.get(position);
                 chapterInfo.setName(str);
+                if(!mChanged)
+                    mChanged = true;
             }
         });
     }
@@ -346,6 +371,7 @@ public class CreateActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             mProgressDialog.dismiss();
+            Toast.makeText(getBaseContext(), "已添加", Toast.LENGTH_SHORT).show();
             finish();
         }
     };
@@ -360,6 +386,12 @@ public class CreateActivity extends AppCompatActivity {
         mWordNum.setOnKeyListener(mOnKeyListener);
         mAuthor.setOnKeyListener(mOnKeyListener);
         mPress.setOnKeyListener(mOnKeyListener);
+
+        mName.setOnFocusChangeListener(mOnFocusChangeListener);
+        mWordNum.setOnFocusChangeListener(mOnFocusChangeListener);
+        mAuthor.setOnFocusChangeListener(mOnFocusChangeListener);
+        mPress.setOnFocusChangeListener(mOnFocusChangeListener);
+
         mIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -377,6 +409,14 @@ public class CreateActivity extends AppCompatActivity {
             }
         });
     }
+
+    private View.OnFocusChangeListener mOnFocusChangeListener = new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if(!mChanged)
+                mChanged = true;
+        }
+    };
 
     private View.OnKeyListener mOnKeyListener = new View.OnKeyListener() {
         @Override
@@ -441,6 +481,11 @@ public class CreateActivity extends AppCompatActivity {
 
             if(mAction == Constant.ACTION_EDIT_BOOK)
             {
+                if(!mChanged)
+                {
+                    finish();
+                    return true;
+                }
                 Log.d("net", "edit book");
                 Log.d("net", "write book to local");
                 //保存书籍，章节信息
@@ -473,6 +518,7 @@ public class CreateActivity extends AppCompatActivity {
             Intent intent = new Intent();
             intent.putExtra(Constant.KEY_BOOK, mBook);
             setResult(RESULT_OK, intent);
+            Toast.makeText(getBaseContext(), "已保存", Toast.LENGTH_SHORT).show();
             finish();
         }
     };

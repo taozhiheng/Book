@@ -10,10 +10,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.readystatesoftware.systembartint.SystemBarTintManager;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+
+import data.UserPref;
 import data.UserReadInfo;
 import util.Constant;
 
@@ -27,6 +37,7 @@ public class PersonActivity extends AppCompatActivity {
     private TextView mDays;
     private TextView mWords;
     private TextView mUser;
+    private Button mLogout;
 
 
     private SystemBarTintManager mTintManager;
@@ -50,6 +61,7 @@ public class PersonActivity extends AppCompatActivity {
         mChapters = (TextView) findViewById(R.id.person_chapters);
         mDays = (TextView) findViewById(R.id.person_days);
         mWords = (TextView) findViewById(R.id.person_words);
+        mLogout = (Button) findViewById(R.id.person_logout);
 
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle("个人中心");
@@ -57,6 +69,24 @@ public class PersonActivity extends AppCompatActivity {
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setResult(RESULT_OK, null);
+                finish();
+            }
+        });
+
+        mLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UserPref.init(PersonActivity.this);
+                UserPref.setUserAuth(null);
+                MyApplication.setUserOnLine(false);
+                MyApplication.setAuthorization(null);
+                MyApplication.setUser(null);
+                MyApplication.setUserSex(false);
+                MyApplication.setUserMail(null);
+                MyApplication.setUserUrl(null);
+                setResult(RESULT_CANCELED, null);
+                Toast.makeText(getBaseContext(), "已登出", Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
@@ -66,22 +96,28 @@ public class PersonActivity extends AppCompatActivity {
         mChapters.setText(""+userReadInfo.getChapterNum());
         mDays.setText(""+userReadInfo.getDayNum());
         mWords.setText(""+userReadInfo.getWordNum());
+
+        mUser.setText(MyApplication.getUser());
+        setUserIcon();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        setupUserInfo();
     }
 
-    private void setupUserInfo()
+    private void setUserIcon()
     {
         String picturePath = MyApplication.getUserUrl();
         if (picturePath != null) {
-            Picasso.with(this).invalidate(Uri.parse(picturePath));
-            Picasso.with(this).load(Uri.parse(picturePath)).into(mIcon);
+            OkHttpClient picassoClient = new OkHttpClient();
+            picassoClient.setCache(null);
+            Picasso picasso=new Picasso.Builder(this).downloader(new OkHttpDownloader(picassoClient)).build();
+            picasso.load(picturePath).resize(146,146).into(mIcon);
+//            Picasso.with(this).invalidate(Uri.parse(picturePath));
+//            Picasso.with(this).load(Uri.parse(picturePath)).resize(137,137).into(mIcon);
         }
-        mUser.setText(MyApplication.getUser());
     }
 
 
@@ -93,23 +129,36 @@ public class PersonActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK && requestCode == Constant.ACTION_EDIT && data != null)
+        {
+            String str = data.getStringExtra(Constant.KEY_USER_NAME);
+            if(str != null)
+                mUser.setText(str);
+            if(data.getBooleanExtra(Constant.KEY_USER_ICON_CHANGE, false))
+                setUserIcon();
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         switch (id) {
-            case android.R.id.home:
-                finish();
-                overridePendingTransition(R.anim.in_ltr, R.anim.out_ltr);
-                break;
             case R.id.action_person_edit:
                 startActivityForResult(new Intent(this, EditActivity.class), Constant.ACTION_EDIT);
         }
-
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        setResult(RESULT_OK, null);
+        finish();
+    }
 }

@@ -29,6 +29,8 @@ public class MyApplication extends Application {
 
     private static boolean[] mShouldUpdate = new boolean[4];
 
+    private static boolean mIsSync;
+
     private static String mUrlHead;
 
     @Override
@@ -45,6 +47,16 @@ public class MyApplication extends Application {
 
     }
 
+    public static void setSync(boolean sync)
+    {
+        mIsSync = sync;
+    }
+
+    public static boolean getSync()
+    {
+        return mIsSync;
+    }
+
     @Override
     public void onTerminate() {
         super.onTerminate();
@@ -52,7 +64,8 @@ public class MyApplication extends Application {
 
     public static void setUrlHead()
     {
-        mUrlHead = "http://"+Constant.HOST_NAME+":"+Constant.PORT;
+        mUrlHead = "http://182.92.158.119:2333";
+//        mUrlHead = "http://"+Constant.HOST_NAME+":"+Constant.PORT;
         //new MyAsyncTask().execute(Constant.HOST_NAME);
     }
 

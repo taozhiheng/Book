@@ -20,6 +20,10 @@
     <item>
         <menu>
             <item
+                android:id="@+id/drawer_sync"
+                android:icon="@mipmap/ic_sync"
+                android:title="@string/drawer_sync"/>
+            <item
                 android:id="@+id/drawer_feedback"
                 android:icon="@mipmap/ic_feedback"
                 android:title="@string/drawer_feedback"/>

@@ -12,11 +12,12 @@
         android:layout_height="140dp">
         <ui.CircleImageView
             android:id="@+id/drawer_user_icon"
-            android:src="@mipmap/logo"
+            android:src="@mipmap/ic_user_icon"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
+            android:scaleType="centerCrop"
             app:border_width="6dp"
             app:border_color="@color/drawer_user_circle"
             android:layout_marginLeft="20dp" />

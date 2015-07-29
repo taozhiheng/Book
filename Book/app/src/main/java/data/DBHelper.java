@@ -29,7 +29,7 @@ public class DBHelper extends SQLiteOpenHelper{
     //end_time　　long 结束阅读时间
     //create_time　long 创建时间
     //status　 int 状态　０－同步正常　１－添加 2-修改 3-添加且修改　４－删除未同步
-    private static final String CREATE_BOOK = "CREATE TABLE book(" +
+    public static final String CREATE_BOOK = "CREATE TABLE book(" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
             "uuid varchar(50), " +
             "isbn varchar(20), " +
@@ -45,7 +45,7 @@ public class DBHelper extends SQLiteOpenHelper{
             "create_time varchar(30), " +
             "status INTEGER);";
     //删除book表
-    private static final String DELETE_BOOK = "DROP TABLE IF EXISTS book;";
+    public static final String DELETE_BOOK = "DROP TABLE IF EXISTS book;";
 
     //创建chapter表
     //_id  int 自增章节id
@@ -57,7 +57,7 @@ public class DBHelper extends SQLiteOpenHelper{
     //end_time　long 最后编辑时间
     //status　 int 状态　０－同步正常　１－添加　２－修改　３－删除未同步
 
-    private static final String CREATE_CHAPTER = "CREATE TABLE chapter("+
+    public static final String CREATE_CHAPTER = "CREATE TABLE chapter("+
             "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
             "id INTEGER, " +
             "book_id INTEGER, "+
@@ -66,7 +66,7 @@ public class DBHelper extends SQLiteOpenHelper{
             "start_time long, " +
             "end_time long, " +
             "status INTEGER);";
-    private static final String DELETE_CHAPTER = "DROP TABLE IF EXISTS chapter;";
+    public static final String DELETE_CHAPTER = "DROP TABLE IF EXISTS chapter;";
     public DBHelper(Context context)
     {
         super(context, DB_NAME, null, DB_VERSION);

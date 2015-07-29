@@ -30,9 +30,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.squareup.okhttp.Callback;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -48,6 +52,7 @@ import service.AddTask;
 import ui.DividerItemDecoration;
 import util.Constant;
 import util.TimeUtil;
+import web.OkHttpUtil;
 
 /**
  * Created by taozhiheng on 15-7-7.
@@ -239,6 +244,7 @@ public class AddActivity extends AppCompatActivity{
                         MyApplication.getDBOperateInstance().setBookDelete(mBook.getUUID());
                         mProgressDialog.dismiss();
                         mImageView.setSelected(false);
+                        Toast.makeText(getBaseContext(), "已取消", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("否", null)
@@ -256,6 +262,7 @@ public class AddActivity extends AppCompatActivity{
             super.handleMessage(msg);
             mProgressDialog.dismiss();
             mImageView.setSelected(true);
+            Toast.makeText(getBaseContext(), "已添加", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -274,7 +281,7 @@ public class AddActivity extends AppCompatActivity{
                 mBook = mBookList.get(mPosition);
                 mGroupList = mHashMap.get(mPosition);
                 if (!imageView.isSelected()) {
-                    if(mGroupList.size() > 0)
+                    if (mGroupList.size() > 0)
                         mDialog.show();
                     else
                         Toast.makeText(getBaseContext(), "此书没有章节,无法添加^_^", Toast.LENGTH_SHORT).show();
@@ -324,9 +331,11 @@ public class AddActivity extends AppCompatActivity{
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode == RESULT_OK && data != null && requestCode == Constant.ACTION_SCAN_BOOK) {
             String isbnCode = data.getStringExtra("result");
+            Toast.makeText(getBaseContext(), isbnCode, Toast.LENGTH_SHORT).show();
             queryISBN(isbnCode);
         }
     }
+
 
 
     // 传入isbn,去豆瓣搜索,显示dialog,结束时消除dialog
@@ -450,47 +459,23 @@ public class AddActivity extends AppCompatActivity{
                                     isbn13 = jsonObject.getString("isbn13");
                                 else
                                     isbn13 = jsonObject.getString("isbn10");
-                                final long[] wordNum = {0};
+//                                final long[] wordNum = {0};
                                 final String title = jsonObject.getString("title");
                                 final String author = ParseAuthor(jsonObject.getJSONArray("author"));
                                 final String publisher = jsonObject.getString("publisher");
                                 final String url = jsonObject.getString("image");
                                 final ArrayList<ChapterInfo> chapterInfos = parseChapters(jsonObject.getString("catalog"));
+                                mBookList.add(new Book(null, isbn13, title, author, publisher,
+                                        url, 0, 0, chapterInfos.size(),
+                                        0, 0, null, 1));
+                                mAdapter.notifyItemInserted(mBookList.size()-1);
+                                mHashMap.put(mBookList.size()-1, chapterInfos);
 
                                 mRequestQueue.add(
                                         new JsonObjectRequest(
                                                 Request.Method.GET,
                                                 MyApplication.getUrlHead() + "/api/v1/books/" + isbn13 + "/words",
-                                                null,
-                                                new Response.Listener<JSONObject>() {
-                                                    @Override
-                                                    public void onResponse(JSONObject response) {
-                                                        Log.d("net","words:"+response);
-                                                        try {
-                                                            wordNum[0] = response.getLong("words");
-                                                        } catch (JSONException e) {
-                                                            e.printStackTrace();
-                                                            wordNum[0] = 0;
-                                                        }finally {
-                                                            mBookList.add(new Book(null, isbn13, title, author, publisher,
-                                                                    url, 0, 0, chapterInfos.size(),
-                                                                    wordNum[0], 0, null, 1));
-                                                            mAdapter.notifyItemInserted(mBookList.size()-1);
-                                                            mHashMap.put(mBookList.size()-1, chapterInfos);
-                                                        }
-                                                    }
-                                                },
-                                                new Response.ErrorListener() {
-                                                    @Override
-                                                    public void onErrorResponse(VolleyError error) {
-                                                        wordNum[0] = 0;
-                                                        mBookList.add(new Book(null, isbn13, title, author, publisher,
-                                                                url, 0, 0, chapterInfos.size(),
-                                                                wordNum[0], 0, null, 1));
-                                                        mAdapter.notifyItemInserted(mBookList.size()-1);
-                                                        mHashMap.put(mBookList.size()-1, chapterInfos);
-                                                    }
-                                                }
+                                                null,new WordListener(i),null
                                         ));
                                 mRequestQueue.start();
                             }
@@ -518,6 +503,39 @@ public class AddActivity extends AppCompatActivity{
         mRequestQueue.start();
     }
 
+    class WordListener implements Response.Listener<JSONObject> {
+
+        private int mPosition;
+
+        public WordListener(int position)
+        {
+            this.mPosition = position;
+        }
+
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.d("web","book words:"+response);
+            try {
+                long wordNum = response.getLong("words");
+                if(wordNum != 0)
+                {
+                    mBookList.get(mPosition).setWordNum(wordNum);
+                    mAdapter.notifyItemChanged(mPosition);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+//              wordNum[0] = 0;
+            }
+//            finally {
+//                mBookList.add(new Book(null, isbn13, title, author, publisher,
+//                        url, 0, 0, chapterInfos.size(),
+//                        wordNum[0], 0, null, 1));
+//                mAdapter.notifyItemInserted(mBookList.size()-1);
+//                mHashMap.put(mBookList.size()-1, chapterInfos);
+//            }
+        }
+    }
+
 
     //从jsonArray中提取出所有作者
     private String ParseAuthor(JSONArray array){
@@ -537,10 +555,17 @@ public class AddActivity extends AppCompatActivity{
     public static ArrayList<ChapterInfo> parseChapters(String response)
     {
         ArrayList<ChapterInfo> chapterInfos = new ArrayList<>();
+        if(response == null || response.compareTo("" )==0)
+            return chapterInfos;
         String[] chapters = response.split("\n");
+        int j = 1;
         for(int i = 0; i < chapters.length-1; i++)
         {
-            chapterInfos.add(new ChapterInfo(i, chapters[i].trim()));
+            String name = chapters[i].trim();
+            if(name.compareTo("")==0)
+                continue;
+            chapterInfos.add(new ChapterInfo(j, chapters[i].trim()));
+            j++;
         }
         return chapterInfos;
 

@@ -44,8 +44,8 @@ public class Constant {
     //time format
     public final static String TIME_FORMAT = "yyyy-MM-dd.hh:mm:ss";
 
-
-    public final static String HOST_NAME = "pokebook.whitepanda.org";
+    //"pokebook.whitepanda.org"
+    public final static String HOST_NAME = "";
     public final static int PORT = 2333;
     //public final static String ip = "128.199.147.219";
     public final static String DB_ORIGIN_URL = "http://api.douban.com/book/subject/isbn/";
@@ -58,6 +58,12 @@ public class Constant {
     public final static String PREF_USERNAME = "username";
     public final static String PREF_PASSWORD = "password";
     public final static String PREF_AUTH = "authorization";
+
+    public final static String PREF_TIME = "lastTime";
+    public final static String PREF_WORDS = "todayWords";
+    public final static String PREF_WORDS2 = "tomorrowWords";
+    public final static String PREF_WORDS3 = "theDayAfterTomorrowWords";
+
 
     public final static String KEY_OLD_MAIL = "oldMail";
     public final static String KEY_MAIL = "mail";
@@ -151,7 +157,9 @@ public class Constant {
     public final static String URL_USER_AVATAR = "/api/v1/user/avatar";
     public final static String URL_SAYING = "/api/v1/sayings/everyday";
 
-
+    public final static String URL_BOOKS = "http://182.92.158.119:2333/api/v1/user/books";
+    public final static String URL_BOOK = "http://182.92.158.119:2333/api/v1/books";
+    public final static String URL_BOOKS_COUNT = "http://182.92.158.119:2333/api/v1/user/books/count";
 
 
 

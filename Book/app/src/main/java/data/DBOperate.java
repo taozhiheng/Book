@@ -83,15 +83,18 @@ public class DBOperate {
      * */
     public String insertBook(Book book, List<ChapterInfo> chapters)
     {
-        Log.d("net", "insert book:"+book.getType());
+        Log.d("net", "insert book:" + book.getType());
         open();
         long id = mDatabase.insert(Constant.TABLE_BOOK, null, createNewBookValues(book));
         String uuid = ""+id;
-        mDatabase.execSQL("update "+Constant.TABLE_BOOK+" set uuid='"+uuid+"' where _id="+id);
-        for(int i = 0; i < chapters.size(); i++)
+        mDatabase.execSQL("update " + Constant.TABLE_BOOK + " set uuid='" + uuid + "' where _id=" + id);
+        int i = 1;
+        for(ChapterInfo chapterInfo :chapters)
         {
-            ChapterInfo chapterInfo = chapters.get(i);
+            if(chapterInfo.getName().trim().compareTo("")==0)
+                continue;
             insertChapter(uuid, i, chapterInfo.getName());
+            i++;
         }
         return uuid;
     }
@@ -102,7 +105,7 @@ public class DBOperate {
     public int deleteBook(String uuid)
     {
         open();
-        mDatabase.delete(Constant.TABLE_CHAPTER, "book_id='"+uuid+"'", null);
+        mDatabase.delete(Constant.TABLE_CHAPTER, "book_id='" + uuid + "'", null);
         return mDatabase.delete(Constant.TABLE_BOOK, "uuid='"+uuid+"'", null);
     }
 
@@ -112,10 +115,10 @@ public class DBOperate {
     public void setBookDelete(String uuid)
     {
         open();
-        mDatabase.execSQL("update "+Constant.TABLE_BOOK+
-                " set status=3 where uuid='"+uuid+"'");
-        mDatabase.execSQL("update "+Constant.TABLE_CHAPTER+
-                " set status=3 where book_id='"+uuid+"'");
+        mDatabase.execSQL("update " + Constant.TABLE_BOOK +
+                " set status=3 where uuid='" + uuid + "'");
+        mDatabase.execSQL("update " + Constant.TABLE_CHAPTER +
+                " set status=3 where book_id='" + uuid + "'");
     }
 
     /**
@@ -213,7 +216,7 @@ public class DBOperate {
     public void updateBook(Book book)
     {
         open();
-        mDatabase.update(Constant.TABLE_BOOK, createBookValues(book), "uuid='"+book.getUUID()+"'"+" and status<3", null);
+        mDatabase.update(Constant.TABLE_BOOK, createBookValues(book), "uuid='" + book.getUUID() + "'" + " and status<3", null);
     }
 
     /**
@@ -222,18 +225,18 @@ public class DBOperate {
     public void setBookAfter(String uuid, String startTime)
     {
         open();
-        mDatabase.execSQL("update "+Constant.TABLE_BOOK+
-                " set type="+Constant.TYPE_AFTER+" , start_time='"+startTime+
-                "' where uuid='"+uuid+"'");
-        mDatabase.execSQL("update "+Constant.TABLE_CHAPTER+" set type=0 where book_id='"+uuid+"'");
+        mDatabase.execSQL("update " + Constant.TABLE_BOOK +
+                " set type=" + Constant.TYPE_AFTER + " , start_time='" + startTime +
+                "' where uuid='" + uuid + "'");
+        mDatabase.execSQL("update " + Constant.TABLE_CHAPTER + " set type=0 where book_id='" + uuid + "'");
     }
 
     public void setBookNow(String uuid, String startTime, String endTime)
     {
         open();
-        mDatabase.execSQL("update "+Constant.TABLE_BOOK+
-                " set type="+Constant.TYPE_NOW+" , start_time='"+startTime+"' , end_time='"+endTime+
-                "' where uuid='"+uuid+"'");
+        mDatabase.execSQL("update " + Constant.TABLE_BOOK +
+                " set type=" + Constant.TYPE_NOW + " , start_time='" + startTime + "' , end_time='" + endTime +
+                "' where uuid='" + uuid + "'");
         mDatabase.execSQL("update "+Constant.TABLE_CHAPTER+" set type=0 where book_id='"+uuid+"'");
         Log.d("net", "set book now");
     }
@@ -244,7 +247,7 @@ public class DBOperate {
         mDatabase.execSQL("update "+Constant.TABLE_BOOK+
                 " set type="+Constant.TYPE_BEFORE+" , end_time='"+endTime+
                 "' where uuid='"+uuid+"'");
-        mDatabase.execSQL("update "+Constant.TABLE_CHAPTER+" set type=2 where book_id='"+uuid+"'");
+        mDatabase.execSQL("update " + Constant.TABLE_CHAPTER + " set type=2 where book_id='" + uuid + "'");
     }
 
     /**
@@ -277,7 +280,7 @@ public class DBOperate {
     public int getBookMaxChapterIndex(String uuid)
     {
         open();
-        Cursor cursor = mDatabase.query(Constant.TABLE_CHAPTER, new String[]{"id"}, "book_id='"+uuid+"'"+" and status<3", null, null, null, "id desc", "0,1");
+        Cursor cursor = mDatabase.query(Constant.TABLE_CHAPTER, new String[]{"id"}, "book_id='" + uuid + "'" + " and status<3", null, null, null, "id desc", "0,1");
         if(!cursor.moveToNext())
             return -1;
         int index = cursor.getInt(0);
@@ -291,7 +294,7 @@ public class DBOperate {
     public void insertChapter(String bookId, int id, String name)
     {
         open();
-        mDatabase.insert(Constant.TABLE_CHAPTER, null,  createNewChapterValues(bookId, id, name));
+        mDatabase.insert(Constant.TABLE_CHAPTER, null, createNewChapterValues(bookId, id, name));
     }
 
     /**
@@ -300,7 +303,7 @@ public class DBOperate {
     public void deleteChapter(String bookId, int id)
     {
         open();
-        mDatabase.delete(Constant.TABLE_CHAPTER, "book_id='"+bookId+"' and id="+id, null);
+        mDatabase.delete(Constant.TABLE_CHAPTER, "book_id='" + bookId + "' and id=" + id, null);
 
     }
 
@@ -320,8 +323,8 @@ public class DBOperate {
     public void setChapterDelete(String bookId, int id)
     {
         open();
-        mDatabase.execSQL("update "+Constant.TABLE_CHAPTER+
-                " set status=3 where book_id='"+bookId+"' and id="+id);
+        mDatabase.execSQL("update " + Constant.TABLE_CHAPTER +
+                " set status=3 where book_id='" + bookId + "' and id=" + id);
     }
 
     /**
@@ -358,12 +361,34 @@ public class DBOperate {
         return chapterList;
     }
 
+    public String getBookUUID(int id)
+    {
+        open();
+        Cursor cursor = mDatabase.query(Constant.TABLE_BOOK, new String[]{"uuid"}, "_id="+id, null, null, null, null, "0,1");
+        if(cursor.moveToNext())
+            return cursor.getString(0);
+        return null;
+    }
+
+    /**
+     * 获取某本书未修改章节数目
+     * */
+    public int getOKChapterNum(String bookId)
+    {
+        open();
+        Cursor cursor = mDatabase.query(Constant.TABLE_CHAPTER, new String[]{"type"}, "book_id='"+bookId+"' and status=0", null, null, null, null);
+        if(cursor.moveToNext())
+            return cursor.getCount();
+        return 0;
+    }
+
     /**
      * 获取某本书的所有章节
      * id,book_id,name,type,status
      * */
     public List<Chapter> getChapters(String bookId)
     {
+        Log.d("web", "get book chapters " + bookId);
         open();
         List<Chapter> chapterList = new ArrayList<>();
         Cursor cursor = mDatabase.query(Constant.TABLE_CHAPTER,
@@ -377,7 +402,7 @@ public class DBOperate {
             int type = cursor.getInt(3);
             int status = cursor.getInt(4);
 
-            Log.d("web", "book chapter:"+name+" type:"+type+" status:"+status);
+            Log.d("web", "book chapter:"+name+" type:"+type+" status:"+status+" "+bookID+"/"+id);
 
             chapterList.add(new Chapter(id, bookID, name, type, null,status));
         }
@@ -394,7 +419,7 @@ public class DBOperate {
         open();
         mDatabase.execSQL("update " + Constant.TABLE_CHAPTER +
                 " set type=" + type +
-                " where book_id='" + bookId + "' and id=" + id+" and status<3");
+                " where book_id='" + bookId + "' and id=" + id + " and status<3");
         if(type == Constant.TYPE_BEFORE)
             checkBookFinish(bookId);
     }
@@ -418,6 +443,7 @@ public class DBOperate {
      * */
     public void setChapterStatus(String bookId, int id, int status)
     {
+        Log.d("web", "set chapter status:"+bookId+"/"+id+"/"+status);
         open();
         mDatabase.execSQL("update "+Constant.TABLE_CHAPTER+
                 " set status="+status+
@@ -517,11 +543,11 @@ public class DBOperate {
         open();
         mDatabase.insert(Constant.TABLE_BOOK, null, getBookValues(book));
         String uuid = book.getUUID();
-        int type = Constant.TYPE_AFTER;
-        if(book.getType() == Constant.TYPE_BEFORE)
-            type = Constant.TYPE_BEFORE;
         for(ChapterInfo chapterInfo : chapterInfos)
         {
+            int type = book.getType();
+            if(type == Constant.TYPE_NOW)
+                type = chapterInfo.getType();
             mDatabase.insert(Constant.TABLE_CHAPTER, null,
                     getChapterValues(uuid, chapterInfo.getPosition(), chapterInfo.getName(), type));
         }
@@ -572,12 +598,12 @@ public class DBOperate {
     public void resetBookUUID(String uuid, String UUID)
     {
         open();
-        mDatabase.execSQL("update "+Constant.TABLE_BOOK+
-                " set uuid='"+UUID+
-                "' where uuid='"+uuid+"'");
-        mDatabase.execSQL("update "+Constant.TABLE_CHAPTER+
-                " set book_id='"+UUID+
-                "' where book_id='"+uuid+"'");
+        mDatabase.execSQL("update " + Constant.TABLE_BOOK +
+                " set uuid='" + UUID +
+                "' where uuid='" + uuid + "'");
+        mDatabase.execSQL("update " + Constant.TABLE_CHAPTER +
+                " set book_id='" + UUID +
+                "' where book_id='" + uuid + "'");
     }
 
     /**
@@ -585,6 +611,7 @@ public class DBOperate {
      * */
     public void resetChapterID(String bookId, int id, int ID)
     {
+        Log.d("web", " reset chapter id,book:" + bookId + " from " + id + " to " + ID);
         open();
         mDatabase.execSQL("update "+Constant.TABLE_CHAPTER+
                 " set id='"+ID+
@@ -596,7 +623,7 @@ public class DBOperate {
      * */
     public List<Book> getStatusBooks(int status)
     {
-        Log.d("web", "get status book:"+status);
+        Log.d("web", " ChapterInfo chapterInfo = chapters.get(i);get status book:"+status);
         open();
         List<Book> bookList = new ArrayList<>();
         String[] query = new String[]{"uuid", "isbn", "name", "author",
@@ -622,7 +649,7 @@ public class DBOperate {
 
             int finishNum = getBookFinishNum(uuid);
             int chapterNum = getBookChapterNum(uuid);
-            Log.d("web", "status book:"+name+" status:"+bookStatus+" type:"+type);
+//            Log.d("web", "status book:"+name+" status:"+bookStatus+" type:"+type);
             bookList.add(new Book(uuid, isbn, name, author, press,
                     url, color, finishNum, chapterNum,
                     wordNum, type, null, bookStatus,
@@ -635,7 +662,7 @@ public class DBOperate {
     public List<Chapter> getStatusChapters(int status)
     {
         open();
-        Log.d("web", "get status book:"+status);
+        Log.d("web", "get status chapters:" + status);
         List<Chapter> chapterList = new ArrayList<>();
         Cursor cursor = mDatabase.query(Constant.TABLE_CHAPTER,
                 new String[]{"id", "book_id", "name", "type","status"},
@@ -647,12 +674,22 @@ public class DBOperate {
             String name = cursor.getString(2);
             int type = cursor.getInt(3);
             int chapterStatus = cursor.getInt(4);
-            Log.d("web", "chapter:"+name+" status:"+chapterStatus);
+            Log.d("web", "status chapter:"+name+" type:"+type+" status:"+chapterStatus);
 
             chapterList.add(new Chapter(id, bookId, name, type, null, chapterStatus));
         }
         cursor.close();
         return chapterList;
+    }
+
+
+    public void initAll()
+    {
+        open();
+        mDatabase.execSQL(DBHelper.DELETE_BOOK);
+        mDatabase.execSQL(DBHelper.DELETE_CHAPTER);
+        mDatabase.execSQL(DBHelper.CREATE_BOOK);
+        mDatabase.execSQL(DBHelper.CREATE_CHAPTER);
     }
 
     /**
@@ -661,7 +698,19 @@ public class DBOperate {
     public void deleteAll()
     {
         open();
-        mDatabase.delete(Constant.TABLE_BOOK, "status="+Constant.STATUS_DEL, null);
-        mDatabase.delete(Constant.TABLE_CHAPTER, "status="+Constant.STATUS_DEL, null);
+        mDatabase.delete(Constant.TABLE_CHAPTER, "status=" + Constant.STATUS_DEL, null);
+        mDatabase.delete(Constant.TABLE_BOOK, "status=" + Constant.STATUS_DEL, null);
+    }
+
+    /**
+     * 将所有书和章节标记为新增状态
+     * */
+    public void resetAll()
+    {
+        open();
+        mDatabase.execSQL("update "+Constant.TABLE_CHAPTER+
+                " set status=" + Constant.STATUS_ADD);
+        mDatabase.execSQL("update "+Constant.TABLE_BOOK+
+                " set status="+Constant.STATUS_ADD);
     }
 }

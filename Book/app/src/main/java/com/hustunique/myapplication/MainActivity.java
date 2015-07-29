@@ -29,8 +29,11 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 import net.MyJsonObjectRequest;
 import org.json.JSONException;
@@ -39,9 +42,12 @@ import java.util.ArrayList;
 import java.util.List;
 import adapter.MyFragmentAdapter;
 import data.DBOperate;
+import data.UserPref;
 import fragment.BeforeFragment;
 import fragment.AddListener;
 import fragment.NowFragment;
+import fragment.ReadingFragment;
+import service.Counter;
 import service.WebService;
 import util.Constant;
 
@@ -75,7 +81,85 @@ public class MainActivity extends AppCompatActivity implements AddListener{
 
     private ProgressDialog mProgressDialog;
 
-    private int mChoice = -1;
+
+    private void autoLogin()
+    {
+        mRequestQueue.add(new MyJsonObjectRequest(
+                        Request.Method.GET,
+                        MyApplication.getUrlHead() + Constant.URL_USER_INFO,
+                        null,
+                        new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                Log.d("net", "login:"+response.toString());
+                                try
+                                {
+                                    //读取用户基本信息
+                                    MyApplication.setUserOnLine(true);
+                                    String mail = response.getString("mail");
+                                    String username = response.getString("username");
+                                    String sexStr = response.getString("sex");
+                                    boolean sex = false;
+                                    if(sexStr.equals("true"))
+                                        sex = true;
+                                    String avatar = response.getString("avatar");
+                                    //记录基本信息
+                                    MyApplication.setUser(username);
+                                    MyApplication.setUserSex(sex);
+                                    if(!avatar.contains("http"))
+                                        avatar = MyApplication.getUrlHead() + avatar;
+                                    MyApplication.setUserUrl(avatar);
+                                    MyApplication.setUserMail(mail);
+                                    //通知fragment刷新
+                                    MyApplication.setShouldUpdate(Constant.INDEX_READ);
+                                    MyApplication.setShouldUpdate(Constant.INDEX_AFTER);
+                                    MyApplication.setShouldUpdate(Constant.INDEX_NOW);
+                                    MyApplication.setShouldUpdate(Constant.INDEX_BEFORE);
+
+                                    setUserInfo();
+
+                                    //检查数据状态
+                                    mRequestQueue.add(new MyJsonObjectRequest(
+                                                    Request.Method.GET,
+                                                    Constant.URL_BOOKS_COUNT,
+                                                    null,
+                                                    new Response.Listener<JSONObject>() {
+                                                        @Override
+                                                        public void onResponse(JSONObject response) {
+                                                            try
+                                                            {
+                                                                int netCount = response.getInt("count");
+                                                                int localCount =
+                                                                        MyApplication.getDBOperateInstance().getBookNum();
+                                                                Toast.makeText(getBaseContext(), "localCount:"+localCount+" netCount:"+netCount, Toast.LENGTH_SHORT).show();
+                                                                if(localCount <= 0 && netCount != 0)
+                                                                    sync(Constant.CHOICE_WEB);
+                                                                else if(netCount <= 0 && localCount != 0)
+                                                                    sync(Constant.CHOICE_LOCAL);
+                                                            }catch (JSONException e)
+                                                            {
+                                                                e.printStackTrace();
+                                                            }
+                                                        }
+                                                    },null
+                                    ));
+                                    mRequestQueue.start();
+
+                                } catch (JSONException e)
+                                {
+                                    e.printStackTrace();
+                                }
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                               setUserInfo();
+                            }
+                        })
+        );
+        mRequestQueue.start();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements AddListener{
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         MyApplication.setUserOnLine(false);
+                        MyApplication.setAuthorization(null);
                         MyApplication.setUser(null);
                         MyApplication.setUserSex(false);
                         MyApplication.setUserMail(null);
@@ -112,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements AddListener{
                 .create();
         mDrawerLayout.setStatusBarBackground(R.color.accent_material_dark);
         init();
-        setUserInfo();
+
         mRequestQueue = Volley.newRequestQueue(this);
 //        new Thread(new Runnable() {
 //            @Override
@@ -125,6 +210,10 @@ public class MainActivity extends AppCompatActivity implements AddListener{
         startService(new Intent(this, WebService.class));
         IntentFilter filter = new IntentFilter("com.hustunique.myapplication.MAIN_RECEIVER");
         registerReceiver(mReceiver, filter);
+
+        UserPref.init(this);
+        MyApplication.setAuthorization(UserPref.getUserAuth());
+        autoLogin();
     }
 
     private void init()
@@ -161,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements AddListener{
                 if(!MyApplication.getUserOnLine())
                     startActivityForResult(new Intent(MainActivity.this, LoginActivity.class), Constant.LOGIN);
                 else
-                    startActivityForResult(new Intent(MainActivity.this, PersonActivity.class), Constant.LOGIN);
+                    startActivityForResult(new Intent(MainActivity.this, PersonActivity.class), Constant.PERSON);
             }
         });
 
@@ -196,6 +285,12 @@ public class MainActivity extends AppCompatActivity implements AddListener{
                     case R.id.drawer_calendar:
                         setCurrentItem(2);
                         break;
+                    case R.id.drawer_sync:
+                        if(MyApplication.getUserOnLine() && MyApplication.getAuthorization() != null) {
+                            mChoseDialog.setCancelable(true);
+                            mChoseDialog.show();
+                        }
+                        break;
                     case R.id.drawer_feedback:
                         startActivity(new Intent(MainActivity.this, FeedbackActivity.class));
                         break;
@@ -228,11 +323,7 @@ public class MainActivity extends AppCompatActivity implements AddListener{
         mFragmentPagerAdapter.finishUpdate(mContainer);
         mToolbar.setTitle(titles[position]);
         mDrawerLayout.closeDrawers();
-        if(position == 1)
-        {
-            NowFragment.executeLoad();
-            BeforeFragment.executeLoad();
-        }
+
     }
 
     @Override
@@ -244,8 +335,10 @@ public class MainActivity extends AppCompatActivity implements AddListener{
     {
         String str;
         if((str=MyApplication.getUserUrl()) != null) {
-            Picasso.with(this).invalidate(Uri.parse(str));
-            Picasso.with(this).load(Uri.parse(str)).into(mIcon);
+            OkHttpClient picassoClient = new OkHttpClient();
+            picassoClient.setCache(null);
+            Picasso picasso=new Picasso.Builder(this).downloader(new OkHttpDownloader(picassoClient)).build();
+            picasso.load(str).resize(100, 100).into(mIcon);
         }
         if((str=MyApplication.getUser()) != null)
             mUser.setText(str);
@@ -254,7 +347,6 @@ public class MainActivity extends AppCompatActivity implements AddListener{
         mEmail.setText(MyApplication.getUserMail());
     }
 
-    private final static String URL_BOOKS_COUNT = "http://pokebook.whitepanda.org:2333/api/v1/user/books/count";
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
@@ -266,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements AddListener{
                 //检查数据
                 mRequestQueue.add(new MyJsonObjectRequest(
                         Request.Method.GET,
-                        URL_BOOKS_COUNT,
+                        Constant.URL_BOOKS_COUNT,
                         null,
                         new Response.Listener<JSONObject>() {
                             @Override
@@ -299,19 +391,27 @@ public class MainActivity extends AppCompatActivity implements AddListener{
                 mRequestQueue.start();
 
             }
+        }else if(resultCode == RESULT_CANCELED && requestCode == Constant.PERSON)
+        {
+            Picasso.with(this).load(R.mipmap.ic_user_icon).into(mIcon);
+            mUser.setText("请登录");
+            mEmail.setText(null);
         }
     }
 
+
     private void sync(int choice)
     {
+        if(!MyApplication.getUserOnLine())
+            return;
         mProgressDialog.show();
-        mChoice = choice;
         Intent intent = new Intent(this, WebService.class);
         intent.putExtra(Constant.KEY_CMD, Constant.CMD_SYNC);
         if(choice == Constant.CHOICE_WEB)
             intent.putExtra(Constant.KEY_CHOICE, Constant.CHOICE_WEB);
         else
             intent.putExtra(Constant.KEY_CHOICE, Constant.CHOICE_LOCAL);
+        MyApplication.setSync(true);
         startService(intent);
     }
 
@@ -338,36 +438,27 @@ public class MainActivity extends AppCompatActivity implements AddListener{
             mChoseDialog.dismiss();
 
         Log.d("web", "stop service");
-        stopService(new Intent("com.hustunique.myapplication.UPDATE"));
+        stopService(new Intent(this, WebService.class));
         DBOperate dbOperate = MyApplication.getDBOperateInstance();
         if(dbOperate != null )
             dbOperate.close();
         unregisterReceiver(mReceiver);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.action_main_sync && mChoice != -1)
-        {
-            sync(mChoice);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             mProgressDialog.dismiss();
-            Toast.makeText(getBaseContext(), intent.getStringExtra("info"), Toast.LENGTH_SHORT).show();
-            if(intent.getBooleanExtra("syncResult", false))
-                findViewById(R.id.action_main_sync).setVisibility(View.GONE);
+            MyApplication.setSync(false);
+
+            Counter counter = intent.getParcelableExtra("counter");
+            String head = "同步成功:";
+            if(counter.getBookFinishNum() < counter.getBookNum())
+                head = "同步不完整:";
+            Toast.makeText(getBaseContext(), head+counter.getBookFinishNum()+"/"+counter.getBookNum()+"本"+" "+counter.getChapterNum()+"章", Toast.LENGTH_SHORT).show();
+            ReadingFragment.executeLoad();
             MyApplication.setShouldUpdate(Constant.INDEX_READ);
             MyApplication.setShouldUpdate(Constant.INDEX_AFTER);
             MyApplication.setShouldUpdate(Constant.INDEX_NOW);

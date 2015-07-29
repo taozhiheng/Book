@@ -1,7 +1,10 @@
 package net;
 
+import android.util.Log;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.hustunique.myapplication.MyApplication;
@@ -28,6 +31,13 @@ public class MyJsonArrayRequest extends JsonArrayRequest {
         super(method, url, jsonRequest, listener, errorListener);
         setRetryPolicy(
                 new DefaultRetryPolicy(10*1000, 3, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+    }
+
+    @Override
+    protected Response<JSONArray> parseNetworkResponse(NetworkResponse response) {
+        Log.d("web", "jsonRequest statusCode:" + response.statusCode + " CONTENT:" + response.data);
+
+        return super.parseNetworkResponse(response);
     }
 
     @Override

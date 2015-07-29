@@ -28,8 +28,7 @@ import util.Constant;
  */
 public class DeleteAsyncTask extends AsyncTask<Void, Integer, Void> {
 
-    private final static String URL_BOOKS = "http://pokebook.whitepanda.org:2333/api/v1/user/books";
-    private final static String URL_BOOK = "http://pokebook.whitepanda.org:2333/api/v1/books";
+
 
     private RequestQueue mRequestQueue;
     private Context mContext;
@@ -74,7 +73,7 @@ public class DeleteAsyncTask extends AsyncTask<Void, Integer, Void> {
             //查询此书是否存在
             mRequestQueue.add(new MyJsonObjectRequest(
                     Request.Method.GET,
-                    URL_BOOK + "/" + book.getUUID(),
+                    Constant.URL_BOOK + "/" + book.getUUID(),
                     null,
                     new Response.Listener<JSONObject>() {
                         @Override
@@ -83,7 +82,7 @@ public class DeleteAsyncTask extends AsyncTask<Void, Integer, Void> {
                             Log.d("web", "update, delete a book to web");
                             mRequestQueue.add(new MyJsonObjectRequest(
                                     Request.Method.DELETE,
-                                    URL_BOOK + "/" + book.getUUID(),
+                                    Constant.URL_BOOK + "/" + book.getUUID(),
                                     null,
                                     new Response.Listener<JSONObject>() {
                                         @Override

@@ -90,8 +90,9 @@
                         android:minWidth="80dp"
                         android:inputType="number"
                         android:background="@null"
-                        android:layout_marginLeft="50dp"
+                        android:layout_marginLeft="26dp"
                         android:gravity="center"
+                        android:singleLine="true"
                         android:hint="点击输入字数"
                         android:textColorHint="@color/bookshelf_plan_hint_text"
                         android:textColor="@color/create_other_text" />
@@ -101,8 +102,9 @@
                         android:textSize="13sp"
                         android:maxLength="10"
                         android:gravity="center_vertical"
+                        android:singleLine="true"
                         android:textColor="@color/create_other_text"
-                        android:text="  字"/>
+                        android:text=" K字"/>
                 </LinearLayout>
 
                 <EditText

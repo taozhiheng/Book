@@ -28,8 +28,6 @@ import util.TimeUtil;
  */
 public class InsertAsyncTask extends AsyncTask<Void, Integer, Void>{
 
-    private final static String URL_BOOKS = "http://pokebook.whitepanda.org:2333/api/v1/user/books";
-    private final static String URL_BOOK = "http://pokebook.whitepanda.org:2333/api/v1/books";
 
     private RequestQueue mRequestQueue;
     private Context mContext;
@@ -66,7 +64,7 @@ public class InsertAsyncTask extends AsyncTask<Void, Integer, Void>{
             //查询此书是否存在
             mRequestQueue.add(new MyJsonObjectRequest(
                     Request.Method.GET,
-                    URL_BOOK + "/" + book.getUUID(),
+                    Constant.URL_BOOK + "/" + book.getUUID(),
                     null,
                     new Response.Listener<JSONObject>() {
                         @Override
@@ -89,7 +87,7 @@ public class InsertAsyncTask extends AsyncTask<Void, Integer, Void>{
                             //发送post请求，向服务器插入一本书
                             mRequestQueue.add(new MyJsonObjectRequest(
                                     Request.Method.POST,
-                                    URL_BOOK,
+                                    Constant.URL_BOOK,
                                     jsonObject,
                                     new Response.Listener<JSONObject>() {
                                         @Override
@@ -98,7 +96,6 @@ public class InsertAsyncTask extends AsyncTask<Void, Integer, Void>{
                                             Log.d("web", "succeed insert a book to web, detail:" + response);
                                             try {
                                                 //插入书籍成功
-
                                                 //从反馈中取得uuid
                                                 final String UUID = response.getString("uuid");
                                                 //重新设置本地数据库这本书的uuid，暂时标记为status_mod
@@ -106,9 +103,9 @@ public class InsertAsyncTask extends AsyncTask<Void, Integer, Void>{
                                                 dbOperate.setBookStatus(UUID, Constant.STATUS_MOD);
                                                 //从反馈中取得所有章节的id,重新设置本地数据库这本书所有章节的book_id, id, status=status_mod
                                                 JSONArray jsonArray = response.getJSONArray("chapters");
-                                                for (int k = 0; k < jsonArray.length(); k++) {
-                                                    JSONObject json = jsonArray.getJSONObject(k);
-                                                    Chapter chapter = chapters.get(k);
+                                                for (int k = jsonArray.length(); k > 0; k--) {
+                                                    JSONObject json = jsonArray.getJSONObject(k-1);
+                                                    Chapter chapter = chapters.get(k-1);
                                                     int ID = json.getInt("id");
                                                     dbOperate.resetChapterID(
                                                             UUID, chapter.getId(), ID);
@@ -121,7 +118,7 @@ public class InsertAsyncTask extends AsyncTask<Void, Integer, Void>{
                                                 //然后修改服务器书籍的类型及章节的类型
 
                                                 //根据书的类型设置url及参数
-                                                String url = URL_BOOKS;
+                                                String url = Constant.URL_BOOKS;
                                                 HashMap<String, String> map = new HashMap<>();
                                                 switch (book.getType()) {
                                                     case Constant.TYPE_AFTER:
@@ -169,12 +166,13 @@ public class InsertAsyncTask extends AsyncTask<Void, Integer, Void>{
                                                 mRequestQueue.start();
 
                                                 //如果书籍是在读书籍，遍历修改在读书籍的章节类型
-                                                if (book.getType() == Constant.TYPE_NOW) {
+                                                if (book.getType() == Constant.TYPE_NOW)
+                                                {
                                                     //改变在读书籍的章节类型
                                                     for (final Chapter chapter : chapters) {
                                                         if (chapter.getType() != Constant.TYPE_AFTER) {
                                                             map.clear();
-                                                            String chapterUrl = URL_BOOKS + "/" + UUID + "/chapters/";
+                                                            String chapterUrl = Constant.URL_BOOKS + "/" + UUID + "/chapters/";
                                                             //章节类型为在读和已读时进行修改，设置不同的url和参数
                                                             switch (chapter.getType()) {
                                                                 case Constant.TYPE_NOW:

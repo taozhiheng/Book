@@ -38,7 +38,8 @@ public class EditTask extends AsyncTask<Void, Integer, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        mHandler.sendEmptyMessage(0);
+        if(mHandler != null)
+            mHandler.sendEmptyMessage(0);
     }
 
     @Override
@@ -55,15 +56,17 @@ public class EditTask extends AsyncTask<Void, Integer, Void> {
         for (ChapterInfo chapterInfo : mGroupList) {
             int position = chapterInfo.getPosition();
             Chapter chapter;
+            String chapterName = chapterInfo.getName().trim();
             //更新
-            if (position != -1) {
+            if (position != -1 && chapterName.compareTo("")!=0 ) {
                 chapter = mChapterList.get(position);
-                dbOperate.updateChapter(chapter.getBookId(), chapter.getId(), chapterInfo.getName());
+                if(chapter.getName().equals(chapterName))
+                    continue;
                 int status2 = Constant.STATUS_MOD;
                 if(mBook.getStatus() == Constant.STATUS_ADD)
                     status2 = Constant.STATUS_ADD;
                 dbOperate.setChapterStatus(chapter.getBookId(), chapter.getId(), status2);
-            } else//增加
+            } else if(chapterInfo.getName().trim().compareTo("") != 0)//增加
             {
                 index++;
                 dbOperate.insertChapter(bookId, index, chapterInfo.getName());

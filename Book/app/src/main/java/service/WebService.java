@@ -25,7 +25,7 @@ public class WebService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("web", "update,get minutes broadcast");
-            if(!MyApplication.getUserOnLine())
+            if(!MyApplication.getUserOnLine() || MyApplication.getSync())
                 return;
             startUpdate(getApplicationContext());
             Log.d("web", "update, start update");
@@ -53,11 +53,11 @@ public class WebService extends Service {
             return super.onStartCommand(null, flags, startId);
         int cmd = intent.getIntExtra(Constant.KEY_CMD, -1);
         Log.d("net", "start service, command:"+cmd);
-        if(cmd == Constant.CMD_SYNC)
+        if(cmd == Constant.CMD_SYNC && MyApplication.getUserOnLine())
         {
             startSync(getApplicationContext(), intent.getIntExtra(Constant.KEY_CHOICE, Constant.CHOICE_LOCAL));
         }
-        else if(cmd == Constant.CMD_UPDATE)
+        else if(cmd == Constant.CMD_UPDATE && MyApplication.getUserOnLine())
         {
             startUpdate(getApplicationContext());
         }
@@ -73,6 +73,7 @@ public class WebService extends Service {
 
     private void startSync(Context context, int choice)
     {
+
         new MyAsyncTask(context, choice).execute();
     }
 

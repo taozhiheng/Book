@@ -3,6 +3,7 @@ package service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Message;
 import android.util.Log;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -20,6 +21,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import data.Book;
 import data.Chapter;
 import data.ChapterInfo;
@@ -33,29 +35,54 @@ import util.TimeUtil;
  */
 public class MyAsyncTask extends AsyncTask<Void, Integer, Void>{
 
-    private final static String URL_BOOKS = "http://pokebook.whitepanda.org:2333/api/v1/user/books";
-    private final static String URL_BOOK = "http://pokebook.whitepanda.org:2333/api/v1/books";
+
 
     private RequestQueue mRequestQueue;
+    private RequestQueue mRequestQueue1;
+    private RequestQueue mRequestQueue2;
+    private RequestQueue mRequestQueue3;
+
     private int mCMD;
     private Book mBook;
     private List<ChapterInfo> mChapterInfos;
 
     private Context mContext;
+    private Counter mCounter ;
 
     public MyAsyncTask(Context context, int command)
     {
         this.mContext = context;
         this.mCMD = command;
         this.mRequestQueue = Volley.newRequestQueue(context, new OkHttpStack());
+        this.mRequestQueue1 = Volley.newRequestQueue(context);
+        this.mRequestQueue2 = Volley.newRequestQueue(context);
+        this.mRequestQueue3 = Volley.newRequestQueue(context);
+
         mBook = new Book();
         mChapterInfos = new ArrayList<>();
+        mCounter = new Counter(0);
     }
 
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
         Log.d("web","do in background finish");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (mCounter.hasCount()) {
+                    try {
+                        Thread.sleep(500);
+                    }catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                Intent intent = new Intent("com.hustunique.myapplication.MAIN_RECEIVER");
+                intent.putExtra("counter", mCounter);
+                mContext.sendBroadcast(intent);
+            }
+        }).start();
 
     }
 
@@ -73,6 +100,161 @@ public class MyAsyncTask extends AsyncTask<Void, Integer, Void>{
         return null;
     }
 
+
+    //0-查所有书籍uuid,得到jsonArray
+    private android.os.Handler mHandler = new android.os.Handler()
+    {
+        @Override
+        public void handleMessage(Message msg)
+        {
+            super.handleMessage(msg);
+            //开始找未读书籍
+            mCounter.increase();
+            mRequestQueue1.add(new MyJsonArrayRequest(
+                    Request.Method.GET,
+                    Constant.URL_BOOKS + "/wishs",
+                    null,
+                    new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(final JSONArray response) {
+                            mCounter.decrease();
+                            mCounter.addBookNum(response.length());
+                            Log.d("web", "sync, succeed search all wish books from web, detail:" + response);
+                            for (int i = 0; i < response.length(); i++) {
+                                try {
+                                    //拿到一本书的uuid,type
+                                    JSONObject jsonObject = response.getJSONObject(i);
+                                    String uuid = jsonObject.getString("uuid");
+                                    //查询书籍详情，将一本书录入本地，正确设置
+                                    Log.d("web", "sync, search a wish book detail, url:" + Constant.URL_BOOK + "/" + uuid);
+                                    mCounter.increase();
+                                    mRequestQueue1.add(new MyJsonObjectRequest(Request.Method.GET, Constant.URL_BOOK + "/" + uuid, null,
+                                            new WriteBookResponse(mCounter, Constant.TYPE_AFTER), new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            Log.d("web", "fail to find a wish book detail"+error.toString());
+                                            mCounter.decrease();
+                                        }
+                                    }));
+                                    mRequestQueue1.start();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("web", "sync, can find wish book detail,:" + error);
+                    mCounter.decrease();
+                }
+            }));
+            mRequestQueue1.start();
+            //查找所有已读书籍
+            mCounter.increase();
+            mRequestQueue2.add(new MyJsonArrayRequest(
+                    Request.Method.GET,
+                    Constant.URL_BOOKS + "/reads",
+                    null,
+                    new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(final JSONArray response) {
+                            mCounter.decrease();
+                            mCounter.addBookNum(response.length());
+                            Log.d("web", "sync, succeed search all read books from web, detail:" + response);
+                            for (int i = 0; i < response.length(); i++) {
+                                try {
+                                    //拿到一本书的uuid,type
+                                    JSONObject jsonObject = response.getJSONObject(i);
+                                    String uuid = jsonObject.getString("uuid");
+                                    //查询书籍详情，将一本书录入本地，正确设置
+                                    Log.d("web", "sync, search a read book detail, url:" + Constant.URL_BOOK + "/" + uuid);
+                                    mCounter.increase();
+                                    mRequestQueue2.add(new MyJsonObjectRequest(Request.Method.GET, Constant.URL_BOOK + "/" + uuid, null,
+                                            new WriteBookResponse(mCounter, Constant.TYPE_BEFORE), new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            Log.d("web", "fail to find a read book detail" + error.toString());
+                                            mCounter.decrease();
+
+                                        }
+                                    }));
+                                    mRequestQueue2.start();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    Log.d("web", e.toString());
+                                }
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    mCounter.decrease();
+                }
+            }));
+            mRequestQueue2.start();
+            //查找所有在读书籍
+            mCounter.increase();
+            mRequestQueue3.add(new MyJsonArrayRequest(
+                    Constant.URL_BOOKS + "/readings",
+                    new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(JSONArray response) {
+                            mCounter.decrease();
+                            mCounter.addBookNum(response.length());
+                            Log.d("web", "sync, succeed search all reading books info:" + response);
+                            for (int i = 0; i < response.length(); i++) {
+                                try {
+
+                                    JSONObject jsonObject = response.getJSONObject(i);
+                                    String uuid = jsonObject.getString("uuid");
+
+                                    List<Integer> mTypeList = new ArrayList<>();
+                                    JSONArray chapters = jsonObject.getJSONArray("chapters");
+                                    for (int j = 0; j < chapters.length(); j++) {
+                                        //取得一本书一个章节json串，改变章节类型
+                                        JSONObject chapter = chapters.getJSONObject(j);
+                                        String typeString = chapter.getString("status");
+                                        int type;
+                                        if (typeString.contains("null"))
+                                            type = Constant.TYPE_AFTER;
+                                        else
+                                            type = Integer.parseInt(typeString);
+                                        mTypeList.add(type);
+                                    }
+
+                                    Log.d("web", "sync, start search a reading book detail, url:" + Constant.URL_BOOK + "/" + uuid);
+                                    mCounter.increase();
+                                    mRequestQueue3.add(new MyJsonObjectRequest(Request.Method.GET, Constant.URL_BOOK + "/" + uuid, null,
+                                            new WriteBookResponse(mCounter, Constant.TYPE_NOW, mTypeList), new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            Log.d("web", "fail to find a reading book detail" + error.toString());
+                                            mCounter.decrease();
+                                        }
+                                    }));
+                                    mRequestQueue3.start();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+
+
+                        }
+                    }
+                    , new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    mCounter.decrease();
+                }
+            }
+            ));
+            mRequestQueue3.start();
+        }
+    };
+
+
     //使用账户覆盖本地
     private void choseWeb()
     {
@@ -81,192 +263,7 @@ public class MyAsyncTask extends AsyncTask<Void, Integer, Void>{
         //清空本地数据
         Log.d("net", "sync, clear local tables");
         dbOperate.clearTables();
-
-        Log.d("web", "sync, search all books uuid from web");
-        mRequestQueue.add(new MyJsonArrayRequest(
-                Request.Method.GET,
-                URL_BOOKS,
-                null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(final JSONArray response) {
-                        Log.d("web", "sync, succeed search all books from web, detail:" + response);
-                        for (int i = 0; i < response.length(); i++)
-                        {
-                            final boolean last = (i == response.length()-1);
-                            try {
-                                //拿到一本书的uuid,type
-                                final JSONObject jsonObject = response.getJSONObject(i);
-                                String uuid = jsonObject.getString("uuid");
-                                String typeString = jsonObject.getString("status");
-                                Log.d("web", "sync, succeed get type str:" + typeString);
-                                final int type;
-                                if(typeString.contains("null"))
-                                    type = Constant.TYPE_AFTER;
-                                else
-                                    type = Integer.parseInt(typeString);
-
-                                //查询书籍详情，将一本书录入本地，正确设置
-                                Log.d("web", "sync, search a book detail, url:"+URL_BOOK + "/" + uuid);
-                                mRequestQueue.add(new MyJsonObjectRequest(
-                                        Request.Method.GET,
-                                        URL_BOOK + "/" + uuid,
-                                        null,
-                                        new Response.Listener<JSONObject>() {
-                                            @Override
-                                            public void onResponse(JSONObject response)
-                                            {
-                                                Log.d("web", "sync, succeed search a book detail:" + response);
-                                                try {
-                                                    //读入书籍信息
-                                                    mBook.setUUID(response.getString("uuid"));
-                                                    mBook.setIsbn(response.getString("isbn"));
-                                                    mBook.setName(response.getString("title"));
-                                                    mBook.setAuthor(response.getString("creator"));
-                                                    mBook.setPress(response.getString("publisher"));
-                                                    mBook.setColor(0);
-                                                    mBook.setWordNum(response.getLong("words"));
-                                                    mBook.setUrl(response.getString("cover"));
-                                                    mBook.setType(type);
-                                                    mBook.setStatus(Constant.STATUS_OK);
-                                                    //读入章节信息
-                                                    mChapterInfos.clear();
-                                                    JSONArray chapters = response.getJSONArray("chapters");
-                                                    for (int j = 0; j < chapters.length(); j++) {
-                                                        JSONObject chapter = chapters.getJSONObject(j);
-                                                        mChapterInfos.add(new ChapterInfo(chapter.getInt("id"), chapter.getString("name")));
-                                                    }
-                                                    //将一本书完整插入本地，但是章节全都是未读状态，待完善
-                                                    Log.d("web", "sync, write a book to local");
-                                                    dbOperate.writeBook(mBook, mChapterInfos);
-
-                                                    //查询所有在读书籍的全部信息，将其中在读，和已读的章节记入本地数据库
-                                                    //执行最后一个请求成功后,从服务器查询所有用户在读书籍信息，修改本地在读书籍章节的类型
-                                                    if(last) {
-
-                                                        Log.d("web", "sync, search all reading books info, url:"+URL_BOOKS + "/readings");
-                                                        mRequestQueue.add(new MyStringRequest(
-                                                                Request.Method.GET,
-                                                                URL_BOOKS + "/readings",
-                                                                new Response.Listener<String>() {
-                                                                    @Override
-                                                                    public void onResponse(String res) {
-                                                                        Log.d("web", "sync, succeed search all reading books info:" + res);
-                                                                        Intent intent = new Intent("com.hustunique.myapplication.MAIN_RECEIVER");
-
-                                                                        try {
-                                                                            JSONArray response = new JSONArray(res);
-                                                                            for (int i = 0; i < response.length(); i++) {
-                                                                                //取得一本书的json串
-                                                                                JSONObject bookInfo = response.getJSONObject(i);
-                                                                                String uuid = bookInfo.getString("uuid");
-                                                                                //取得一本书全部章节jsonArray串
-                                                                                JSONArray chapters = bookInfo.getJSONArray("chapters");
-                                                                                for (int j = 0; j < chapters.length(); j++) {
-                                                                                    //取得一本书一个章节json串，改变章节类型
-                                                                                    JSONObject chapter = chapters.getJSONObject(j);
-                                                                                    int id = chapter.getInt("id");
-                                                                                    String typeString = chapter.getString("status");
-                                                                                    Log.d("web", "sync, succeed get type str:" + typeString);
-                                                                                    int type;
-                                                                                    if(typeString.contains("null"))
-                                                                                        type = Constant.TYPE_AFTER;
-                                                                                    else
-                                                                                        type = Integer.parseInt(typeString);
-                                                                                    if(type != Constant.TYPE_AFTER)
-                                                                                        dbOperate.setChapterType(uuid, id, type);
-                                                                                }
-                                                                            }
-                                                                            if(dbOperate.getBookNum() == response.length()) {
-                                                                                intent.putExtra("syncResult", true);
-                                                                                intent.putExtra("info", "同步成功");
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                intent.putExtra("syncResult", false);
-                                                                                intent.putExtra("info", "同步不完整");
-                                                                            }
-
-                                                                        } catch (JSONException e) {
-                                                                            e.printStackTrace();
-                                                                            intent.putExtra("syncResult", false);
-                                                                            intent.putExtra("info", "章节类型同步失败");
-                                                                        }finally {
-                                                                            mContext.sendBroadcast(intent);
-
-                                                                        }
-                                                                    }
-                                                                },
-                                                                new Response.ErrorListener() {
-                                                                    @Override
-                                                                    public void onErrorResponse(VolleyError error) {
-                                                                        Log.d("web", "sync, fail search all reading books info" + error+"/"+error.getCause());
-                                                                        Intent intent = new Intent("com.hustunique.myapplication.MAIN_RECEIVER");
-                                                                        intent.putExtra("syncResult", false);
-                                                                        intent.putExtra("info", "章节类型同步失败");
-                                                                        mContext.sendBroadcast(intent);
-                                                                    }
-                                                                }
-                                                        ));
-                                                        mRequestQueue.start();
-                                                    }
-
-
-                                                } catch (JSONException e) {
-                                                    e.printStackTrace();
-                                                    Log.d("web", e.toString());
-                                                }
-
-                                            }
-                                        }, new Response.ErrorListener() {
-                                    @Override
-                                    public void onErrorResponse(VolleyError error) {
-                                        Log.d("web", "sync, fail search a book detail " + error);
-                                        if(last) {
-                                            if(dbOperate.getBookNum() < response.length()) {
-                                                Intent intent = new Intent("com.hustunique.myapplication.MAIN_RECEIVER");
-                                                intent.putExtra("syncResult", false);
-                                                intent.putExtra("info", "同步不完整");
-                                                mContext.sendBroadcast(intent);
-                                            }
-                                        }
-
-                                    }
-                                }));
-                                mRequestQueue.start();
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                Log.d("web", e.toString());
-                            }
-                        }
-
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("web", "sync, fail search all reading books uuid, why?"+error+" /");
-                Intent intent = new Intent("com.hustunique.myapplication.MAIN_RECEIVER");
-                intent.putExtra("syncResult", false);
-                intent.putExtra("info", "从服务器获取数据失败");
-                mContext.sendBroadcast(intent);
-            }
-        }));
-        //?why string can?
-//        mRequestQueue.add(new MyStringRequest(
-//                Request.Method.GET,
-//                URL_BOOKS, new Response.Listener<String>() {
-//            @Override
-//            public void onResponse(String response) {
-//                Log.d("web", "sync, succeed search all books uuid from web, detail:" + response);
-//            }
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Log.d("web", "sync, fail search all books uuid from web, why:"
-//                        + error+" /"+error.networkResponse.statusCode);
-//            }
-//        }));
-        mRequestQueue.start();
+        mHandler.sendEmptyMessage(0);
     }
 
     //使用本地覆盖账户
@@ -276,55 +273,59 @@ public class MyAsyncTask extends AsyncTask<Void, Integer, Void>{
 
         Log.d("web", "sync, start sync from local to web");
         Log.d("web", "sync, clear web tables");
+        mCounter.increase();
         mRequestQueue.add(new MyStringRequest(
                 Request.Method.DELETE,
-                URL_BOOKS,
+                Constant.URL_BOOKS,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        mCounter.decrease();
                         Log.d("web", "sync, succeed clear web tables");
 
-                        List<Book> bookList = dbOperate.getBooks(-1);
                         //删除本地所有标记为删除的书和章节
                         dbOperate.deleteAll();
+                        dbOperate.resetAll();
+                        //将书籍逐一插入
+                        final List<Book> bookList = dbOperate.getBooks(-1);
+                        mCounter.addBookNum(bookList.size());
                         for (final Book book : bookList) {
 
-                            final boolean last = (bookList.indexOf(book) == response.length()-1);
-
-
-                            dbOperate.setBookStatus(book.getUUID(), Constant.STATUS_ADD);
-                            dbOperate.setChaptersStatus(book.getUUID(), Constant.STATUS_ADD);
                             //向服务器发送请求，新建一本书及所有章节,并修改本地书的uuid,章节的book_id,id
                             final List<Chapter> chapters = dbOperate.getChapters(book.getUUID());
-
                             JSONObject jsonObject = BookUtil.getBookJson(book, chapters);
+
                             Log.d("web", "insert a book to web:" + jsonObject);
+                            mCounter.increase();
                             mRequestQueue.add(new MyJsonObjectRequest(
                                     Request.Method.POST,
-                                    URL_BOOK,
+                                    Constant.URL_BOOK,
                                     jsonObject,
                                     new Response.Listener<JSONObject>() {
                                         @Override
                                         public void onResponse(JSONObject response) {
+                                            mCounter.decrease();
+                                            mCounter.addBookFinishNum(1);
                                             //取得书籍的uuid,将本地书籍的uuid及章节的book_id,id改为和服务器一致
                                             Log.d("web", "succeed insert a book to web, detail:" + response);
                                             try {
                                                 final String UUID = response.getString("uuid");
-
                                                 dbOperate.resetBookUUID(book.getUUID(), UUID);
+                                                dbOperate.setBookStatus(UUID, Constant.STATUS_MOD);
                                                 JSONArray jsonArray = response.getJSONArray("chapters");
-                                                for (int k = 0; k < jsonArray.length(); k++) {
-                                                    JSONObject json = jsonArray.getJSONObject(k);
-                                                    Chapter chapter = chapters.get(k);
+                                                for (int k = jsonArray.length(); k > 0; k--) {
+                                                    JSONObject json = jsonArray.getJSONObject(k - 1);
+                                                    Chapter chapter = chapters.get(k - 1);
                                                     int ID = json.getInt("id");
                                                     dbOperate.resetChapterID(
                                                             UUID, chapter.getId(), ID);
+                                                    chapter.setBookId(UUID);
                                                     chapter.setId(ID);
-
                                                 }
+                                                dbOperate.setChaptersStatus(UUID, Constant.STATUS_MOD);
 
                                                 //然后修改服务器书籍的类型及章节的类型
-                                                String url = URL_BOOKS;
+                                                String url = Constant.URL_BOOKS;
                                                 HashMap<String, String> map = new HashMap<>();
                                                 switch (book.getType()) {
                                                     case Constant.TYPE_AFTER:
@@ -351,31 +352,35 @@ public class MyAsyncTask extends AsyncTask<Void, Integer, Void>{
                                                 }
                                                 url += UUID;
                                                 JSONObject jsonObject = new JSONObject(map);
-
-
                                                 //修改书籍类型
                                                 Log.d("web", "reset book type" + book.getType() + " to web:" + jsonObject.toString());
+                                                mCounter.increase();
                                                 mRequestQueue.add(new MyJsonObjectRequest(Request.Method.PUT, url, jsonObject, new Response.Listener<JSONObject>() {
                                                     @Override
                                                     public void onResponse(JSONObject response) {
+                                                        mCounter.decrease();
                                                         Log.d("web", "succeed reset book type, so book ok:" + response);
                                                         dbOperate.setBookStatus(UUID, Constant.STATUS_OK);
+                                                        if(book.getType() != Constant.TYPE_NOW)
+                                                            dbOperate.setChaptersStatus(book.getUUID(), Constant.STATUS_OK);
                                                     }
                                                 }, new Response.ErrorListener() {
                                                     @Override
                                                     public void onErrorResponse(VolleyError error) {
+                                                        mCounter.decrease();
                                                         Log.d("web", "fail reset book type:" + error);
                                                     }
                                                 }));
                                                 mRequestQueue.start();
 
                                                 //修改在读书籍的章节类型
-                                                if (book.getType() == Constant.TYPE_NOW) {
+                                                if (book.getType() == Constant.TYPE_NOW)
+                                                {
                                                     //改变在读书籍的章节类型
                                                     for (final Chapter chapter : chapters) {
                                                         if (chapter.getType() != Constant.TYPE_AFTER) {
                                                             map.clear();
-                                                            String chapterUrl = URL_BOOKS + "/" + UUID + "/chapters/";
+                                                            String chapterUrl = Constant.URL_BOOKS + "/" + UUID + "/chapters/";
                                                             switch (chapter.getType()) {
                                                                 case Constant.TYPE_NOW:
                                                                     chapterUrl += "readings/";
@@ -389,42 +394,29 @@ public class MyAsyncTask extends AsyncTask<Void, Integer, Void>{
                                                             chapterUrl += chapter.getId();
                                                             jsonObject = new JSONObject(map);
                                                             Log.d("web", "reset a chapter type to web:" + jsonObject);
+                                                            mCounter.increase();
                                                             mRequestQueue.add(new MyJsonObjectRequest(Request.Method.PUT, chapterUrl,
                                                                     jsonObject,
                                                                     new Response.Listener<JSONObject>() {
                                                                         @Override
                                                                         public void onResponse(JSONObject response) {
+                                                                            mCounter.decrease();
                                                                             Log.d("web", "succeed reset a chapter type to web:" + response);
                                                                             dbOperate.setChapterStatus(UUID, chapter.getId(), Constant.STATUS_OK);
-                                                                            if(last && chapters.indexOf(chapter) == chapters.size()-1)
-                                                                            {
-                                                                                Intent intent = new Intent("com.hustunique.myapplication.MAIN_RECEIVER");
-                                                                                intent.putExtra("syncResult", true);
-                                                                                intent.putExtra("info", "同步成功");
-                                                                                mContext.sendBroadcast(intent);
-                                                                            }
+//
                                                                         }
                                                                     },
                                                                     new Response.ErrorListener() {
                                                                         @Override
                                                                         public void onErrorResponse(VolleyError error) {
-                                                                            Log.d("web", "fail reset a chapter type to web:" + error);
-                                                                            Intent intent = new Intent("com.hustunique.myapplication.MAIN_RECEIVER");
-                                                                            intent.putExtra("syncResult", false);
-                                                                            intent.putExtra("info", "章节同步未完成");
-                                                                            mContext.sendBroadcast(intent);
+                                                                            mCounter.decrease();
+//
                                                                         }
                                                                     }));
                                                             mRequestQueue.start();
-                                                        }
+                                                        } else
+                                                            dbOperate.setChapterStatus(UUID, chapter.getId(), Constant.STATUS_OK);
                                                     }
-                                                }
-                                                else
-                                                {
-                                                    Intent intent = new Intent("com.hustunique.myapplication.MAIN_RECEIVER");
-                                                    intent.putExtra("syncResult", true);
-                                                    intent.putExtra("info", "同步成功");
-                                                    mContext.sendBroadcast(intent);
                                                 }
 
 
@@ -436,15 +428,9 @@ public class MyAsyncTask extends AsyncTask<Void, Integer, Void>{
                                     new Response.ErrorListener() {
                                         @Override
                                         public void onErrorResponse(VolleyError error) {
-                                            Log.d("web", "fail insert a book to web:" + error);
-                                            if(last) {
-                                                Intent intent = new Intent("com.hustunique.myapplication.MAIN_RECEIVER");
-                                                intent.putExtra("syncResult", false);
-                                                intent.putExtra("info", "同步不完整,"
-                                                        + dbOperate.getStatusBooks(Constant.STATUS_OK).size() + "/" + dbOperate.getBookNum() + "本书");
-                                                mContext.sendBroadcast(intent);
-                                            }
-
+                                            mCounter.decrease();
+                                            Log.d("web", "fail insert a book to web:"
+                                                    + error + "/");
                                         }
                                     }));
                             mRequestQueue.start();
@@ -456,10 +442,9 @@ public class MyAsyncTask extends AsyncTask<Void, Integer, Void>{
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Intent intent = new Intent("com.hustunique.myapplication.MAIN_RECEIVER");
-                        intent.putExtra("syncResult", false);
-                        intent.putExtra("info", "同步失败");
-                        mContext.sendBroadcast(intent);
+                        mCounter.decrease();
+                        Log.d("web", "cant delete table at web" + error);
+
                     }
                 }));
         mRequestQueue.start();

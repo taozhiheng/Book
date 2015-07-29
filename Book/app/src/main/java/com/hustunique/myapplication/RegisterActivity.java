@@ -128,6 +128,7 @@ public class RegisterActivity extends AppCompatActivity {
                             String authorization = response.getString("auth");
                             MyApplication.setAuthorization(authorization);
                             Toast.makeText(getBaseContext(), "注册成功", Toast.LENGTH_SHORT).show();
+                            finish();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -136,7 +137,7 @@ public class RegisterActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getBaseContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), "注册失败", Toast.LENGTH_SHORT).show();
                         Log.d("net", "register:"+error.toString());
                     }
                 })

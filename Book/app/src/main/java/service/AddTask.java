@@ -31,7 +31,8 @@ public class AddTask extends AsyncTask<String, Integer, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        mHandler.sendEmptyMessage(0);
+        if(mHandler != null)
+            mHandler.sendEmptyMessage(0);
     }
 
     @Override

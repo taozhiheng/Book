@@ -30,6 +30,7 @@ import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 
 import net.FileImageUpload;
@@ -104,8 +105,12 @@ public class EditActivity extends AppCompatActivity {
         iconChanged = false;
 
         String url = MyApplication.getUserUrl();
-        if(url != null)
-            Picasso.with(this).load(Uri.parse(url)).into(mIcon);
+        if(url != null) {
+            OkHttpClient picassoClient = new OkHttpClient();
+            picassoClient.setCache(null);
+            Picasso picasso=new Picasso.Builder(this).downloader(new OkHttpDownloader(picassoClient)).build();
+            picasso.load(url).resize(146, 146).into(mIcon);
+        }
         String user = MyApplication.getUser();
         if(user != null)
             mUser.setText(user);
@@ -165,7 +170,7 @@ public class EditActivity extends AppCompatActivity {
     }
 
 
-    private void executeEdit(String user, boolean sex)
+    private void executeEdit(final String user, boolean sex)
     {
 
         if(iconChanged)
@@ -175,7 +180,7 @@ public class EditActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     MultipartRequest multipartRequest = new MultipartRequest(
-                            "http://pokebook.whitepanda.org:8000/api/v1/user/avatar",
+                            MyApplication.getUrlHead()+"/api/v1/user/avatar",
                             new Response.Listener<String>() {
 
                                 @Override
@@ -200,6 +205,7 @@ public class EditActivity extends AppCompatActivity {
                     MultipartEntity multi = multipartRequest.getMultiPartEntity();
                     // 上传文件
                     multi.addBinaryPart("file", FileUtil.getBytesFromFile(new File(mIconPath)));
+//                    multi.addFilePart("file", new File(mIconPath));
                     // 将请求添加到队列中
                     Log.d("net", "image:" + mIconPath + " auth:" + MyApplication.getAuthorization());
                     mRequestQueue.add(multipartRequest);
@@ -224,7 +230,7 @@ public class EditActivity extends AppCompatActivity {
                                     MyApplication.setUser(username);
                                     String avatar = response.getString("avatar");
                                     if(!avatar.contains("http"))
-                                        avatar = "http://"+Constant.HOST_NAME+":"+Constant.PORT
+                                        avatar = MyApplication.getUrlHead()
                                                 +response.getString("avatar");
                                     MyApplication.setUserUrl(avatar);
                                     MyApplication.setUserMail(response.getString("mail"));
@@ -235,7 +241,8 @@ public class EditActivity extends AppCompatActivity {
                                     MyApplication.setUserSex(sex);
                                     Toast.makeText(getBaseContext(), "修改成功", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent();
-                                    intent.putExtra(Constant.KEY_USER_ICON_CHANGE, true);
+                                    intent.putExtra(Constant.KEY_USER_ICON_CHANGE, iconChanged);
+                                    intent.putExtra(Constant.KEY_USER_NAME, username);
                                     setResult(RESULT_OK, intent);
                                     finish();
                                 }catch (JSONException e)
@@ -274,7 +281,7 @@ public class EditActivity extends AppCompatActivity {
             cursor.close();
             mIconPath = picturePath;
             if(mIconPath != null) {
-                Picasso.with(this).load(new File(mIconPath)).into(mIcon);
+                Picasso.with(this).load(new File(mIconPath)).resize(137,137).into(mIcon);
                 iconChanged = true;
             }
         }

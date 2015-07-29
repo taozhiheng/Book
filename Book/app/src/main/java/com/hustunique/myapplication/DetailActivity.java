@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -27,8 +28,10 @@ import adapter.ChapterAdapter;
 import data.Book;
 import data.Chapter;
 import data.DBOperate;
+import fragment.ReadingFragment;
 import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
 import ui.DividerItemDecoration;
+import ui.StickyLayout;
 import util.Constant;
 
 
@@ -50,6 +53,7 @@ public class DetailActivity extends AppCompatActivity {
     private TextView mAuthor;
     private TextView mPress;
     private RecyclerView mRecycler;
+    private StickyLayout mStickyLayout;
 
     private SystemBarTintManager mTintManager;
 
@@ -66,7 +70,7 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d("detail", "activity onCreate");
         mAction = getIntent().getIntExtra(Constant.KEY_ACTION, Constant.VIEW_BOOK);
-        setContentView(R.layout.detail);
+        setContentView(R.layout.activity_detail);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             mTintManager = new SystemBarTintManager(this);
@@ -93,6 +97,18 @@ public class DetailActivity extends AppCompatActivity {
         mRecycler.setItemAnimator(new SlideInDownAnimator());
         mRecycler.addItemDecoration(new DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL_LIST, 1));
+        mStickyLayout =(StickyLayout)findViewById(R.id.detail_sticky);
+        mStickyLayout.setOnGiveUpTouchEventListener(new StickyLayout.OnGiveUpTouchEventListener() {
+            @Override
+            public boolean giveUpTouchEvent(MotionEvent event) {
+                View view = mRecycler.getChildAt(0);
+                if (view != null && view.getTop() >= 0)
+                    return true;
+                else if (mRecycler.getChildCount() == 0 && mRecycler.getTop() >= 0)
+                    return true;
+                return false;
+            }
+        });
 
         mBook = getIntent().getParcelableExtra(Constant.KEY_BOOK);
         load();
@@ -123,8 +139,22 @@ public class DetailActivity extends AppCompatActivity {
         boolean visible = false;
         if (mAction == Constant.ADD_CHAPTER)
             visible = true;
-        if ((mChapterList = MyApplication.getDBOperateInstance().getChapters(mBook.getUUID())) == null)
-            mChapterList = new ArrayList<>();
+        DBOperate dbOperate = MyApplication.getDBOperateInstance();
+        if ((mChapterList = dbOperate.getChapters(mBook.getUUID())) == null) {
+            if(mBook.getUUID().matches("[0-9]+")) {
+                mBook.setUUID(dbOperate.getBookUUID(Integer.parseInt(mBook.getUUID())));
+                mChapterList = dbOperate.getChapters(mBook.getUUID());
+            }
+            if (mChapterList == null)
+                mChapterList = new ArrayList<>();
+            else
+            {
+                MyApplication.setShouldUpdate(Constant.INDEX_READ);
+                MyApplication.setShouldUpdate(Constant.INDEX_AFTER);
+                MyApplication.setShouldUpdate(Constant.INDEX_NOW);
+                MyApplication.setShouldUpdate(Constant.INDEX_BEFORE);
+            }
+        }
         mAdapter = new ChapterAdapter(mChapterList, visible);
         mRecycler.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(new ChapterAdapter.ChapterOnItemClickListener() {

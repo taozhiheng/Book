@@ -15,6 +15,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import com.hustunique.myapplication.DetailActivity;
 import com.hustunique.myapplication.MyApplication;
 import com.hustunique.myapplication.R;
@@ -198,6 +200,7 @@ public class AfterFragment extends Fragment implements NumFragment {
                         mBookList.remove(mPosition);
                         mAdapter.notifyItemRemoved(mPosition);
                         mAdapter.notifyDataSetChanged();
+                        Toast.makeText(getActivity(), "已删除", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("否", null)

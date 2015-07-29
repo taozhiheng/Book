@@ -1,6 +1,10 @@
 package fragment;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -10,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -19,6 +24,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.hustunique.myapplication.MyApplication;
@@ -34,6 +40,7 @@ import adapter.MyOnItemFunctionListener;
 import adapter.ReadingAdapter;
 import data.Chapter;
 import data.DBOperate;
+import data.UserPref;
 import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
 import ui.DividerItemDecoration;
 import ui.StickyLayout;
@@ -81,7 +88,7 @@ public class ReadingFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.reading, container, false);
+        View root = inflater.inflate(R.layout.fragment_reading, container, false);
         mRefresh = (SwipeRefreshLayout) root.findViewById(R.id.reading_refresh);
         mDate = (TextView) root.findViewById(R.id.reading_date);
         mWords = (TextView) root.findViewById(R.id.reading_words);
@@ -92,26 +99,9 @@ public class ReadingFragment extends Fragment {
         mRecycler.addItemDecoration(new DividerItemDecoration(getActivity(),
                 DividerItemDecoration.VERTICAL_LIST, 5f));
 
-        mRefresh.setColorSchemeResources(
-                android.R.color.holo_blue_dark,
-                android.R.color.holo_blue_light,
-                android.R.color.holo_blue_bright);
-        mRefresh.setOnRefreshListener(mRefreshListener);
+
 
         mAdd = (FloatingActionButton) root.findViewById(R.id.reading_add);
-//        mStickyLayout =(StickyLayout)root.findViewById(R.id.sticky_layout);
-//        mStickyLayout.setOnGiveUpTouchEventListener(new StickyLayout.OnGiveUpTouchEventListener() {
-//            @Override
-//            public boolean giveUpTouchEvent(MotionEvent event) {
-//                    View view = mRecycler.getChildAt(0);
-//                    if (view != null && view.getTop() >= 0)
-//                        return true;
-//                    else if(mRecycler.getChildCount() == 0 && mRecycler.getTop()>=0)
-//                        return true;
-//                return false;
-//            }
-//        });
-        mDate.setText(TimeUtil.getDateTimeString(Calendar.getInstance(), "yyyy.MM.dd"));
         mAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,74 +109,20 @@ public class ReadingFragment extends Fragment {
                     mListener.addChapter();
             }
         });
-        mWords.setOnClickListener(new View.OnClickListener() {
+        mStickyLayout =(StickyLayout)root.findViewById(R.id.sticky_layout);
+        mStickyLayout.setOnGiveUpTouchEventListener(new StickyLayout.OnGiveUpTouchEventListener() {
             @Override
-            public void onClick(View v) {
-                String time = TimeUtil.getNeedTime(System.currentTimeMillis());
-                RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
-                requestQueue.add(new StringRequest(
-                        Request.Method.GET,
-                        MyApplication.getUrlHead() + Constant.URL_SAYING+"?date="+time,
-                        listener,
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(getActivity(), error.toString(), Toast.LENGTH_SHORT).show();
-                                mRequestQueue.add(new StringRequest(
-                                        Request.Method.GET,
-                                        MyApplication.getUrlHead()+Constant.URL_SAYING,
-                                        listener,
-                                        null));
-                                mRequestQueue.start();
-                            }
-                        })
-                {
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        HashMap<String, String> headers = new HashMap<String, String>();
-                        headers.put("Accept", "application/json");
-                        headers.put("Accept-Encoding", "UTF-8");
-                        return headers;
-                    }
-                });
-                requestQueue.start();
+            public boolean giveUpTouchEvent(MotionEvent event) {
+                    View view = mRecycler.getChildAt(0);
+                    if (view != null && view.getTop() >= 0)
+                        return true;
+                    else if(mRecycler.getChildCount() == 0 && mRecycler.getTop()>=0)
+                        return true;
+                return false;
             }
         });
-        mRequestQueue = Volley.newRequestQueue(getActivity());
         return root;
     }
-
-
-    private SwipeRefreshLayout.OnRefreshListener mRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
-        @Override
-        public void onRefresh() {
-            if(mRecycler.getTop() < 0)
-                mRefresh.setRefreshing(false);
-            load();
-            setupAdapter();
-            mRefresh.setRefreshing(false);
-        }
-    };
-
-    private Response.Listener<String> listener = new Response.Listener<String>() {
-        @Override
-        public void onResponse(String response) {
-            Log.d("net", "word:"+response);
-            try {
-                JSONObject jsonObject = new JSONObject(response);
-                String author = jsonObject.getString("name");
-                String saying = jsonObject.getString("saying");
-                mPeople.setText(author);
-                mWords.setText("　　"+saying);
-            }catch (JSONException e)
-            {
-                e.printStackTrace();
-                Toast.makeText(getActivity(), response, Toast.LENGTH_SHORT).show();
-            }
-        }
-    };
-
-
 
     @Override
     public void onStart() {
@@ -198,6 +134,7 @@ public class ReadingFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        checkTime();
         if (MyApplication.getUpdateFlag(Constant.INDEX_READ) || !restoreStateFromArguments()) {
             // First Time, Initialize something here
             mWords.performClick();
@@ -223,6 +160,14 @@ public class ReadingFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mListener = (AddListener)activity;
+        IntentFilter filter = new IntentFilter(Intent.ACTION_DATE_CHANGED);
+        getActivity().registerReceiver(mDateReceiver, filter);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        getActivity().unregisterReceiver(mDateReceiver);
     }
 
     //保存恢复数据或刷新数据
@@ -310,6 +255,96 @@ public class ReadingFragment extends Fragment {
 
     protected void onSaveState(Bundle outState) {
         outState.putParcelableArrayList(Constant.KEY_BOOKS, (ArrayList<Chapter>)mChapterList);
+    }
+
+
+    private BroadcastReceiver mDateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            checkTime();
+        }
+    };
+
+    private void checkTime()
+    {
+        String time = TimeUtil.getDateTimeString(Calendar.getInstance(), "yyyy.MM.dd");
+        if(!time.equals(mDate.getText().toString()))
+        {
+            mDate.setText(time);
+            getWords();
+        }
+    }
+
+    private void getWords()
+    {
+        long millis = System.currentTimeMillis();
+        String time = TimeUtil.getNeedTime(millis);
+        String time1 = TimeUtil.getNeedTime(millis + 24 * 60 * 60 * 1000);
+        String time2 = TimeUtil.getNeedTime(millis + 24*60*60*1000*2);
+        String urlHead = MyApplication.getUrlHead() + Constant.URL_SAYING+"?date=";
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+        requestQueue.add(new JsonObjectRequest(Request.Method.GET, urlHead + time,
+                null, new WordsListener(0),
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        UserPref.init(getActivity());
+                        String last = UserPref.getTime();
+                        String current =
+                                TimeUtil.getDateTimeString(Calendar.getInstance(), "yyyy.MM.dd");
+                        if(!current.equals(last))
+                        {
+                            UserPref.setTime(current);
+                            UserPref.setWords(0, UserPref.getWords(1));
+                            UserPref.setWords(1, UserPref.getWords(2));
+                            UserPref.setWords(2, null);
+                        }
+                        String content = UserPref.getWords(0);
+                        if(content != null) {
+                            String saying = content.substring(0, content.indexOf('&'));
+                            String author = content.substring(content.indexOf('&')+1);
+                            mPeople.setText(author);
+                            mWords.setText("　　" + saying);
+                        }
+                    }
+                }));
+        requestQueue.add(new JsonObjectRequest(Request.Method.GET, urlHead+time1,
+                null, new WordsListener(1), null));
+        requestQueue.add(new JsonObjectRequest(Request.Method.GET, urlHead+time2,
+                null, new WordsListener(2), null));
+        requestQueue.start();
+    }
+
+    class WordsListener implements Response.Listener<JSONObject>{
+
+        public int mTimeFlag;
+
+        public WordsListener(int flag)
+        {
+            this.mTimeFlag = flag;
+        }
+
+        @Override
+        public void onResponse(JSONObject response) {
+            Log.d("net", "word:"+response);
+            try {
+                String author = response.getString("name");
+                String saying = response.getString("saying");
+                UserPref.init(getActivity());
+                if(mTimeFlag == 0)
+                {
+                    mPeople.setText(author);
+                    mWords.setText("　　" + saying);
+                    String current =
+                            TimeUtil.getDateTimeString(Calendar.getInstance(), "yyyy.MM.dd");
+                    UserPref.setTime(current);
+                }
+                UserPref.setWords(mTimeFlag, saying+"&"+author);
+            }catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 
     //从网络或本地数据库加载数据至list,并创建adapter

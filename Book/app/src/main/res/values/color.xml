@@ -20,6 +20,7 @@
     <color name="red">#bf360c</color>
     <color name="ripple_red">#ffbf5232</color>
 
+    <color name="logout">#ffffc0cb</color>
     <color name="orange">#ffff8f55</color>
     
     <color name="orange_light">#a0ffefd5</color>

@@ -38,7 +38,50 @@ public class UserPref {
     {
         return mPref.getString(Constant.PREF_AUTH, null);
     }
-    
+
+    public static String getWords(int flag)
+    {
+        switch (flag)
+        {
+            case 0:
+                return mPref.getString(Constant.PREF_WORDS, null);
+            case 1:
+                return mPref.getString(Constant.PREF_WORDS2, null);
+            case 2:
+                return mPref.getString(Constant.PREF_WORDS3, null);
+        }
+        return null;
+    }
+
+    public static String getTime()
+    {
+        return mPref.getString(Constant.PREF_TIME, null);
+    }
+
+
+    public static void setWords(int flag, String words)
+    {
+        if(flag <0 || flag > 3)
+            return;
+        String key = Constant.PREF_WORDS;
+        switch (flag)
+        {
+            case 1:
+                key = Constant.PREF_WORDS2;
+                break;
+            case 2:
+                key = Constant.PREF_WORDS3;
+                break;
+        }
+        mPref.edit().putString(key, words).apply();
+    }
+
+    public static void setTime(String time)
+    {
+        mPref.edit().putString(Constant.PREF_TIME, time).apply();
+    }
+
+
     public static void setUserMail(String mail)
     {
         mPref.edit().putString(Constant.PREF_USERNAME, mail).apply();

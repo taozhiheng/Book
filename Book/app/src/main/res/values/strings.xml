@@ -7,6 +7,7 @@
     <string name="experience">马上体验</string>
 
     <string name="login">登录</string>
+    <string name="logout">登出</string>
     <string name="register_now">没有帐号?点击注册</string>
     <string name="db_login">豆瓣登录</string>
     <string name="wb_login">微博登录</string>
@@ -24,6 +25,7 @@
     <string name="drawer_reading">今日阅读</string>
     <string name="drawer_bookshelf">我的书架</string>
     <string name="drawer_calendar">阅读日历</string>
+    <string name="drawer_sync">数据同步</string>
     <string name="drawer_feedback">反馈意见</string>
     <string name="drawer_about">关于我们</string>
     <string name="drawer_exit">退出应用</string>

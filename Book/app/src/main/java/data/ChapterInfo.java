@@ -10,10 +10,17 @@ public class ChapterInfo implements Parcelable {
 
     private int mPosition;
     private String mName;
+    private int mType;
 
     public ChapterInfo(int mPosition, String mName) {
-        this.mPosition = mPosition;
-        this.mName = mName;
+        this(mPosition, mName, -1);
+    }
+
+    public ChapterInfo(int position, String name, int type)
+    {
+        this.mPosition = position;
+        this.mName = name;
+        this.mType = type;
     }
 
 
@@ -34,6 +41,13 @@ public class ChapterInfo implements Parcelable {
         this.mName = name;
     }
 
+    public int getType() {
+        return mType;
+    }
+
+    public void setType(int mType) {
+        this.mType = mType;
+    }
 
     @Override
     public int describeContents() {
@@ -44,11 +58,13 @@ public class ChapterInfo implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.mPosition);
         dest.writeString(this.mName);
+        dest.writeInt(this.mType);
     }
 
     protected ChapterInfo(Parcel in) {
         this.mPosition = in.readInt();
         this.mName = in.readString();
+        this.mType = in.readInt();
     }
 
     public static final Parcelable.Creator<ChapterInfo> CREATOR = new Parcelable.Creator<ChapterInfo>() {

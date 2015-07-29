@@ -43,7 +43,7 @@ public class MyJsonObjectRequest extends JsonObjectRequest {
 
     @Override
     protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
-        Log.d("web","jsonRequest statusCode:"+response.statusCode);
+        Log.d("web","jsonRequest statusCode:"+response.statusCode+" CONTENT:"+response.data);
 
         try {
             String jsonString = new String(response.data,

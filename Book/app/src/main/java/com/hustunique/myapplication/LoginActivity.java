@@ -233,7 +233,7 @@ public class LoginActivity extends AppCompatActivity {
                             String authorization = response.getString("auth");
                             //记录授权，设置用户在线
                             MyApplication.setAuthorization(authorization);
-                            MyApplication.setUserOnLine(true);
+                            UserPref.setUserAuth(authorization);
                             mRequestQueue.add(new MyJsonObjectRequest(
                                             Request.Method.GET,
                                             MyApplication.getUrlHead() + Constant.URL_USER_INFO,
@@ -245,6 +245,7 @@ public class LoginActivity extends AppCompatActivity {
                                                     try
                                                     {
                                                         //读取用户基本信息
+                                                        MyApplication.setUserOnLine(true);
                                                         String mail = response.getString("mail");
                                                         String username = response.getString("username");
                                                         String sexStr = response.getString("sex");
@@ -256,7 +257,7 @@ public class LoginActivity extends AppCompatActivity {
                                                         MyApplication.setUser(username);
                                                         MyApplication.setUserSex(sex);
                                                         if(!avatar.contains("http"))
-                                                            avatar = "http://" + Constant.HOST_NAME + ":" + Constant.PORT + avatar;
+                                                            avatar = MyApplication.getUrlHead() + avatar;
                                                         MyApplication.setUserUrl(avatar);
                                                         MyApplication.setUserMail(mail);
                                                         //通知fragment刷新

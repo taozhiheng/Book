@@ -52,7 +52,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="32dp"
         android:text="@string/login"
-        android:textColor="#ffffff"
+        android:textColor="@color/white"
         android:textSize="17sp"
         android:background="@color/login_btn"
          />

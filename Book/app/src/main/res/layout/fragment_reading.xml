@@ -48,15 +48,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </RelativeLayout>
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/reading_refresh"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/reading_recycler"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
-        </android.support.v4.widget.SwipeRefreshLayout>
     </ui.StickyLayout>
 
     <android.support.design.widget.FloatingActionButton

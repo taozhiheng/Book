@@ -16,15 +16,15 @@
         android:background="@color/toolbar" />
     <ui.CircleImageView
         android:id="@+id/edit_icon"
-        android:layout_width="144dp"
-        android:layout_height="144dp"
+        android:layout_width="146dp"
+        android:layout_height="146dp"
+        android:scaleType="centerCrop"
         android:layout_centerHorizontal="true"
         android:src="@mipmap/ic_user_icon"
-        android:layout_marginTop="28dp"
-        app:border_width="13dp"
+        android:layout_marginTop="29dp"
+        app:border_width="9dp"
         app:border_color="@color/person_user_circle"
-        android:layout_below="@id/edit_toolbar"
-        android:clickable="false"/>
+        android:layout_below="@id/edit_toolbar" />
     <EditText
         android:id="@+id/edit_user"
         android:layout_width="match_parent"
