@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.widget.EditText;
 
+import com.hustunique.myapplication.R;
 import com.umeng.fb.FeedbackAgent;
 import com.umeng.fb.model.UserInfo;
 
@@ -43,13 +44,19 @@ public class SetUserMailDlgFrag extends DialogFragment implements OnClickListene
 		super.onCreateDialog(savedInstanceState);
 		// 初始化输入框
 		mailEdit = new EditText(getActivity());
+		mailEdit.setTextColor(getResources().getColor(R.color.input));
 		mailEdit.setSingleLine();
 		if (getUserMail() != null) {
 			mailEdit.setText(getUserMail());
 		}
 		mailEdit.setHint("邮箱或QQ");
-		UserPref.init(getActivity());
-		mailEdit.setText(UserPref.getUserMail());
+		String mail = getUserMail();
+		if(mail == null)
+		{
+			UserPref.init(getActivity());
+			mail = UserPref.getUserMail();
+		}
+		mailEdit.setText(mail);
 		mailEdit.setSelectAllOnFocus(true);
 		
 		// 恢复数据，如果有的话
@@ -61,7 +68,7 @@ public class SetUserMailDlgFrag extends DialogFragment implements OnClickListene
 		AlertDialog.Builder builder;
 		if (android.os.Build.VERSION.SDK_INT >= 11) {// API在11以上
 			// 使用holo_dark主题
-			builder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_DARK);
+			builder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_LIGHT);
 		} else {// 在11以下，不使用主题
 			builder = new AlertDialog.Builder(getActivity());
 		}
@@ -84,7 +91,7 @@ public class SetUserMailDlgFrag extends DialogFragment implements OnClickListene
 			case DialogInterface.BUTTON_POSITIVE:
 				// 确定
 				String userMail = mailEdit.getText().toString();
-				if (userMail != null && !userMail.equals("") && !userMail.equals(getUserMail())) {
+				if (!userMail.equals("") && !userMail.equals(getUserMail())) {
 					// 输入不为空，且和原有配置不同时才更新邮箱信息
 					updateUserMailAddress(userMail);
 				}

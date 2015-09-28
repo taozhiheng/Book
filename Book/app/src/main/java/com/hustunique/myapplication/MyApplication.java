@@ -4,6 +4,15 @@ import android.app.Application;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
+import android.util.Log;
+import android.widget.ImageView;
+
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 import java.util.List;
 import data.Book;
@@ -11,6 +20,7 @@ import data.ChapterInfo;
 import data.DBOperate;
 import data.DBhelper;
 import util.Constant;
+import web.Web;
 
 /**
  * Created by taozhiheng on 15-7-9.
@@ -32,19 +42,36 @@ public class MyApplication extends Application {
     private static boolean mIsSync;
 
     private static String mUrlHead;
+    private static Picasso mPicasso;
+
+    private final static String TAG = "life cycle-app";
 
     @Override
     public void onCreate() {
+        Log.d(TAG, "app on create");
         super.onCreate();
+        Fresco.initialize(this);
+    }
+
+    public void init()
+    {
+        Log.d(TAG, "app init");
         setUrlHead();
         mDBOperate = DBOperate.getInstance(this);
+        Web.setDbOperate(mDBOperate);
         mPath = getFilesDir().toString();
         mUserOnLine = false;
         mShouldUpdate[0] = true;
         mShouldUpdate[1] = true;
         mShouldUpdate[2] = true;
         mShouldUpdate[3] = true;
+        mPicasso = Picasso.with(this);
+        Log.d(TAG, "app finish init");
+    }
 
+    public static Picasso getPicasso()
+    {
+        return mPicasso;
     }
 
     public static void setSync(boolean sync)
@@ -64,7 +91,7 @@ public class MyApplication extends Application {
 
     public static void setUrlHead()
     {
-        mUrlHead = "http://182.92.158.119:2333";
+        mUrlHead = "http://115.28.165.230:2333";
 //        mUrlHead = "http://"+Constant.HOST_NAME+":"+Constant.PORT;
         //new MyAsyncTask().execute(Constant.HOST_NAME);
     }
@@ -215,7 +242,7 @@ public class MyApplication extends Application {
 
     public static void setUserOnLine(boolean onLine)
     {
-        mUserOnLine = onLine;
+        mUserOnLine = onLine && mAuthorization!= null &&mUser != null ;
     }
 
     public static boolean getUserOnLine()

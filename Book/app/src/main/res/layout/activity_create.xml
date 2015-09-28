@@ -10,7 +10,6 @@
         android:id="@+id/create_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
         android:background="@color/toolbar"
         app:layout_scrollFlags="scroll|enterAlways"/>
     <ui.StickyLayout
@@ -19,156 +18,195 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <RelativeLayout
-            android:id="@+id/create_head"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="144dp">
+            android:layout_height="wrap_content">
+            <RelativeLayout
+                android:id="@+id/create_head"
+                android:layout_width="match_parent"
+                android:focusable="false"
+                android:layout_height="@dimen/create_height">
+
+                <FrameLayout
+                    android:id="@+id/create_icons"
+                    android:layout_width="@dimen/create_width1"
+                    android:layout_height="@dimen/create_height1"
+                    android:layout_marginTop="@dimen/create_margin2"
+                    android:layout_marginLeft="@dimen/create_margin1">
+                    <ImageView
+                        android:id="@+id/create_icon"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                    <TextView
+                        android:id="@+id/create_icon_text"
+                        android:textSize="@dimen/create_text_size4"
+                        android:maxLength="2"
+                        android:layout_marginTop="@dimen/create_margin8"
+                        android:layout_marginLeft="@dimen/create_margin9"
+                        android:textColor="@color/white"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:layout_toRightOf="@id/create_icons"
+                    android:focusable="false"
+                    android:layout_marginLeft="@dimen/create_margin3"
+                    >
+                    <EditText
+                        android:id="@+id/create_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/create_text_size1"
+                        android:textColor="@color/create_book_name"
+                        android:layout_marginTop="@dimen/create_margin4"
+                        android:maxLength="16"
+                        android:singleLine="true"
+                        android:hint="点击输入书名"
+                        android:textColorHint="@color/bookshelf_plan_hint_text"
+                        android:background="@null"
+                        android:gravity="center_vertical"/>
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_marginTop="@dimen/create_margin5"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:id="@+id/create_chapterNum"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/create_text_size2"
+                            android:gravity="center_vertical"
+                            android:textColor="@color/create_other_text"
+                            android:text="0/0章"/>
+                        <EditText
+                            android:id="@+id/create_wordNum"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/create_text_size2"
+                            android:maxLength="10"
+                            android:minWidth="@dimen/create_minWidth"
+                            android:inputType="number"
+                            android:background="@null"
+                            android:layout_marginLeft="@dimen/create_margin6"
+                            android:gravity="center"
+                            android:singleLine="true"
+                            android:hint="点击输入字数"
+                            android:textColorHint="@color/bookshelf_plan_hint_text"
+                            android:textColor="@color/create_other_text" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/create_text_size2"
+                            android:maxLength="10"
+                            android:gravity="center_vertical"
+                            android:singleLine="true"
+                            android:textColor="@color/create_other_text"
+                            android:text=" 千字"/>
+                    </LinearLayout>
+
+                    <EditText
+                        android:id="@+id/create_author"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:layout_marginTop="@dimen/create_margin5"
+                        android:textSize="@dimen/create_text_size3"
+                        android:hint="点击输入作者"
+                        android:textColorHint="@color/bookshelf_plan_hint_text"
+                        android:maxLength="16"
+                        android:singleLine="true"
+                        android:textColor="@color/create_other_text" />
+                    <EditText
+                        android:id="@+id/create_press"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:layout_marginTop="@dimen/create_margin5"
+                        android:hint="点击输入出版社"
+                        android:textColorHint="@color/bookshelf_plan_hint_text"
+                        android:maxLength="16"
+                        android:textSize="@dimen/create_text_size3"
+                        android:singleLine="true"
+                        android:textColor="@color/create_other_text"/>
+
+                </LinearLayout>
+            </RelativeLayout>
+            <RadioGroup
+                android:id="@+id/colors"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:button="@drawable/radio_red"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/red"
+                    />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:button="@drawable/radio_orange"
+                    android:id="@+id/orange"
+                    />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:button="@drawable/radio_green"
+                    android:id="@+id/green" />
+                <RadioButton
+                    android:button="@drawable/radio_blue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:id="@+id/blue"
+                    />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:button="@drawable/radio_blue_light"
+                    android:id="@+id/blue_light"
+
+                    />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:button="@drawable/radio_purple"
+                    android:id="@+id/purple" />
+
+            </RadioGroup>
             <View
                 android:layout_alignParentBottom="true"
                 android:layout_width="match_parent"
+                android:layout_marginTop="3dp"
                 android:background="@color/reading_divider"
                 android:layout_height="1dp"/>
-            <FrameLayout
-                android:id="@+id/create_icons"
-                android:layout_width="78dp"
-                android:layout_height="116dp"
-                android:layout_marginTop="14dp"
-                android:layout_marginLeft="28dp">
-                <ImageView
-                    android:id="@+id/create_icon"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-                <TextView
-                    android:id="@+id/create_icon_text"
-                    android:text="请上传封面"
-                    android:gravity="center"
-                    android:textColor="@color/create_other_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </FrameLayout>
+        </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_toRightOf="@id/create_icons"
-                android:focusable="false"
-                android:layout_marginLeft="43dp"
-                >
-                <EditText
-                    android:id="@+id/create_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:textColor="@color/create_book_name"
-                    android:layout_marginTop="27dp"
-                    android:maxLength="16"
-                    android:singleLine="true"
-                    android:hint="点击输入书名"
-                    android:textColorHint="@color/bookshelf_plan_hint_text"
-                    android:background="@null"
-                    android:gravity="center_vertical"/>
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_marginTop="10dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:id="@+id/create_chapterNum"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:gravity="center_vertical"
-                        android:textColor="@color/create_other_text"
-                        android:text="0/0章"/>
-                    <EditText
-                        android:id="@+id/create_wordNum"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:maxLength="10"
-                        android:minWidth="80dp"
-                        android:inputType="number"
-                        android:background="@null"
-                        android:layout_marginLeft="26dp"
-                        android:gravity="center"
-                        android:singleLine="true"
-                        android:hint="点击输入字数"
-                        android:textColorHint="@color/bookshelf_plan_hint_text"
-                        android:textColor="@color/create_other_text" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:maxLength="10"
-                        android:gravity="center_vertical"
-                        android:singleLine="true"
-                        android:textColor="@color/create_other_text"
-                        android:text=" K字"/>
-                </LinearLayout>
-
-                <EditText
-                    android:id="@+id/create_author"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:layout_marginTop="10dp"
-                    android:textSize="14sp"
-                    android:hint="点击输入作者"
-                    android:textColorHint="@color/bookshelf_plan_hint_text"
-                    android:maxLength="16"
-                    android:singleLine="true"
-                    android:textColor="@color/create_other_text" />
-                <EditText
-                    android:id="@+id/create_press"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:layout_marginTop="10dp"
-                    android:hint="点击输入出版社"
-                    android:textColorHint="@color/bookshelf_plan_hint_text"
-                    android:maxLength="16"
-                    android:textSize="14sp"
-                    android:singleLine="true"
-                    android:textColor="@color/create_other_text"/>
-
-            </LinearLayout>
-        </RelativeLayout>
-        <!--<ListView-->
-            <!--android:id="@+id/create_lise_view"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"/>-->
         <android.support.v7.widget.RecyclerView
             android:id="@+id/create_recycler"
             android:layout_below="@id/create_head"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-        <LinearLayout
+        <Button
+            android:text="test button"
             android:layout_below="@id/create_recycler"
             android:layout_width="match_parent"
-            android:layout_height="63dp"
-            android:orientation="horizontal">
-            <ui.Pointwithcolor
-                android:layout_width="9dp"
-                android:layout_height="9dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="34dp"
-                />
-            <EditText
-                android:id="@+id/create_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/create_chapter_text"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="10dp"
-                android:maxLength="16"
-                android:background="@null"
-                android:singleLine="true" />
-        </LinearLayout>
+            android:layout_height="wrap_content" />
     </ui.StickyLayout>
-    <!--<ui.ColorPickerSeekBar-->
-        <!--android:id="@+id/create_seekBar"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
+
 </RelativeLayout>

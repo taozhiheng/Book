@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:focusable="false"
     android:background="@color/white"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:id="@+id/detail_container">
     <android.support.v7.widget.Toolbar
         android:id="@+id/detail_toolbar"
         android:layout_width="match_parent"
@@ -23,7 +24,7 @@
         <RelativeLayout
             android:id="@+id/detail_head"
             android:layout_width="match_parent"
-            android:layout_height="144dp">
+            android:layout_height="@dimen/create_height">
             <View
                 android:layout_alignParentBottom="true"
                 android:layout_width="match_parent"
@@ -31,22 +32,23 @@
                 android:layout_height="1dp"/>
             <FrameLayout
                 android:id="@+id/detail_icons"
-                android:layout_width="78dp"
-                android:layout_height="116dp"
-                android:layout_marginTop="14dp"
-                android:layout_marginLeft="28dp">
+                android:layout_width="@dimen/create_width1"
+                android:layout_height="@dimen/create_height1"
+                android:layout_marginTop="@dimen/create_margin2"
+                android:layout_marginLeft="@dimen/create_margin1">
                 <ImageView
                     android:id="@+id/detail_icon"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
                 <TextView
                     android:id="@+id/detail_icon_text"
-                    android:textSize="30sp"
-                    android:gravity="center"
+                    android:textSize="@dimen/create_text_size4"
                     android:maxLength="2"
-                    android:textColor="@color/create_other_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_marginTop="@dimen/create_margin8"
+                    android:layout_marginLeft="@dimen/create_margin9"
+                    android:textColor="@color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
             </FrameLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -54,23 +56,29 @@
                 android:orientation="vertical"
                 android:layout_toRightOf="@id/detail_icons"
                 android:focusable="false"
-                android:layout_marginLeft="43dp"
+                android:layout_marginLeft="@dimen/create_margin3"
                 >
-                <TextView
-                    android:id="@+id/detail_name"
+                <HorizontalScrollView
+                    android:layout_marginTop="@dimen/create_margin4"
+                    android:scrollbars="none"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp"
-                    android:textColor="@color/create_book_name"
-                    android:layout_marginTop="27dp"
-                    android:singleLine="true"
-                    android:background="@null"
-                    android:gravity="center_vertical"/>
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/detail_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:textColor="@color/create_book_name"
+                        android:singleLine="true"
+                        android:background="@null"
+                        android:gravity="center_vertical"/>
+                </HorizontalScrollView>
+
                 <TextView
                     android:id="@+id/detail_chapterNum"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="@dimen/create_margin5"
                     android:textSize="13sp"
                     android:singleLine="true"
                     android:gravity="center_vertical"
@@ -81,7 +89,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@null"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="@dimen/create_margin5"
                     android:textSize="14sp"
                     android:singleLine="true"
                     android:textColor="@color/create_other_text" />
@@ -90,7 +98,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@null"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="@dimen/create_margin5"
                     android:textSize="14sp"
                     android:singleLine="true"
                     android:textColor="@color/create_other_text"/>
@@ -101,4 +109,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     </ui.StickyLayout>
+    <!--<uk.co.senab.photoview.PhotoView-->
+        <!--android:id="@+id/photo_view"-->
+        <!--android:scaleType="fitCenter"-->
+        <!--android:visibility="gone"-->
+        <!--android:background="@color/black"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
+    <!--<ImageView-->
+        <!--android:id="@+id/detail_shadow"-->
+        <!--android:layout_below="@id/detail_toolbar"-->
+        <!--android:layout_marginLeft="@dimen/create_margin1"-->
+        <!--android:layout_marginTop="@dimen/create_margin2"-->
+        <!--android:visibility="gone"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content" />-->
 </RelativeLayout>

@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -19,29 +21,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.android.volley.AuthFailureError;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.hustunique.myapplication.MyApplication;
 import com.hustunique.myapplication.R;
+import com.umeng.analytics.MobclickAgent;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 import adapter.MyOnItemFunctionListener;
 import adapter.ReadingAdapter;
 import data.Chapter;
 import data.DBOperate;
 import data.UserPref;
 import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
+import service.QueryChaptersTask;
 import ui.DividerItemDecoration;
 import ui.StickyLayout;
 import util.Constant;
@@ -52,6 +55,8 @@ import util.TimeUtil;
  * chapter type change
  * now to finish:chapter type change,book finishNum change,book type change,update(db deal with book change)
  * now to after:chapter type change,update
+ * 持有数据：bookId, chapterId
+ * 数据操作，改变章节类型：在数据库改变章节类型，并且设置typeS = type,需要时检查书籍是否已经完成
  */
 public class ReadingFragment extends Fragment {
 
@@ -72,9 +77,9 @@ public class ReadingFragment extends Fragment {
 
     private static ReadingFragment mFragmentInstance;
 
-    private RequestQueue mRequestQueue;
-
     Bundle savedState;
+
+    public final static String TAG = "life cycle-reading";
 
     public static ReadingFragment newInstance()
     {
@@ -85,9 +90,11 @@ public class ReadingFragment extends Fragment {
         return mFragmentInstance;
     }
 
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG, "reading create view");
         View root = inflater.inflate(R.layout.fragment_reading, container, false);
         mRefresh = (SwipeRefreshLayout) root.findViewById(R.id.reading_refresh);
         mDate = (TextView) root.findViewById(R.id.reading_date);
@@ -100,11 +107,11 @@ public class ReadingFragment extends Fragment {
                 DividerItemDecoration.VERTICAL_LIST, 5f));
 
 
-
         mAdd = (FloatingActionButton) root.findViewById(R.id.reading_add);
         mAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(TAG, "reading add button on click");
                 if (mListener != null)
                     mListener.addChapter();
             }
@@ -113,20 +120,21 @@ public class ReadingFragment extends Fragment {
         mStickyLayout.setOnGiveUpTouchEventListener(new StickyLayout.OnGiveUpTouchEventListener() {
             @Override
             public boolean giveUpTouchEvent(MotionEvent event) {
-                    View view = mRecycler.getChildAt(0);
-                    if (view != null && view.getTop() >= 0)
-                        return true;
-                    else if(mRecycler.getChildCount() == 0 && mRecycler.getTop()>=0)
-                        return true;
+                View view = mRecycler.getChildAt(0);
+                if (view != null && view.getTop() >= 0)
+                    return true;
+                else if (mRecycler.getChildCount() == 0 && mRecycler.getTop() >= 0)
+                    return true;
                 return false;
             }
         });
+
         return root;
     }
 
     @Override
     public void onStart() {
-        Log.d("net", "reading start");
+        Log.d(TAG, "reading start");
         super.onStart();
 
     }
@@ -134,50 +142,53 @@ public class ReadingFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        MobclickAgent.onPageStart("Today Reading Fragment");
         checkTime();
         if (MyApplication.getUpdateFlag(Constant.INDEX_READ) || !restoreStateFromArguments()) {
             // First Time, Initialize something here
-            mWords.performClick();
             load();
-            setupAdapter();
         }
-        setupAdapter();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.d("net", "reading pause");
+        MobclickAgent.onPageEnd("Today Reading Fragment");
+        Log.d(TAG, "reading pause");
     }
 
     @Override
     public void onStop() {
-        Log.d("net", "reading stop");
+        Log.d(TAG, "reading stop");
         super.onStop();
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        Log.d(TAG, "reading attach");
+        UserPref.init(getActivity());
         mListener = (AddListener)activity;
         IntentFilter filter = new IntentFilter(Intent.ACTION_DATE_CHANGED);
         getActivity().registerReceiver(mDateReceiver, filter);
+
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        Log.d(TAG, "reading detach");
         getActivity().unregisterReceiver(mDateReceiver);
+        mHandler.removeCallbacks(null);
     }
 
-    //保存恢复数据或刷新数据
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         // Restore State Here
 
     }
-
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -189,7 +200,7 @@ public class ReadingFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.d("net", "before destroy");
+        Log.d(TAG, "reading destroy view");
 
         // Save State Here
         saveStateToArguments();
@@ -235,10 +246,14 @@ public class ReadingFragment extends Fragment {
     }
 
     protected void onRestoreState(Bundle savedInstanceState) {
-        mChapterList = savedInstanceState.getParcelableArrayList(Constant.KEY_BOOKS);
+        Log.d(TAG, "restore state");
+        mChapterList =  savedInstanceState.getParcelableArrayList(Constant.KEY_CHAPTERS);
         if(mChapterList == null)
             mChapterList = new ArrayList<>();
-        mAdapter = new ReadingAdapter(getActivity(), mChapterList);
+        if(mChapterList.size() > 0)
+            setupAdapter();
+        else
+            load();
     }
 
     //////////////////////////////
@@ -254,7 +269,7 @@ public class ReadingFragment extends Fragment {
     }
 
     protected void onSaveState(Bundle outState) {
-        outState.putParcelableArrayList(Constant.KEY_BOOKS, (ArrayList<Chapter>)mChapterList);
+        outState.putParcelableArrayList(Constant.KEY_CHAPTERS, (ArrayList<Chapter>)mChapterList);
     }
 
 
@@ -265,6 +280,10 @@ public class ReadingFragment extends Fragment {
         }
     };
 
+    /**
+     * 检查显示的名言师傅是今日的，若不是则尝试从本地获取数据
+     * 在每次onResume,或者收到日期改变的广播时调用
+     * */
     private void checkTime()
     {
         String time = TimeUtil.getDateTimeString(Calendar.getInstance(), "yyyy.MM.dd");
@@ -288,15 +307,15 @@ public class ReadingFragment extends Fragment {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        UserPref.init(getActivity());
-                        String last = UserPref.getTime();
-                        String current =
-                                TimeUtil.getDateTimeString(Calendar.getInstance(), "yyyy.MM.dd");
-                        if(!current.equals(last))
+                        //网络查询失败，则重新设置本地数据，并使用本地数据更新名言
+                        long last = UserPref.getTime();
+                        long current = TimeUtil.getTodayAt(0).getTimeInMillis();
+                        int days = (int)(current-last)/(24*60*60*1000);
+                        if(days > 0 && days < 3)
                         {
                             UserPref.setTime(current);
-                            UserPref.setWords(0, UserPref.getWords(1));
-                            UserPref.setWords(1, UserPref.getWords(2));
+                            UserPref.setWords(0, UserPref.getWords(days));
+                            UserPref.setWords(1, UserPref.getWords(days+1));
                             UserPref.setWords(2, null);
                         }
                         String content = UserPref.getWords(0);
@@ -308,7 +327,7 @@ public class ReadingFragment extends Fragment {
                         }
                     }
                 }));
-        requestQueue.add(new JsonObjectRequest(Request.Method.GET, urlHead+time1,
+        requestQueue.add(new JsonObjectRequest(Request.Method.GET, urlHead + time1,
                 null, new WordsListener(1), null));
         requestQueue.add(new JsonObjectRequest(Request.Method.GET, urlHead+time2,
                 null, new WordsListener(2), null));
@@ -326,7 +345,8 @@ public class ReadingFragment extends Fragment {
 
         @Override
         public void onResponse(JSONObject response) {
-            Log.d("net", "word:"+response);
+            Log.d(TAG, "word:"+response);
+            //网络查询成功，则将结果写入本地，并使用结果来更新名言
             try {
                 String author = response.getString("name");
                 String saying = response.getString("saying");
@@ -335,8 +355,7 @@ public class ReadingFragment extends Fragment {
                 {
                     mPeople.setText(author);
                     mWords.setText("　　" + saying);
-                    String current =
-                            TimeUtil.getDateTimeString(Calendar.getInstance(), "yyyy.MM.dd");
+                    long current = TimeUtil.getTodayAt(0).getTimeInMillis();
                     UserPref.setTime(current);
                 }
                 UserPref.setWords(mTimeFlag, saying+"&"+author);
@@ -351,33 +370,60 @@ public class ReadingFragment extends Fragment {
     private void load()
     {
         //从本地加载数据
-        Log.d("net", "reading chapters from local");
-        if ((mChapterList = MyApplication.getDBOperateInstance().getNowChapters()) == null)
+        Log.d(TAG, "reading chapters from local");
+        if(mChapterList == null)
             mChapterList = new ArrayList<>();
-        mAdapter = new ReadingAdapter(getActivity(), mChapterList);
-        Log.d("net", "finish reading chapters from local");
+        else
+            mChapterList.clear();
+        new QueryChaptersTask(mChapterList, mHandler).execute((long)-1);
+        Log.d(TAG, "finish reading chapters from local");
     }
+
+    private Handler mHandler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            if(msg.what == 0)
+            {
+                setupAdapter();
+            }
+
+        }
+    };
 
     //绑定设置adapter
     private void setupAdapter()
     {
-        mRecycler.setAdapter(mAdapter);
-        mAdapter.setOnItemFunctionListener(mOnItemFunctionListener);
+        if(mAdapter == null) {
+            mAdapter = new ReadingAdapter(getActivity(), mChapterList);
+            mAdapter.setOnItemFunctionListener(mOnItemFunctionListener);
+            mRecycler.setAdapter(mAdapter);
+            Log.d(TAG, "reading create and set adapter:"+mChapterList.size());
+        }
+        else if(mRecycler.getAdapter() == null)
+        {
+            mRecycler.setAdapter(mAdapter);
+            Log.d(TAG, "reading set adapter:"+mChapterList.size());
+        } else {
+            mAdapter.notifyDataSetChanged();
+            Log.d(TAG, "reading adapter notify:"+mChapterList.size());
+        }
     }
 
     private MyOnItemFunctionListener mOnItemFunctionListener = new MyOnItemFunctionListener() {
         @Override
         public void onItemFunction(View view, Chapter chapter, int position, int function) {
             mPosition = position;
-            Log.d("net","function position:"+position);
+            Log.d(TAG,"function position:"+position);
             switch (function)
             {
                 case 0://finish
                     //章节标记为已完成
                     //重设书的完成数，检查书是否完成
-                    Log.d("net", "write chapter finish to local");
-                    chapter.setType(Constant.TYPE_BEFORE);
-                    resetChapter(chapter);
+                    Log.d(TAG, "write chapter finish to local");
+                    DBOperate dbOperate = MyApplication.getDBOperateInstance();
+                    dbOperate.setChapterType(chapter.getId(), Constant.TYPE_BEFORE);
+                    dbOperate.checkBookFinish(chapter.getBookId());
 
                     mChapterList.remove(mPosition);
                     mAdapter.notifyItemRemoved(mPosition);
@@ -387,19 +433,20 @@ public class ReadingFragment extends Fragment {
                     MyApplication.setShouldUpdate(Constant.INDEX_BEFORE);
                     break;
                 case 1://top
-                    Log.d("net", "top, local");
+                    Log.d(TAG, "top, local");
                     mChapterList.remove(mPosition);
                     mChapterList.add(0, chapter);
-                    mAdapter.notifyItemRangeChanged(0, mPosition+1);
+//                    mAdapter.notifyItemRangeChanged(0, mPosition+1);
+                    mAdapter.notifyItemChanged(0);
+                    mAdapter.notifyItemChanged(mPosition);
                     Toast.makeText(getActivity(), "已置顶", Toast.LENGTH_SHORT).show();
                     break;
                 case 2://delete
                     //标记章节为未读
-                    Log.d("net", "delete, local");
-                    chapter.setType(Constant.TYPE_AFTER);
-                    mChapterList.remove(mPosition);
-                    resetChapter(chapter);
+                    Log.d(TAG, "delete, local");
+                    MyApplication.getDBOperateInstance().setChapterType(chapter.getId(), Constant.TYPE_AFTER);
 
+                    mChapterList.remove(mPosition);
                     mAdapter.notifyItemRemoved(mPosition);
                     mAdapter.notifyItemRangeChanged(mPosition, mAdapter.getItemCount()-mPosition);
                     Toast.makeText(getActivity(), "已取消", Toast.LENGTH_SHORT).show();
@@ -408,16 +455,6 @@ public class ReadingFragment extends Fragment {
         }
     };
 
-    private void resetChapter(Chapter chapter)
-    {
-        DBOperate dbOperate = MyApplication.getDBOperateInstance();
-        dbOperate.setChapterType(chapter.getBookId(),
-                chapter.getId(), chapter.getType());
-        int status = Constant.STATUS_MOD;
-        if(chapter.getStatus() == Constant.STATUS_ADD)
-            status = Constant.STATUS_ADD;
-        dbOperate.setChapterStatus(chapter.getBookId(), chapter.getId(), status);
-    }
 
     @Override
     public void setMenuVisibility(boolean menuVisible) {
@@ -429,9 +466,9 @@ public class ReadingFragment extends Fragment {
 
     public static void executeLoad()
     {
+        Log.d(TAG, "reading execute load");
         if(mFragmentInstance != null) {
             mFragmentInstance.load();
-            mFragmentInstance.setupAdapter();
         }
     }
 

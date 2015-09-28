@@ -31,6 +31,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.squareup.okhttp.Callback;
+import com.umeng.analytics.MobclickAgent;
+import com.zhuge.analysis.stat.ZhugeSDK;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,7 +58,10 @@ import web.OkHttpUtil;
 
 /**
  * Created by taozhiheng on 15-7-7.
- * wait to finish
+ * 使用友盟和诸葛io统计了三个事件
+ * 1.search　每次查找的关键字key,显示的总条目total,添加了几本书
+ * 2.scan 点击扫码按钮的次数
+ * 3.create　点击新建按钮的次数
  */
 public class AddActivity extends AppCompatActivity{
 
@@ -66,7 +71,7 @@ public class AddActivity extends AppCompatActivity{
 
     private AlertDialog mDialog;
     private ImageView mImageView;
-    private TextView mEmptyText;
+//    private TextView mEmptyText;
     private ProgressDialog mProgressDialog;
     private AlertDialog mDeleteDialog;
     private AlertDialog mPlanDialog;
@@ -86,10 +91,36 @@ public class AddActivity extends AppCompatActivity{
 
     private String mLastQuery;
 
+    private int total;
+
+    public final static String REQUEST_TAG = "MyQueryRequest";
+
+    private final static int COLOR_SIZE = 6;
+
+    private int addCount;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("Add Book Activity");
+        MobclickAgent.onResume(this);
+
+        ZhugeSDK.getInstance().init(getApplicationContext());
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("Add Book Activity");
+        MobclickAgent.onPause(this);
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ZhugeSDK.getInstance().flush(getApplicationContext());
+        sendAddCount();
+        mHandler.removeCallbacks(null);
         if(mDialog != null) {
             mDialog.dismiss();
         }
@@ -104,6 +135,21 @@ public class AddActivity extends AppCompatActivity{
         }
     }
 
+    private void sendAddCount()
+    {
+        if(mLastQuery != null)
+        {
+            Map<String, String> map = new HashMap<>();
+            map.put("key", mLastQuery);
+            map.put("total", ""+mBookList.size());
+            map.put("append", ""+addCount);
+            MobclickAgent.onEventValue(AddActivity.this, "search", map, addCount);
+            JSONObject event = new JSONObject(map);
+            ZhugeSDK.getInstance().track(getApplicationContext(), "search", event);
+            Log.d("send", "search:"+mLastQuery+"-"+addCount);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,7 +157,7 @@ public class AddActivity extends AppCompatActivity{
         mToolbar = (Toolbar) findViewById(R.id.add_toolbar);
         mSearch = (SearchView) findViewById(R.id.add_search);
         mRecycler = (RecyclerView) findViewById(R.id.add_recycler);
-        mEmptyText = (TextView) findViewById(R.id.add_empty);
+//        mEmptyText = (TextView) findViewById(R.id.add_empty);
         //mProgressBar = (ContentLoadingProgressBar) findViewById(R.id.add_progressBar);
         mToolbar.setTitle("添加书籍");
         setSupportActionBar(mToolbar);
@@ -127,18 +173,25 @@ public class AddActivity extends AppCompatActivity{
         mRecycler.addItemDecoration(new DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL_LIST));
 
-        mEmptyText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mEmptyText.setVisibility(View.GONE);
-            }
-        });
+//        mEmptyText.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                mEmptyText.setVisibility(View.GONE);
+//            }
+//        });
+        addCount = 0;
         mSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 String key = query.trim();
-                if(!key.equals(mLastQuery)) {
-                    query(query);
+                if(!key.equals(mLastQuery) || mBookList.size() == 0) {
+                    sendAddCount();
+                    addCount = 0;
+                    total = 0;
+                    mBookList.clear();
+                    mHashMap.clear();
+                    mAdapter.notifyDataSetChanged();
+                    query(query, 0);
                     mLastQuery = query.trim();
                 }
                 return false;
@@ -155,13 +208,15 @@ public class AddActivity extends AppCompatActivity{
 
     private void createDialogs()
     {
-        mDialog = new AlertDialog.Builder(this, R.style.AppTheme_Dialog)
+        mDialog = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
                 .setTitle("添加到")
                 .setItems(
                         new String[]{"想读","在读", "已读"},
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                int color = (int)(Math.random()*COLOR_SIZE);
+                                mBook.setColor(color);
                                 mProgressDialog.setMessage("正在添加书籍...");
                                 switch (which) {
                                     case 0:
@@ -169,6 +224,7 @@ public class AddActivity extends AppCompatActivity{
                                         MyApplication.setShouldUpdate(Constant.INDEX_AFTER);
                                         break;
                                     case 1:
+                                        mTime.setText(null);
                                         mPlanDialog.show();
                                         return;
                                     case 2:
@@ -176,31 +232,15 @@ public class AddActivity extends AppCompatActivity{
                                         MyApplication.setShouldUpdate(Constant.INDEX_BEFORE);
                                         break;
                                 }
-
-
-//                                mProgressDialog.show();
-//                                DBOperate dbOperate = MyApplication.getDBOperateInstance();
-//                                if(mBook.getUUID() != null)
-//                                    dbOperate.setBookStatus(mBook.getUUID(), Constant.STATUS_ADD);
-//                                else
-//                                {
-//                                    String uuid = dbOperate.insertBook(mBook, mGroupList);
-//                                    mBook.setUUID(uuid);
-//                                }
-//                                if(mBook.getType() == Constant.TYPE_AFTER)
-//                                    dbOperate.setBookAfter(mBook.getUUID(), time);
-//                                else if(mBook.getType() == Constant.TYPE_BEFORE)
-//                                    dbOperate.setBookBefore(mBook.getUUID(), time);
-//                                mProgressDialog.dismiss();
-
                                 String time = TimeUtil.getNeedTime(System.currentTimeMillis());
+                                mProgressDialog.setCancelable(false);
                                 mProgressDialog.show();
                                 new AddTask(mBook, mGroupList, mHandler).execute(time);
                             }
                         })
                 .create();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppTheme_Dialog);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
         View view = LayoutInflater.from(this).inflate(R.layout.plan_dialog, null);
         mPicker = (DatePicker)view.findViewById(R.id.dialog_datePicker);
         mTime = (EditText)view.findViewById(R.id.dialog_time);
@@ -210,21 +250,17 @@ public class AddActivity extends AppCompatActivity{
             public void onClick(DialogInterface dialog, int which) {
                 mProgressDialog.show();
                 long startTime = TimeUtil.getTimeMillis(mPicker.getYear(), mPicker.getMonth(), mPicker.getDayOfMonth());
-                int days = (mTime.getText().toString().length() <=0)? 1 : Integer.parseInt(mTime.getText().toString());
-                if(days == 0)
+                long days = (mTime.getText().toString().length() <=0)? 1 : Long.parseLong(mTime.getText().toString());
+                if (days == 0)
                     days = 1;
-                long endTime = startTime+days * 24 * 60 * 60 * 1000;
+                long endTime = startTime + days * 24 * 60 * 60 * 1000;
                 mBook.setType(Constant.TYPE_NOW);
                 mBook.setStartTime(TimeUtil.getNeedTime(startTime));
                 mBook.setEndTime(TimeUtil.getNeedTime(endTime));
 
-
-//                DBOperate dbOperate = MyApplication.getDBOperateInstance();
-//                String uuid = dbOperate.insertBook(mBook, mGroupList);
-//                dbOperate.setBookNow(uuid, mBook.getStartTime(), mBook.getEndTime());
-//                mProgressDialog.dismiss();
                 MyApplication.setShouldUpdate(Constant.INDEX_NOW);
 
+                mProgressDialog.setCancelable(false);
                 mProgressDialog.show();
                 new AddTask(mBook, mGroupList, mHandler).execute(mBook.getStartTime(), mBook.getEndTime());
 
@@ -233,18 +269,21 @@ public class AddActivity extends AppCompatActivity{
         builder.setNegativeButton("取消", null);
         mPlanDialog = builder.create();
 
-        mDeleteDialog = new AlertDialog.Builder(this, R.style.AppTheme_Dialog)
+        mDeleteDialog = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
                 .setTitle("确定取消添加？")
                 .setPositiveButton("是", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //删除此书及所有章节
+                        //删除此书及所有章节,标记为删除，但不立即删除
+                        mProgressDialog.setCancelable(false);
                         mProgressDialog.setMessage("正在取消添加...");
                         mProgressDialog.show();
-                        MyApplication.getDBOperateInstance().setBookDelete(mBook.getUUID());
+                        MyApplication.getDBOperateInstance().setBookDelete(mBook.getId());
                         mProgressDialog.dismiss();
+                        mProgressDialog.setCancelable(true);
                         mImageView.setSelected(false);
                         Toast.makeText(getBaseContext(), "已取消", Toast.LENGTH_SHORT).show();
+                        addCount--;
                     }
                 })
                 .setNegativeButton("否", null)
@@ -252,7 +291,12 @@ public class AddActivity extends AppCompatActivity{
 
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setMessage("玩命搜索中...");
-        mProgressDialog.setCancelable(false);
+        mProgressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                mRequestQueue.cancelAll(REQUEST_TAG);
+            }
+        });
     }
 
     private Handler mHandler = new Handler()
@@ -261,10 +305,13 @@ public class AddActivity extends AppCompatActivity{
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             mProgressDialog.dismiss();
+            mProgressDialog.setCancelable(true);
             mImageView.setSelected(true);
             Toast.makeText(getBaseContext(), "已添加", Toast.LENGTH_SHORT).show();
+            addCount++;
         }
     };
+
 
     private void initDataSet()
     {
@@ -301,6 +348,14 @@ public class AddActivity extends AppCompatActivity{
                 intent.putParcelableArrayListExtra(Constant.KEY_CHAPTERS, chapterInfos);
                 startActivity(intent);
             }
+
+            @Override
+            public void onClick(int size) {
+                if(size < total)
+                    query(mLastQuery, size);
+                else
+                    Toast.makeText(getBaseContext(), "抱歉,已到天涯海角^-^", Toast.LENGTH_SHORT).show();
+            }
         });
 
     }
@@ -316,9 +371,15 @@ public class AddActivity extends AppCompatActivity{
         switch (item.getItemId())
         {
             case R.id.action_add_scan:
+                MobclickAgent.onEvent(this, "scan");
+                ZhugeSDK.getInstance().track(this, "scan");
+                Log.d("send", "scan");
                 startActivityForResult(new Intent(this, MipcaActivityCapture.class), Constant.ACTION_SCAN_BOOK);
                 break;
             case R.id.action_add_input:
+                MobclickAgent.onEvent(this, "create");
+                ZhugeSDK.getInstance().track(this, "create");
+                Log.d("send", "create");
                 Intent intent = new Intent(this, CreateActivity.class);
                 intent.putExtra(Constant.KEY_ACTION, Constant.ACTION_CREATE_BOOK);
                 startActivity(intent);
@@ -344,7 +405,7 @@ public class AddActivity extends AppCompatActivity{
         mSearch.clearFocus();
         mProgressDialog.setMessage("玩命搜索中...");
         mProgressDialog.show();
-        mRequestQueue.add(new JsonObjectRequest(
+        JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET,
                 Constant.DB_URL + isbnCode,
                 null,
@@ -379,9 +440,9 @@ public class AddActivity extends AppCompatActivity{
                                                         Intent intent = new Intent(AddActivity.this, CreateActivity.class);
                                                         intent.putParcelableArrayListExtra(Constant.KEY_CHAPTERS, chapterInfos);
                                                         intent.putExtra(Constant.KEY_ACTION, Constant.ACTION_SCAN_BOOK);
-                                                        intent.putExtra(Constant.KEY_BOOK, new Book(null, isbn13, title, author, publisher,
+                                                        intent.putExtra(Constant.KEY_BOOK, new Book(-1, null, isbn13, title, author, publisher,
                                                                 url, 0, 0, chapterInfos.size(),
-                                                                wordNum[0], 0, null, 1));
+                                                                wordNum[0], 0, null, 1, Constant.T_STATUS_AFTER));
                                                         mProgressDialog.dismiss();
                                                         startActivity(intent);
                                                     }
@@ -394,9 +455,9 @@ public class AddActivity extends AppCompatActivity{
                                                     Intent intent = new Intent(AddActivity.this, CreateActivity.class);
                                                     intent.putParcelableArrayListExtra(Constant.KEY_CHAPTERS, chapterInfos);
                                                     intent.putExtra(Constant.KEY_ACTION, Constant.ACTION_SCAN_BOOK);
-                                                    intent.putExtra(Constant.KEY_BOOK, new Book(null, isbn13, title, author, publisher,
+                                                    intent.putExtra(Constant.KEY_BOOK, new Book(-1, null, isbn13, title, author, publisher,
                                                             url, 0, 0, chapterInfos.size(),
-                                                            wordNum[0], 0, null, 1));
+                                                            wordNum[0], 0, null, 1, Constant.T_STATUS_AFTER));
                                                     mProgressDialog.dismiss();
                                                     startActivity(intent);
                                                 }
@@ -419,13 +480,15 @@ public class AddActivity extends AppCompatActivity{
                         mProgressDialog.dismiss();
                         Toast.makeText(AddActivity.this, "抱歉,没找到^-^", Toast.LENGTH_SHORT).show();
                     }
-                }));
+                });
+        request.setTag(REQUEST_TAG);
+        mRequestQueue.add(request);
         mRequestQueue.start();
     }
 
 
     //传入关键字，去豆瓣搜索，显示所有搜索到的书籍，一般不会超过20条
-    private void query(final String key)
+    private void query(final String key, final int start)
     {
         mSearch.clearFocus();
         mProgressDialog.setMessage("玩命搜索中...");
@@ -437,9 +500,9 @@ public class AddActivity extends AppCompatActivity{
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        mRequestQueue.add(new JsonObjectRequest(
+        JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET,
-                Constant.DB_QUERY_URL+"?q="+keywords,
+                Constant.DB_QUERY_URL + "?q=" + keywords + "&start=" + start,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -448,14 +511,16 @@ public class AddActivity extends AppCompatActivity{
                         try {
                             JSONArray jsonArray = response.getJSONArray("books");
                             JSONObject jsonObject;
-                            mBookList.clear();
-                            mHashMap.clear();
-                            mAdapter.notifyDataSetChanged();
-                            for (int i = 0; i < jsonArray.length(); i++)
-                            {
+                            if(start == 0) {
+//                                mBookList.clear();
+//                                mHashMap.clear();
+//                                mAdapter.notifyDataSetChanged();
+                                total = response.getInt("total");
+                            }
+                            for (int i = 0; i < jsonArray.length(); i++) {
                                 jsonObject = jsonArray.getJSONObject(i);
                                 final String isbn13;
-                                if(jsonObject.has("isbn13"))
+                                if (jsonObject.has("isbn13"))
                                     isbn13 = jsonObject.getString("isbn13");
                                 else
                                     isbn13 = jsonObject.getString("isbn10");
@@ -465,22 +530,23 @@ public class AddActivity extends AppCompatActivity{
                                 final String publisher = jsonObject.getString("publisher");
                                 final String url = jsonObject.getString("image");
                                 final ArrayList<ChapterInfo> chapterInfos = parseChapters(jsonObject.getString("catalog"));
-                                mBookList.add(new Book(null, isbn13, title, author, publisher,
+                                mBookList.add(new Book(-1, null, isbn13, title, author, publisher,
                                         url, 0, 0, chapterInfos.size(),
-                                        0, 0, null, 1));
-                                mAdapter.notifyItemInserted(mBookList.size()-1);
-                                mHashMap.put(mBookList.size()-1, chapterInfos);
-
-                                mRequestQueue.add(
-                                        new JsonObjectRequest(
-                                                Request.Method.GET,
-                                                MyApplication.getUrlHead() + "/api/v1/books/" + isbn13 + "/words",
-                                                null,new WordListener(i),null
-                                        ));
-                                mRequestQueue.start();
+                                        0, 0, null, 1, Constant.T_STATUS_AFTER));
+                                mAdapter.notifyItemInserted(mBookList.size() - 1);
+                                mHashMap.put(mBookList.size() - 1, chapterInfos);
+                                if(chapterInfos.size() > 0) {
+                                    JsonObjectRequest wordRequest = new JsonObjectRequest(
+                                            Request.Method.GET,
+                                            MyApplication.getUrlHead() + "/api/v1/books/" + isbn13 + "/words",
+                                            null, new WordListener(i), null);
+                                    wordRequest.setTag(REQUEST_TAG);
+                                    mRequestQueue.add(wordRequest);
+                                    mRequestQueue.start();
+                                }
                             }
                             mProgressDialog.dismiss();
-                            Toast.makeText(AddActivity.this, "共为您找到"+jsonArray.length()+"本书", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AddActivity.this, "共为您找到" + jsonArray.length() + "本书", Toast.LENGTH_SHORT).show();
                         } catch (JSONException e) {
                             mProgressDialog.dismiss();
                         }
@@ -490,7 +556,7 @@ public class AddActivity extends AppCompatActivity{
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         mProgressDialog.dismiss();
-                        Toast.makeText(AddActivity.this, "抱歉,没找到^-^" + error.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AddActivity.this, "抱歉,没找到^-^", Toast.LENGTH_SHORT).show();
                     }
                 }) {
             @Override
@@ -499,7 +565,9 @@ public class AddActivity extends AppCompatActivity{
                 headers.put("Charset", "UTF-8");
                 return headers;
             }
-        });
+        };
+        request.setTag(REQUEST_TAG);
+        mRequestQueue.add(request);
         mRequestQueue.start();
     }
 
@@ -554,20 +622,22 @@ public class AddActivity extends AppCompatActivity{
     //对章节信息拆分，分成一个个的章节
     public static ArrayList<ChapterInfo> parseChapters(String response)
     {
+        Log.d("web", "catalog:"+response);
         ArrayList<ChapterInfo> chapterInfos = new ArrayList<>();
         if(response == null || response.compareTo("" )==0)
             return chapterInfos;
         String[] chapters = response.split("\n");
         int j = 1;
-        for(int i = 0; i < chapters.length-1; i++)
+        for(int i = 0; i < chapters.length; i++)
         {
             String name = chapters[i].trim();
+            Log.d("web", "catalog item:"+response);
+
             if(name.compareTo("")==0)
                 continue;
             chapterInfos.add(new ChapterInfo(j, chapters[i].trim()));
             j++;
         }
         return chapterInfos;
-
     }
 }

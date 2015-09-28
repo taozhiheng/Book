@@ -28,7 +28,8 @@ public class DBHelper extends SQLiteOpenHelper{
     //start_time　long 开始阅读时间
     //end_time　　long 结束阅读时间
     //create_time　long 创建时间
-    //status　 int 状态　０－同步正常　１－添加 2-修改 3-添加且修改　４－删除未同步
+    //status　 int 状态　０－同步正常　１－添加 2-修改 3-删除未同步
+    //type_status int 类型是否改变 -1-未改变，０－未读，１－在读，２－已读
     public static final String CREATE_BOOK = "CREATE TABLE book(" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
             "uuid varchar(50), " +
@@ -43,7 +44,8 @@ public class DBHelper extends SQLiteOpenHelper{
             "start_time varchar(30), " +
             "end_time varchar(30), " +
             "create_time varchar(30), " +
-            "status INTEGER);";
+            "status INTEGER," +
+            "type_status INTEGER);";
     //删除book表
     public static final String DELETE_BOOK = "DROP TABLE IF EXISTS book;";
 
@@ -56,7 +58,8 @@ public class DBHelper extends SQLiteOpenHelper{
     //start_time　long 创建时间
     //end_time　long 最后编辑时间
     //status　 int 状态　０－同步正常　１－添加　２－修改　３－删除未同步
-
+    //type_status int 类型是否改变 -1-未改变，０－未读，１－在读，２－已读
+    //local_book_id long 本地书籍的唯一id
     public static final String CREATE_CHAPTER = "CREATE TABLE chapter("+
             "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
             "id INTEGER, " +
@@ -65,7 +68,9 @@ public class DBHelper extends SQLiteOpenHelper{
             "type INTEGER, " +
             "start_time long, " +
             "end_time long, " +
-            "status INTEGER);";
+            "status INTEGER," +
+            "type_status INTEGER," +
+            "local_book_id long);";
     public static final String DELETE_CHAPTER = "DROP TABLE IF EXISTS chapter;";
     public DBHelper(Context context)
     {
@@ -76,7 +81,7 @@ public class DBHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db)
     {
-        Toast.makeText(myContext, "create database "+DB_NAME, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(myContext, "create database "+DB_NAME, Toast.LENGTH_SHORT).show();
         db.execSQL(CREATE_BOOK);
         db.execSQL(CREATE_CHAPTER);
     }
@@ -84,7 +89,7 @@ public class DBHelper extends SQLiteOpenHelper{
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
-        Toast.makeText(myContext, "create database "+DB_NAME, Toast.LENGTH_SHORT).show();
+       // Toast.makeText(myContext, "create database "+DB_NAME, Toast.LENGTH_SHORT).show();
         db.execSQL(DELETE_BOOK);
         db.execSQL(CREATE_BOOK);
         db.execSQL(DELETE_CHAPTER);

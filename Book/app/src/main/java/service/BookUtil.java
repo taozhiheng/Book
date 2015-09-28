@@ -23,7 +23,7 @@ public class BookUtil {
         map.put("creator", (book.getAuthor()==null)?"null":book.getAuthor());
         map.put("publisher", (book.getPress()==null)?"null":book.getPress());
         map.put("cover", (book.getUrl()==null)?"null":book.getUrl());
-        map.put("color", "0");
+        map.put("color", String.valueOf(book.getColor()));
         map.put("words", book.getWordNum());
         return new JSONObject(map);
     }
@@ -36,7 +36,7 @@ public class BookUtil {
         map.put("creator", (book.getAuthor()==null)?"null":book.getAuthor());
         map.put("publisher", (book.getPress()==null)?"null":book.getPress());
         map.put("cover", (book.getUrl()==null)?"null":book.getUrl());
-        map.put("color", "0");
+        map.put("color", String.valueOf(book.getColor()));
         map.put("words", book.getWordNum());
         map.put("add_time", TimeUtil.getNeedTime(System.currentTimeMillis()));
         if(chapterList == null)
@@ -45,6 +45,8 @@ public class BookUtil {
         HashMap<String, String> chapterMap = new HashMap<>();
         for(Chapter chapter : chapterList)
         {
+            if(chapter.getName().compareTo("") == 0)
+                continue;
             chapterMap.put("name", chapter.getName());
             chapters.put(new JSONObject(chapterMap));
         }

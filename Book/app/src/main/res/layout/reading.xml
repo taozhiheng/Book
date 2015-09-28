@@ -14,7 +14,7 @@
         <RelativeLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:background="@color/reading_main"
+            android:background="@drawable/reading_bkg"
             android:layout_height="160dp"
             app:layout_scrollFlags="scroll|enterAlways">
             <TextView
@@ -34,6 +34,7 @@
                 android:layout_marginRight="27dp"
                 android:layout_below="@id/reading_date"
                 android:textSize="14sp"
+                android:background="@color/reading_shadow"
                 android:textStyle="bold"
                 android:maxLines="3"
                 android:text="@string/reading_word"

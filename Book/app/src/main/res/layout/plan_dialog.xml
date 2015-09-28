@@ -3,31 +3,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@color/white"
-    android:layout_width="230dp"
+    android:layout_width="@dimen/plan_width1"
     android:layout_height="match_parent">
 
     <TextView
         android:text="阅读计划"
-        android:textSize="18sp"
-        android:paddingLeft="10dp"
+        android:textSize="@dimen/plan_text_size1"
+        android:paddingLeft="@dimen/plan_margin1"
         android:gravity="center_vertical"
         android:textColor="@color/bookshelf_plan_title"
-        android:layout_width="230dp"
-        android:layout_height="40dp" />
+        android:layout_width="@dimen/plan_width1"
+        android:layout_height="@dimen/plan_height1" />
     <View
         android:background="@drawable/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"/>
     <TextView
         android:text="开始日期"
-        android:layout_marginTop="5dp"
-        android:paddingLeft="15dp"
-        android:textSize="12sp"
+        android:layout_marginTop="@dimen/plan_margin3"
+        android:paddingLeft="@dimen/plan_margin2"
+        android:textSize="@dimen/plan_text_size2"
         android:textColor="@color/bookshelf_plan_hint_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <DatePicker
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/plan_margin1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/dialog_datePicker"
@@ -36,21 +36,21 @@
         android:calendarViewShown="false"
         android:layout_gravity="center_horizontal" />
     <View
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/plan_margin1"
         android:background="@drawable/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"/>
     <TextView
         android:text="阅读时间"
-        android:layout_marginTop="15dp"
-        android:paddingLeft="15dp"
-        android:textSize="12sp"
+        android:layout_marginTop="@dimen/plan_margin2"
+        android:paddingLeft="@dimen/plan_margin2"
+        android:textSize="@dimen/plan_text_size2"
         android:textColor="@color/bookshelf_plan_hint_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <LinearLayout
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginTop="@dimen/plan_margin3"
+        android:layout_marginBottom="@dimen/plan_margin4"
         android:layout_gravity="center_horizontal"
         android:orientation="horizontal"
         android:layout_width="wrap_content"
@@ -58,11 +58,11 @@
         <EditText
             android:id="@+id/dialog_time"
             android:layout_gravity="center_horizontal"
-            android:layout_width="60dp"
+            android:layout_width="@dimen/plan_width2"
             android:gravity="center"
             android:inputType="number"
-            android:padding="5dp"
-            android:textSize="12sp"
+            android:padding="@dimen/plan_margin3"
+            android:textSize="@dimen/plan_text_size2"
             android:textColor="@color/bookshelf_plan_day"
             android:maxLength="3"
             android:singleLine="true"
@@ -70,8 +70,8 @@
             android:background="@drawable/gray_border"/>
         <TextView
             android:text="天"
-            android:textSize="12sp"
-            android:layout_marginLeft="10dp"
+            android:textSize="@dimen/plan_text_size2"
+            android:layout_marginLeft="@dimen/plan_margin1"
             android:textColor="@color/bookshelf_plan_day"
             android:gravity="center_vertical"
             android:layout_width="wrap_content"

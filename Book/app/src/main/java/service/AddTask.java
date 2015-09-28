@@ -4,9 +4,12 @@ import android.os.AsyncTask;
 import android.os.Handler;
 
 import com.hustunique.myapplication.MyApplication;
+
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import data.Book;
+import data.Chapter;
 import data.ChapterInfo;
 import data.DBOperate;
 import util.Constant;
@@ -17,46 +20,54 @@ import util.Constant;
  */
 public class AddTask extends AsyncTask<String, Integer, Void> {
 
-    private Book mBook;
-    private List<ChapterInfo> mChapters;
-    private android.os.Handler mHandler;
+    private WeakReference<Book> mBookRef;
+    private WeakReference<List<ChapterInfo>> mChaptersRef;
+    private WeakReference<android.os.Handler> mHandlerRef;
 
     public AddTask(Book book, List<ChapterInfo> list, Handler handler)
     {
-        this.mBook = book;
-        this.mChapters = list;
-        this.mHandler = handler;
+        this.mBookRef = new WeakReference<Book>(book);
+        this.mChaptersRef = new WeakReference<List<ChapterInfo>>(list);
+        this.mHandlerRef = new WeakReference<Handler>(handler);
     }
 
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        if(mHandler != null)
-            mHandler.sendEmptyMessage(0);
+        Handler handler = mHandlerRef.get();
+        if(handler != null)
+            handler.sendEmptyMessage(0);
     }
 
     @Override
     protected Void doInBackground(String... params) {
         DBOperate dbOperate = MyApplication.getDBOperateInstance();
-        if(mBook.getUUID() != null)
+        //已存在，但是被取消过，标记为删除状态
+        Book book = mBookRef.get();
+        if(book == null)
+            return null;
+        if(book.getId() != -1)
         {
-            dbOperate.setBookStatus(mBook.getUUID(), Constant.STATUS_ADD);
+            dbOperate.setBookStatus(book.getId(), Constant.STATUS_ADD);
         }
         else
         {
-            String uuid = dbOperate.insertBook(mBook, mChapters);
-            mBook.setUUID(uuid);
+            List<ChapterInfo> list = mChaptersRef.get();
+            if(list != null) {
+                long id = dbOperate.insertBook(book, list);
+                book.setId(id);
+            }
         }
-        switch (mBook.getType())
+        switch (book.getType())
         {
             case Constant.TYPE_AFTER:
-                dbOperate.setBookAfter(mBook.getUUID(), params[0]);
+                dbOperate.setBookAfter(book.getId(), params[0]);
                 break;
             case Constant.TYPE_NOW:
-                dbOperate.setBookNow(mBook.getUUID(), params[0], params[1]);
+                dbOperate.setBookNow(book.getId(), params[0], params[1]);
                 break;
             case Constant.TYPE_BEFORE:
-                dbOperate.setBookBefore(mBook.getUUID(), params[0]);
+                dbOperate.setBookBefore(book.getId(), params[0]);
                 break;
         }
         return null;

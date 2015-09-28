@@ -7,12 +7,12 @@
 
     <Button
         android:id="@+id/button_back"
-        android:layout_width="75.0dip"
+        android:layout_width="@dimen/title_width"
         android:text="返回"
         android:textColor="@android:color/white"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="2dip" />
+        android:layout_marginLeft="@dimen/title_margin" />
 
     <TextView
         android:id="@+id/textview_title"
@@ -24,6 +24,6 @@
         android:gravity="center_vertical"
         android:text="书籍条形码扫描"
         android:textColor="@android:color/white"
-        android:textSize="18sp" />
+        android:textSize="@dimen/title_text_size1" />
 
 </RelativeLayout>

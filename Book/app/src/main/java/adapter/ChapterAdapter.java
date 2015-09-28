@@ -1,6 +1,7 @@
 package adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,16 +29,33 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.MyViewHo
 
     private boolean mVisible;
 
+    private int mColorIndex = 0;
+
+    private final static int[] bkgRes = new int[]{
+            R.drawable.chapter_background0, R.drawable.chapter_background1,
+            R.drawable.chapter_background2, R.drawable.chapter_background3,
+            R.drawable.chapter_background4, R.drawable.chapter_background5};
+
+    private final static int[] iconRes = new int[]{
+            R.drawable.chapter_icon_background0, R.drawable.chapter_icon_background1,
+            R.drawable.chapter_icon_background2, R.drawable.chapter_icon_background3,
+            R.drawable.chapter_icon_background4, R.drawable.chapter_icon_background5};
+
+    private final static int[] itemRes = new int[]{
+            R.drawable.recycler_item_background0, R.drawable.recycler_item_background1,
+            R.drawable.recycler_item_background2, R.drawable.recycler_item_background3,
+            R.drawable.recycler_item_background4, R.drawable.recycler_item_background5};
+
     public ChapterAdapter(List<Chapter> list)
     {
-        this.mList = list;
-        this.mVisible = true;
+        this(list, true, 0);
     }
 
-    public ChapterAdapter(List<Chapter> list, boolean visible)
+    public ChapterAdapter(List<Chapter> list, boolean visible, int index)
     {
         this.mList = list;
         this.mVisible = visible;
+        this.mColorIndex = index;
     }
 
 
@@ -51,9 +69,12 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.MyViewHo
     @Override
     public void onBindViewHolder(ChapterAdapter.MyViewHolder holder, int position) {
         Chapter chapter = mList.get(position);
+        holder.itemView.setBackgroundResource(itemRes[mColorIndex]);
         holder.mContent.setText(chapter.getName());
+        holder.mIcon.setBackgroundResource(bkgRes[mColorIndex]);
         if(mVisible) {
             holder.mFlag.setVisibility(View.VISIBLE);
+            holder.mFlag.setBackgroundResource(iconRes[mColorIndex]);
             holder.mFlag.setTag(new Info(holder.itemView, holder.mIcon, position));
             holder.mFlag.setOnClickListener(mOnClickListener);
             if(chapter.getType() == Constant.TYPE_NOW) {

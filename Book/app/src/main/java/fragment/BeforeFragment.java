@@ -4,9 +4,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -28,6 +29,7 @@ import adapter.BookRecyclerAdapter;
 import data.Book;
 import data.DBOperate;
 import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
+import service.QueryBooksTask;
 import ui.DividerItemDecoration;
 import util.Constant;
 import util.TimeUtil;
@@ -46,17 +48,15 @@ public class BeforeFragment extends Fragment implements NumFragment {
     private DatePicker mPicker;
     private EditText mTime;
 
-    private SwipeRefreshLayout mRefresh;
-
     private int mPosition;
     private List<Book> mBookList;
     private BookRecyclerAdapter mAdapter;
 
     private static BeforeFragment mFragmentInstance;
 
-
     Bundle savedState;
 
+    public final static String TAG = "life cycle-before";
 
     @Override
     public int getItemNum() {
@@ -67,7 +67,7 @@ public class BeforeFragment extends Fragment implements NumFragment {
 
     public static BeforeFragment newInstance()
     {
-        Log.d("net", "before new instance");
+        Log.d(TAG, "before new instance");
         if(mFragmentInstance == null) {
             mFragmentInstance = new BeforeFragment();
             mFragmentInstance.setArguments(new Bundle());
@@ -75,39 +75,32 @@ public class BeforeFragment extends Fragment implements NumFragment {
         return mFragmentInstance;
     }
 
+    @Override
+    public void onDetach() {
+        Log.d(TAG, "now on detach");
+        super.onDetach();
+        mHandler.removeCallbacks(null);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d("net", "before create");
+        Log.d(TAG, "before create");
         View root = inflater.inflate(R.layout.fragment_bookshelf_before, container, false);
-        mRefresh = (SwipeRefreshLayout) root;
-        mRecycler = (RecyclerView) root.findViewById(R.id.recycler_before);
+        mRecycler = (RecyclerView) root;
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecycler.setItemAnimator(new SlideInDownAnimator());
         mRecycler.addItemDecoration(new DividerItemDecoration(getActivity(),
                 DividerItemDecoration.VERTICAL_LIST, 5));
-        mRefresh.setColorSchemeResources(
-                android.R.color.holo_blue_dark,
-                android.R.color.holo_blue_light,
-                android.R.color.holo_blue_bright);
-        mRefresh.setOnRefreshListener(mRefreshListener);
         createDialogs();
         return root;
     }
 
-    private SwipeRefreshLayout.OnRefreshListener mRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
-        @Override
-        public void onRefresh() {
-            load();
-            setupAdapter();
-            mRefresh.setRefreshing(false);
-        }
-    };
 
     //创建三个对话框：选项、计划、删除
     private void createDialogs()
     {
-        mDialog = new AlertDialog.Builder(getActivity(), R.style.AppTheme_Dialog)
+        mDialog = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_LIGHT)
                 .setItems(
                         new String[]{"温故知新", "删除此书"},
                         new DialogInterface.OnClickListener() {
@@ -116,6 +109,7 @@ public class BeforeFragment extends Fragment implements NumFragment {
                                 switch (which)
                                 {
                                     case 0:
+                                        mTime.setText(null);
                                         mPlanDialog.show();
                                         break;
                                     case 1:
@@ -125,7 +119,7 @@ public class BeforeFragment extends Fragment implements NumFragment {
                             }
                         })
                 .create();
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppTheme_Dialog);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_LIGHT);
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.plan_dialog, null);
         mPicker = (DatePicker)view.findViewById(R.id.dialog_datePicker);
         mTime = (EditText)view.findViewById(R.id.dialog_time);
@@ -134,30 +128,27 @@ public class BeforeFragment extends Fragment implements NumFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 long startTime = TimeUtil.getTimeMillis(mPicker.getYear(), mPicker.getMonth(), mPicker.getDayOfMonth());
-                int days = (mTime.getText().toString().length() <=0)? 1 : Integer.parseInt(mTime.getText().toString());
+                long days = (mTime.getText().toString().length() <=0)? 1 : Long.parseLong(mTime.getText().toString());
+
                 if(days == 0)
                     days = 1;
                 long endTime = startTime+days*24*60*60*1000;
 
-                Log.d("net", "book to now, local");
+                Log.d(TAG, "book to now, local");
                 Book book = mBookList.get(mPosition);
                 book.setType(Constant.TYPE_NOW);
                 book.setFinishNum(0);
                 book.setStartTime(TimeUtil.getNeedTime(startTime));
                 book.setEndTime(TimeUtil.getNeedTime(endTime));
                 //标记为在读，finishNum=0
-                //所有章节标记为未读
+                //所有章节标记为在读
                 DBOperate dbOperate = MyApplication.getDBOperateInstance();
-                dbOperate.setBookNow(book.getUUID(), book.getStartTime(), book.getEndTime());
-                int status = Constant.STATUS_MOD;
-                if(book.getStatus() == Constant.STATUS_ADD)
-                    status = Constant.STATUS_ADD;
-                dbOperate.setBookStatus(book.getUUID(), status);
+                dbOperate.setBookNow(book.getId(), book.getStartTime(), book.getEndTime());
+
 
                 mBookList.remove(mPosition);
                 mAdapter.notifyItemRemoved(mPosition);
                 mAdapter.notifyDataSetChanged();
-                Toast.makeText(getActivity(), "已删除", Toast.LENGTH_SHORT).show();
 
 
                 NowFragment.executeLoad();
@@ -166,21 +157,22 @@ public class BeforeFragment extends Fragment implements NumFragment {
         });
         builder.setNegativeButton("取消", null);
         mPlanDialog = builder.create();
-        mDeleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppTheme_Dialog)
+        mDeleteDialog = new AlertDialog.Builder(getActivity(), AlertDialog.THEME_HOLO_LIGHT)
                 .setTitle("确定删除此书")
                 .setPositiveButton("是", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //删除此书及所有章节
-                        Log.d("net", "delete book, local");
+                        Log.d(TAG, "delete book, local");
                         Book book = mBookList.get(mPosition);
                         DBOperate dbOperate = MyApplication.getDBOperateInstance();
-                        dbOperate.setBookDelete(book.getUUID());
-                        dbOperate.setBookStatus(book.getUUID(), Constant.STATUS_DEL);
+                        dbOperate.setBookDelete(book.getId());
 
                         mBookList.remove(mPosition);
                         mAdapter.notifyItemRemoved(mPosition);
                         mAdapter.notifyDataSetChanged();
+                        Toast.makeText(getActivity(), "已删除", Toast.LENGTH_SHORT).show();
+
                     }
                 })
                 .setNegativeButton("否", null)
@@ -189,31 +181,30 @@ public class BeforeFragment extends Fragment implements NumFragment {
 
     @Override
     public void onStart() {
-        Log.d("net", "before start");
+        Log.d(TAG, "before start");
         super.onStart();
 
     }
 
     @Override
     public void onResume() {
-        Log.d("net", "before resume");
+        Log.d(TAG, "before resume");
         super.onResume();
         if (MyApplication.getUpdateFlag(Constant.INDEX_BEFORE) || !restoreStateFromArguments()) {
             // First Time, Initialize something here
             load();
         }
-        setupAdapter();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.d("net", "before pause");
+        Log.d(TAG, "before pause");
     }
 
     @Override
     public void onStop() {
-        Log.d("net", "before stop");
+        Log.d(TAG, "before stop");
         super.onStop();
     }
 
@@ -236,7 +227,7 @@ public class BeforeFragment extends Fragment implements NumFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.d("net", "before destroy");
+        Log.d(TAG, "before destroy");
 
         // Save State Here
         saveStateToArguments();
@@ -282,8 +273,14 @@ public class BeforeFragment extends Fragment implements NumFragment {
     }
 
     protected void onRestoreState(Bundle savedInstanceState) {
-        mBookList = savedInstanceState.getParcelableArrayList(Constant.KEY_BOOKS);
-        mAdapter = new BookRecyclerAdapter(getActivity(), mBookList);
+        mBookList =  savedInstanceState.getParcelableArrayList(Constant.KEY_BOOKS);
+        if(mBookList == null)
+            mBookList = new ArrayList<>();
+        Log.d(TAG, "before restore, book list size:"+mBookList.size());
+        if(mBookList.size() > 0)
+            setupAdapter();
+        else
+            load();
     }
 
     //////////////////////////////
@@ -302,23 +299,52 @@ public class BeforeFragment extends Fragment implements NumFragment {
         outState.putParcelableArrayList(Constant.KEY_BOOKS, (ArrayList<Book>)mBookList);
     }
 
+    private Handler mHandler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            if(msg.what == 0)
+            {
+                setupAdapter();
+            }
+
+        }
+    };
+
     //从网络或本地数据库读取数据至list,并创建adapter
     private void load()
     {
-        Log.d("net", "before load");
-        Log.d("net", "before load from local");
-        if ((mBookList = MyApplication.getDBOperateInstance().getBooks(Constant.TYPE_BEFORE)) == null)
+        Log.d(TAG, "before load data");
+        if(mBookList == null)
             mBookList = new ArrayList<>();
-        mAdapter = new BookRecyclerAdapter(getActivity(), mBookList);
-        Log.d("net", "before finish load from local");
+        else
+            mBookList.clear();
+        new QueryBooksTask(mBookList, mHandler).execute(Constant.TYPE_BEFORE);
+        Log.d(TAG, "before finish start load data task");
     }
 
     //绑定设置adapter
     private void setupAdapter()
     {
-        mRecycler.setAdapter(mAdapter);
-        mAdapter.setOnItemClickListener(mOnItemClickListener);
-        mAdapter.setOnItemLongClickListener(mOnItemLongClickListener);
+        if(mAdapter == null) {
+            mAdapter = new BookRecyclerAdapter(getActivity(), mBookList, false);
+            mAdapter.setOnItemClickListener(mOnItemClickListener);
+            mAdapter.setOnItemLongClickListener(mOnItemLongClickListener);
+            mRecycler.setAdapter(mAdapter);
+            Log.d(TAG, "before create and set adapter:" + mBookList.size());
+
+        }
+        else if(mRecycler.getAdapter() == null)
+        {
+            mRecycler.setAdapter(mAdapter);
+            Log.d(TAG, "before set adapter:"+mBookList.size());
+        }
+        else
+        {
+            mAdapter.notifyDataSetChanged();
+            Log.d(TAG, "before adapter notify:"+mBookList.size());
+        }
+
     }
 
     private MyOnItemClickListener mOnItemClickListener = new MyOnItemClickListener() {
@@ -339,11 +365,12 @@ public class BeforeFragment extends Fragment implements NumFragment {
         }
     };
 
+
     public static void executeLoad()
     {
+        Log.d(TAG, "before execute load");
         if(mFragmentInstance != null) {
             mFragmentInstance.load();
-            mFragmentInstance.setupAdapter();
         }
     }
 }

@@ -16,181 +16,183 @@
         android:background="@color/toolbar"/>
     <ui.CircleImageView
         android:id="@+id/person_icon"
-        android:layout_width="146dp"
-        android:layout_height="146dp"
+        android:layout_width="@dimen/person_width1"
+        android:layout_height="@dimen/person_height1"
         android:layout_centerHorizontal="true"
-        android:src="@mipmap/ic_user_icon"
-        android:layout_marginTop="29dp"
+        android:src="@drawable/ic_user_icon"
+        android:layout_marginTop="@dimen/person_margin1"
         android:scaleType="centerCrop"
-        app:border_width="9dp"
+        app:border_width="@dimen/person_border_width"
         app:border_color="@color/person_user_circle"
         android:layout_below="@id/person_toolbar" />
     <TextView
         android:id="@+id/person_user"
         android:layout_width="wrap_content"
-        android:layout_height="42dp"
+        android:layout_height="@dimen/person_height2"
         android:layout_centerHorizontal="true"
         android:gravity="bottom|center_horizontal"
         android:hint="@string/user"
         android:textColorHint="@color/person_text"
         android:textColor="@color/person_text"
-        android:textSize="27sp"
+        android:textSize="@dimen/person_text_size1"
         android:layout_below="@id/person_icon"/>
     <View
         android:id="@+id/person_divider"
-        android:layout_marginTop="234dp"
+        android:layout_marginTop="@dimen/person_margin2"
         android:layout_below="@id/person_toolbar"
         android:background="@drawable/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp" />
 
     <LinearLayout
-        android:id="@+id/person_book_column"
-        android:layout_centerHorizontal="true"
+        android:id="@+id/person_content"
         android:layout_below="@id/person_divider"
-        android:layout_marginTop="27dp"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/person_books_head"
-            android:gravity="center_vertical"
-            android:text="你已阅读了 "
-            android:textSize="22sp"
-            android:singleLine="true"
-            android:textColor="@color/person_text"
+        <LinearLayout
+            android:id="@+id/person_book_column"
+            android:layout_marginTop="@dimen/person_margin3"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-        <TextView
-            android:id="@+id/person_books"
-            android:gravity="bottom"
-            android:textSize="32sp"
-            android:singleLine="true"
-            android:textColor="@color/toolbar"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/person_books_head"
+                android:gravity="center_vertical"
+                android:text="你已阅读了 "
+                android:textSize="@dimen/person_text_size2"
+                android:singleLine="true"
+                android:textColor="@color/person_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+            <TextView
+                android:id="@+id/person_books"
+                android:gravity="bottom"
+                android:textSize="@dimen/person_text_size3"
+                android:singleLine="true"
+                android:textColor="@color/toolbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/person_books_tail"
+                android:gravity="center_vertical"
+                android:text=" 本书"
+                android:textSize="@dimen/person_text_size2"
+                android:singleLine="true"
+                android:textColor="@color/person_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/person_chapter_column"
+            android:layout_marginTop="@dimen/person_margin4"
+            android:layout_below="@id/person_book_column"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:id="@+id/person_books_tail"
-            android:gravity="center_vertical"
-            android:text=" 本书"
-            android:textSize="22sp"
-            android:singleLine="true"
-            android:textColor="@color/person_text"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/person_chapters_head"
+                android:gravity="center_vertical"
+                android:text="你已阅读了 "
+                android:textSize="@dimen/person_text_size2"
+                android:singleLine="true"
+                android:textColor="@color/person_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+            <TextView
+                android:id="@+id/person_chapters"
+                android:gravity="bottom"
+                android:textSize="@dimen/person_text_size3"
+                android:singleLine="true"
+                android:textColor="@color/toolbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/person_chapters_tail"
+                android:gravity="center_vertical"
+                android:text=" 章节"
+                android:textSize="@dimen/person_text_size2"
+                android:singleLine="true"
+                android:textColor="@color/person_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/person_day_column"
+            android:layout_marginTop="@dimen/person_margin4"
+            android:layout_below="@id/person_chapter_column"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/person_chapter_column"
-        android:layout_marginTop="15dp"
-        android:layout_alignLeft="@id/person_book_column"
-        android:layout_below="@id/person_book_column"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/person_chapters_head"
-            android:gravity="center_vertical"
-            android:text="你已阅读了 "
-            android:textSize="22sp"
-            android:singleLine="true"
-            android:textColor="@color/person_text"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/person_days_head"
+                android:gravity="center_vertical"
+                android:text="你已阅读了 "
+                android:textSize="@dimen/person_text_size2"
+                android:singleLine="true"
+                android:textColor="@color/person_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+            <TextView
+                android:id="@+id/person_days"
+                android:gravity="bottom"
+                android:textSize="@dimen/person_text_size3"
+                android:singleLine="true"
+                android:textColor="@color/toolbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/person_days_tail"
+                android:gravity="center_vertical"
+                android:text=" 天"
+                android:textSize="@dimen/person_text_size2"
+                android:singleLine="true"
+                android:textColor="@color/person_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/person_word_column"
+            android:layout_marginTop="@dimen/person_margin4"
+            android:layout_below="@id/person_day_column"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-        <TextView
-            android:id="@+id/person_chapters"
-            android:gravity="bottom"
-            android:textSize="32sp"
-            android:singleLine="true"
-            android:textColor="@color/toolbar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:id="@+id/person_chapters_tail"
-            android:gravity="center_vertical"
-
-            android:text=" 章节"
-            android:textSize="22sp"
-            android:singleLine="true"
-            android:textColor="@color/person_text"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/person_day_column"
-        android:layout_marginTop="15dp"
-        android:layout_alignLeft="@id/person_chapter_column"
-        android:layout_below="@id/person_chapter_column"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/person_days_head"
-            android:gravity="center_vertical"
-            android:text="你已阅读了 "
-            android:textSize="22sp"
-            android:singleLine="true"
-            android:textColor="@color/person_text"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-        <TextView
-            android:id="@+id/person_days"
-            android:gravity="bottom"
-            android:textSize="32sp"
-            android:singleLine="true"
-            android:textColor="@color/toolbar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:id="@+id/person_days_tail"
-            android:gravity="center_vertical"
-            android:text=" 天"
-            android:textSize="22sp"
-            android:singleLine="true"
-            android:textColor="@color/person_text"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/person_word_column"
-        android:layout_marginTop="15dp"
-        android:layout_alignLeft="@id/person_day_column"
-        android:layout_below="@id/person_day_column"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/person_words_head"
-            android:gravity="center_vertical"
-            android:text="你已阅读了 "
-            android:textSize="22sp"
-            android:singleLine="true"
-            android:textColor="@color/person_text"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
-        <TextView
-            android:id="@+id/person_words"
-            android:gravity="bottom"
-            android:textSize="32sp"
-            android:singleLine="true"
-            android:textColor="@color/toolbar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:id="@+id/person_words_tail"
-            android:gravity="center_vertical"
-            android:text=" K字"
-            android:textSize="22sp"
-            android:singleLine="true"
-            android:textColor="@color/person_text"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/person_words_head"
+                android:gravity="center_vertical"
+                android:text="你已阅读了 "
+                android:textSize="@dimen/person_text_size2"
+                android:singleLine="true"
+                android:textColor="@color/person_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+            <TextView
+                android:id="@+id/person_words"
+                android:gravity="bottom"
+                android:textSize="@dimen/person_text_size3"
+                android:singleLine="true"
+                android:textColor="@color/toolbar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/person_words_tail"
+                android:gravity="center_vertical"
+                android:text=" 千字"
+                android:textSize="@dimen/person_text_size2"
+                android:singleLine="true"
+                android:textColor="@color/person_text"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+        </LinearLayout>
     </LinearLayout>
 
     <Button
         android:id="@+id/person_logout"
-        android:layout_width="230dp"
-        android:layout_height="48dp"
-        android:layout_below="@id/person_word_column"
-        android:layout_marginTop="15dp"
+        android:layout_width="@dimen/person_width2"
+        android:layout_height="@dimen/person_height3"
+        android:layout_below="@id/person_content"
+        android:layout_marginTop="@dimen/person_margin4"
         android:layout_centerHorizontal="true"
         android:text="@string/logout"
-        android:textSize="22sp"
+        android:textSize="@dimen/person_text_size2"
         android:textColor="@color/white"
         android:background="@drawable/btn_logout_background" />
 

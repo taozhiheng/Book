@@ -1,6 +1,7 @@
 package com.hustunique.myapplication;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
@@ -30,8 +31,12 @@ import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
+import com.umeng.analytics.MobclickAgent;
+import com.zhuge.analysis.stat.ZhugeSDK;
 
 import net.FileImageUpload;
 import net.MultipartEntity;
@@ -69,6 +74,34 @@ public class EditActivity extends AppCompatActivity {
     private boolean iconChanged;
 
     private RequestQueue mRequestQueue;
+    private ProgressDialog mProgress;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("Edit UserInfo Activity");
+        MobclickAgent.onResume(this);
+
+        ZhugeSDK.getInstance().init(getApplicationContext());
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("Edit UserInfo Activity");
+        MobclickAgent.onPause(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ZhugeSDK.getInstance().flush(getApplicationContext());
+
+        if(mProgress != null) {
+            mProgress.dismiss();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +122,9 @@ public class EditActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
-            }});
+            }
+        });
+
 
         mIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,14 +137,18 @@ public class EditActivity extends AppCompatActivity {
         mBoy.setOnClickListener(mOnClickListener);
         mGirl.setOnClickListener(mOnClickListener);
 
+
+        mProgress = new ProgressDialog(this);
+        mProgress.setMessage("正在处理...");
+
         iconChanged = false;
 
+        Picasso.with(this).load(R.drawable.ic_user_icon).resize(146, 146).into(mIcon);
         String url = MyApplication.getUserUrl();
-        if(url != null) {
-            OkHttpClient picassoClient = new OkHttpClient();
-            picassoClient.setCache(null);
-            Picasso picasso=new Picasso.Builder(this).downloader(new OkHttpDownloader(picassoClient)).build();
-            picasso.load(url).resize(146, 146).into(mIcon);
+        if(url != null && !url.contains("null")){
+            MyApplication.getPicasso().load(Uri.parse(url))
+                    .resize(146, 146).into(mIcon);
+
         }
         String user = MyApplication.getUser();
         if(user != null)
@@ -172,47 +211,7 @@ public class EditActivity extends AppCompatActivity {
 
     private void executeEdit(final String user, boolean sex)
     {
-
-        if(iconChanged)
-        {
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    MultipartRequest multipartRequest = new MultipartRequest(
-                            MyApplication.getUrlHead()+"/api/v1/user/avatar",
-                            new Response.Listener<String>() {
-
-                                @Override
-                                public void onResponse(String response) {
-                                    Log.d("net", "avatar:" + response);
-                                    Toast.makeText(getBaseContext(), "头像修改成功", Toast.LENGTH_SHORT).show();
-                                }
-                            },
-                            new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Log.d("net", "avatar:" +error);
-                                    Toast.makeText(getBaseContext(), "头像修改失败"+error, Toast.LENGTH_SHORT).show();
-                                }
-                            });
-
-                    multipartRequest.setRetryPolicy(new DefaultRetryPolicy(10*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-                    // 添加header
-                    multipartRequest.addHeader("Accept", "application/json");
-                    multipartRequest.addHeader("Authorization", MyApplication.getAuthorization());
-                    // 通过MultipartEntity来设置参数
-                    MultipartEntity multi = multipartRequest.getMultiPartEntity();
-                    // 上传文件
-                    multi.addBinaryPart("file", FileUtil.getBytesFromFile(new File(mIconPath)));
-//                    multi.addFilePart("file", new File(mIconPath));
-                    // 将请求添加到队列中
-                    Log.d("net", "image:" + mIconPath + " auth:" + MyApplication.getAuthorization());
-                    mRequestQueue.add(multipartRequest);
-                }
-            }).start();
-        }
-
+        mProgress.show();
         HashMap<String, Object> hashMap = new HashMap<>();
         hashMap.put("username", user);
         hashMap.put("sex", sex);
@@ -230,8 +229,7 @@ public class EditActivity extends AppCompatActivity {
                                     MyApplication.setUser(username);
                                     String avatar = response.getString("avatar");
                                     if(!avatar.contains("http"))
-                                        avatar = MyApplication.getUrlHead()
-                                                +response.getString("avatar");
+                                        avatar = MyApplication.getUrlHead()+avatar;
                                     MyApplication.setUserUrl(avatar);
                                     MyApplication.setUserMail(response.getString("mail"));
                                     String sexStr = response.getString("sex");
@@ -239,16 +237,84 @@ public class EditActivity extends AppCompatActivity {
                                     if(sexStr.equals("true"))
                                         sex = true;
                                     MyApplication.setUserSex(sex);
-                                    Toast.makeText(getBaseContext(), "修改成功", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent();
                                     intent.putExtra(Constant.KEY_USER_ICON_CHANGE, iconChanged);
                                     intent.putExtra(Constant.KEY_USER_NAME, username);
                                     setResult(RESULT_OK, intent);
-                                    finish();
+
+                                    if(iconChanged)
+                                    {
+
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                MultipartRequest multipartRequest = new MultipartRequest(
+                                                        MyApplication.getUrlHead().replace("2333", "8000")+"/api/v1/user/avatar",
+                                                        new Response.Listener<String>() {
+
+                                                            @Override
+                                                            public void onResponse(String response) {
+                                                                Log.d("net", "avatar:" + response);
+                                                                mProgress.dismiss();
+                                                                Toast.makeText(getBaseContext(), "修改成功", Toast.LENGTH_SHORT).show();
+                                                                if(MyApplication.getUserUrl() != null && !MyApplication.getUserUrl().contains("null"))
+                                                                {
+                                                                    finish();
+                                                                    return;
+                                                                }
+                                                                try
+                                                                {
+                                                                    JSONObject json = new JSONObject(response);
+                                                                    String avatar = json.getString("avatar");
+                                                                    if(!avatar.contains("http"))
+                                                                        avatar = MyApplication.getUrlHead() +avatar;
+                                                                    MyApplication.setUserUrl(avatar);
+                                                                }catch (JSONException e)
+                                                                {
+                                                                    e.printStackTrace();
+                                                                }
+                                                                finally {
+                                                                    finish();
+                                                                }
+
+                                                            }
+                                                        },
+                                                        new Response.ErrorListener() {
+                                                            @Override
+                                                            public void onErrorResponse(VolleyError error) {
+                                                                Log.d("net", "avatar:" + error);
+                                                                mProgress.dismiss();
+                                                                Toast.makeText(getBaseContext(), "抱歉，头像修改失败", Toast.LENGTH_SHORT).show();
+                                                                finish();
+                                                            }
+                                                        });
+
+//                                                multipartRequest.setRetryPolicy(new DefaultRetryPolicy(10*1000, DefaultRetryPolicy.DEFAULT_MAX_RETRIES,DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                                                // 添加header
+                                                multipartRequest.addHeader("Accept", "application/json");
+                                                multipartRequest.addHeader("Authorization", MyApplication.getAuthorization());
+                                                // 通过MultipartEntity来设置参数
+                                                MultipartEntity multi = multipartRequest.getMultiPartEntity();
+                                                // 上传文件
+                                                multi.addBinaryPart("file", FileUtil.getBytesFromFile(new File(mIconPath)));
+//                    multi.addFilePart("file", new File(mIconPath));
+                                                // 将请求添加到队列中
+                                                Log.d("net", "image:" + mIconPath + " auth:" + MyApplication.getAuthorization());
+                                                mRequestQueue.add(multipartRequest);
+                                            }
+                                        }).start();
+                                    }
+                                    else
+                                    {
+                                        mProgress.dismiss();
+                                        Toast.makeText(getBaseContext(), "修改成功", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
                                 }catch (JSONException e)
                                 {
                                     e.printStackTrace();
-                                    Toast.makeText(getBaseContext(), "修改失败"+e, Toast.LENGTH_SHORT).show();
+                                    mProgress.dismiss();
+                                    Toast.makeText(getBaseContext(), "修改失败", Toast.LENGTH_SHORT).show();
                                     Log.d("net", e.toString());
                                 }
                             }
@@ -256,13 +322,16 @@ public class EditActivity extends AppCompatActivity {
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Toast.makeText(getBaseContext(), "修改失败"+error, Toast.LENGTH_SHORT).show();
+                                mProgress.dismiss();
+                                Toast.makeText(getBaseContext(), "修改失败", Toast.LENGTH_SHORT).show();
                                 Log.d("net", error.toString());
                             }
                         })
         );
         mRequestQueue.start();
     }
+
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -281,7 +350,7 @@ public class EditActivity extends AppCompatActivity {
             cursor.close();
             mIconPath = picturePath;
             if(mIconPath != null) {
-                Picasso.with(this).load(new File(mIconPath)).resize(137,137).into(mIcon);
+                MyApplication.getPicasso().load(new File(mIconPath)).resize(137,137).into(mIcon);
                 iconChanged = true;
             }
         }

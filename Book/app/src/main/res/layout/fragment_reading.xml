@@ -10,49 +10,55 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <!--android:background="@color/reading_main"-->
         <RelativeLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:background="@color/reading_main"
-            android:layout_height="160dp">
+            android:background="@drawable/reading_bkg"
+            android:layout_height="@dimen/reading_height1">
             <TextView
                 android:id="@+id/reading_date"
-                android:textSize="30sp"
+                android:textSize="@dimen/reading_text_size1"
                 android:textStyle="bold"
+                android:textColor="@color/white"
                 android:singleLine="true"
-                android:layout_marginTop="18dp"
-                android:layout_marginLeft="18dp"
+                android:layout_marginTop="@dimen/reading_margin1"
+                android:layout_marginLeft="@dimen/reading_margin1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
             <TextView
                 android:id="@+id/reading_words"
-                android:layout_marginTop="18dp"
-                android:layout_marginLeft="27dp"
-                android:layout_marginRight="27dp"
+                android:textColor="@color/white"
+                android:layout_marginTop="@dimen/reading_margin1"
+                android:layout_marginLeft="@dimen/reading_margin2"
+                android:layout_marginRight="@dimen/reading_margin2"
+                android:padding="8dp"
                 android:layout_below="@id/reading_date"
-                android:textSize="14sp"
+                android:textSize="@dimen/reading_text_size2"
+                android:gravity="center_vertical"
+                android:background="@drawable/words_bkg"
+                android:maxLines="3"
                 android:textStyle="bold"
-                android:text="@string/reading_word"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
             <TextView
                 android:id="@+id/reading_people"
-                android:text="罗曼罗兰"
+                android:textColor="@color/white"
                 android:singleLine="true"
                 android:gravity="bottom"
-                android:layout_alignParentBottom="true"
+                android:layout_below="@id/reading_words"
                 android:layout_alignParentRight="true"
-                android:textSize="14sp"
-                android:layout_marginRight="27dp"
-                android:layout_marginBottom="15dp"
+                android:textSize="@dimen/reading_text_size2"
+                android:layout_marginRight="@dimen/reading_margin1"
+                android:layout_marginTop="@dimen/reading_margin3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </RelativeLayout>
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/reading_recycler"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/reading_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
     </ui.StickyLayout>
 
     <android.support.design.widget.FloatingActionButton
@@ -60,9 +66,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:borderWidth="0dp"
+        app:backgroundTint="@color/toolbar"
         android:src="@mipmap/ic_10_green"
-        android:layout_marginBottom="20dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginBottom="@dimen/fab_margin2"
+        android:layout_marginRight="@dimen/fab_margin1"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"/>
 </RelativeLayout>

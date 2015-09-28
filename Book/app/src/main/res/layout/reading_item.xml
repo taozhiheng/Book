@@ -15,10 +15,10 @@
 
         <ImageView
             android:id="@+id/reading_item_finish"
-            android:src="@mipmap/ic_finish"
+            android:src="@drawable/ic_finish_l"
             android:background="@color/reading_finish"
-            android:layout_width="90dp"
-            android:layout_height="90dp" />
+            android:layout_width="@dimen/reading_item_width1"
+            android:layout_height="@dimen/reading_item_height1" />
 
     </LinearLayout>
 
@@ -26,33 +26,33 @@
         android:tag="Bottom2"
         android:id="@+id/bottom_wrapper_2"
         android:layout_width="wrap_content"
-        android:layout_height="90dp">
+        android:layout_height="@dimen/reading_item_height1">
 
         <ImageView
             android:id="@+id/reading_item_top"
-            android:src="@mipmap/ic_top"
+            android:src="@drawable/ic_top_l"
             android:background="@color/reading_top"
-            android:layout_width="90dp"
-            android:layout_height="90dp" />
+            android:layout_width="@dimen/reading_item_width1"
+            android:layout_height="@dimen/reading_item_height1" />
 
         <ImageView
             android:id="@+id/reading_item_delete"
-            android:src="@mipmap/ic_delete"
+            android:src="@drawable/ic_delete_l"
             android:background="@color/reading_delete"
-            android:layout_width="90dp"
-            android:layout_height="90dp" />
+            android:layout_width="@dimen/reading_item_width1"
+            android:layout_height="@dimen/reading_item_height1" />
     </LinearLayout>
 
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="90dp">
+        android:layout_height="@dimen/reading_item_height1">
         <FrameLayout
             android:id="@+id/reading_item_icons"
-            android:layout_width="58dp"
-            android:layout_height="83dp"
-            android:layout_marginTop="3dp"
-            android:layout_marginLeft="29dp">
+            android:layout_centerVertical="true"
+            android:layout_width="@dimen/reading_item_width2"
+            android:layout_height="@dimen/reading_item_height2"
+            android:layout_marginLeft="@dimen/reading_margin1">
             <ImageView
                 android:id="@+id/reading_item_icon"
                 android:layout_width="match_parent"
@@ -60,25 +60,25 @@
                 android:scaleType="fitCenter" />
             <TextView
                 android:id="@+id/reading_item_icon_text"
-                android:textSize="30sp"
-                android:gravity="center"
-                android:maxLength="2"
+                android:textSize="@dimen/reading_item_text_size1"
+                android:layout_marginTop="@dimen/reading_item_margin6"
+                android:layout_marginLeft="@dimen/reading_item_margin7"
                 android:singleLine="true"
-                android:textColor="@color/create_other_text"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:textColor="@color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </FrameLayout>
 
         <TextView
             android:id="@+id/reading_item_content"
-            android:textSize="22sp"
+            android:textSize="@dimen/reading_item_text_size2"
             android:textColor="@color/reading_chapter_text"
             android:layout_width="match_parent"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="@dimen/reading_item_margin3"
             android:singleLine="true"
             android:layout_toRightOf="@id/reading_item_icons"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="6dp"
+            android:layout_marginLeft="@dimen/reading_item_margin4"
             android:gravity="bottom"
             />
         <TextView
@@ -86,10 +86,10 @@
             android:layout_toRightOf="@id/reading_item_icons"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:textSize="15sp"
+            android:textSize="@dimen/reading_item_text_size3"
             android:singleLine="true"
-            android:layout_marginLeft="6dp"
-            android:layout_marginBottom="17dp"
+            android:layout_marginLeft="@dimen/reading_item_margin4"
+            android:layout_marginBottom="@dimen/reading_item_margin5"
             android:textColor="@color/reading_book_text"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />

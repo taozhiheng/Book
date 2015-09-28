@@ -9,12 +9,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.squareup.picasso.Picasso;
+import com.umeng.analytics.MobclickAgent;
+import com.zhuge.analysis.stat.ZhugeSDK;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +27,7 @@ import data.Book;
 import data.ChapterInfo;
 import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
 import ui.DividerItemDecoration;
+import ui.StickyLayout;
 import util.Constant;
 
 /**
@@ -39,6 +44,7 @@ public class PreviewActivity extends AppCompatActivity {
     private TextView mAuthor;
     private TextView mPress;
     private RecyclerView mRecycler;
+    private StickyLayout mStickyLayout;
 
     private SystemBarTintManager mTintManager;
 
@@ -49,15 +55,39 @@ public class PreviewActivity extends AppCompatActivity {
     private int colorSelected = Color.rgb(0xe9, 0x1e, 0x63);
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("Book Preview Activity");
+        MobclickAgent.onResume(this);
+
+        ZhugeSDK.getInstance().init(getApplicationContext());
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("Book Preview Activity");
+        MobclickAgent.onPause(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ZhugeSDK.getInstance().flush(getApplicationContext());
+
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("detail", "activity onCreate");
-        setContentView(R.layout.detail);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            mTintManager = new SystemBarTintManager(this);
-            mTintManager.setStatusBarTintEnabled(true);
-        }
+        setContentView(R.layout.activity_detail);
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//            mTintManager = new SystemBarTintManager(this);
+//            mTintManager.setStatusBarTintEnabled(true);
+//        }
         mToolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         mIcon = (ImageView) findViewById(R.id.detail_icon);
         mIconText = (TextView) findViewById(R.id.detail_icon_text);
@@ -66,6 +96,18 @@ public class PreviewActivity extends AppCompatActivity {
         mAuthor = (TextView) findViewById(R.id.detail_author);
         mPress = (TextView) findViewById(R.id.detail_press);
         mRecycler = (RecyclerView) findViewById(R.id.detail_recycler);
+        mStickyLayout = (StickyLayout) findViewById(R.id.detail_sticky);
+        mStickyLayout.setOnGiveUpTouchEventListener(new StickyLayout.OnGiveUpTouchEventListener() {
+            @Override
+            public boolean giveUpTouchEvent(MotionEvent event) {
+                View view = mRecycler.getChildAt(0);
+                if (view != null && view.getTop() >= 0)
+                    return true;
+                else if (mRecycler.getChildCount() == 0 && mRecycler.getTop() >= 0)
+                    return true;
+                return false;
+            }
+        });
 
         mToolbar.setTitle("书籍详情");
         setSupportActionBar(mToolbar);
@@ -101,14 +143,16 @@ public class PreviewActivity extends AppCompatActivity {
             File file = new File(mUrl);
             if(file.exists())
                 Picasso.with(this).load(file).into(mIcon);
-            else
+            else if(mUrl.contains("http"))
                 Picasso.with(this).load(Uri.parse(mUrl)).into(mIcon);
         }
         else
         {
-            mIconText.setText(mBook.getName());
-            mIconText.setTextSize(30);
-            mIconText.setBackgroundColor(colorSelected);
+            Picasso.with(this).load(R.drawable.book_cover).into(mIcon);
+            String name = mBook.getName();
+            if(name != null && name.length() > 2)
+                name = name.substring(0, 2);
+            mIconText.setText(name);
         }
         mAdapter = new PreviewAdapter(mChapterInfos);
         mRecycler.setAdapter(mAdapter);

@@ -1,7 +1,9 @@
 package web;
 
-import android.app.DownloadManager;
+import android.os.AsyncTask;
+import android.util.Log;
 
+import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.Request;
@@ -13,15 +15,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.jar.JarException;
 
 import data.Book;
 import data.Chapter;
-import data.ChapterInfo;
 import data.DBOperate;
+import data.TimeInfo;
 import service.BookUtil;
+import service.Counter;
 import util.Constant;
 import util.TimeUtil;
 
@@ -41,6 +44,42 @@ public class Web {
         mDBOperate = dbOperate;
     }
 
+    public static class MyTask extends AsyncTask<Book, Integer, JSONObject>
+    {
+        private List<Chapter> mChapters;
+        private String mAuth;
+        private String mUrl;
+        private Book book;
+        private Update.InsertCall mCallback;
+
+        public MyTask(String auth, String url, Update.InsertCall callback)
+        {
+            this.mAuth = auth;
+            this.mUrl = url;
+            this.mCallback = callback;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject jsonObject) {
+            if(jsonObject != null) {
+                mCallback.addChapters(mChapters);
+                insertBook(mAuth, mUrl, jsonObject, mCallback);
+            }
+        }
+
+        @Override
+        protected JSONObject doInBackground(Book... params) {
+            //应该异步
+            book = params[0];
+            if(book.getUUID() != null && book.getUUID().length() == 32) {
+                mDBOperate.setBookStatus(book.getId(), Constant.STATUS_MOD);
+                return null;
+            }
+            mChapters = mDBOperate.getChapters(book.getId());
+            return BookUtil.getBookJson(book, mChapters);
+        }
+    }
+
     //同步查询一本书是否存在
     public static boolean queryBookExist(String url)
     {
@@ -56,54 +95,24 @@ public class Web {
         return false;
     }
 
-    //异步插入一本书，插入成功后将本地修改为一致的，并改变标记
-    public static void insertBook(String auth, String url, final Book book)
+    //先查询此书是否存在，不存在则异步插入一本书，插入成功后将本地修改为一致的，并改变标记
+    public static void insertBook(String auth, String url,
+                                   JSONObject bookInfo, Callback callback)
     {
-        //应该异步
-        final List<Chapter> chapters = mDBOperate.getChapters(book.getUUID());
-        JSONObject bookInfo = BookUtil.getBookJson(book, chapters);
-
+        Log.d("web", "start insert a book:"+bookInfo.toString());
         RequestBody requestBody =RequestBody.create(MEDIA_TYPE_MARKDOWN, bookInfo.toString());
         Request request = new Request.Builder()
                 .url(url)
                 .post(requestBody)
                 .addHeader("Authorization", auth)
                 .build();
-        OkHttpUtil.enqueue(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                try
-                {
-                    //应该异步
-                    JSONObject jsonObject = new JSONObject(response.body().string());
-                    String UUID = jsonObject.getString("uuid");
-                    //重新设置本地数据库这本书的uuid，以及所有章节的book_id, 暂时标记为status_mod
-                    mDBOperate.resetBookUUID(book.getUUID(), UUID);
-                    mDBOperate.setBookStatus(UUID, Constant.STATUS_OK);
-                    //从反馈中取得所有章节的id,重新设置本地数据库这本书所有章节的book_id, id, status=status_mod
-                    for (int k = chapters.size(); k > 0; k--) {
-                        Chapter chapter = chapters.get(k-1);
-                        mDBOperate.resetChapterID(
-                                UUID, chapter.getId(), k);
-                        chapter.setBookId(UUID);
-                    }
-                    mDBOperate.setChaptersStatus(UUID, Constant.STATUS_OK);
-                }catch (JSONException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        });
+        OkHttpUtil.enqueue(request, callback);
     }
 
     //异步修改书的基本信息，修改成功后改变标记
-    public void modifyOnlyBook(String auth, String url, final Book book)
+    public static void modifyOnlyBook(String auth, String url, final Book book, Callback callback)
     {
+        Log.d("web", "start modify a book");
         //异步
         JSONObject bookInfo = BookUtil.getOnlyBookJson(book);
         RequestBody requestBody =RequestBody.create(MEDIA_TYPE_MARKDOWN, bookInfo.toString());
@@ -112,77 +121,28 @@ public class Web {
                 .patch(requestBody)
                 .addHeader("Authorization", auth)
                 .build();
-        OkHttpUtil.enqueue(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                //异步
-                mDBOperate.setBookStatus(book.getUUID(), Constant.STATUS_OK);
-                }
-        });
+        OkHttpUtil.enqueue(request, callback);
     }
 
-    //异步修改书的所有信息，修改成功后改变标记，并重新设置本地章节id
-    public static void modifyBook(String auth, String url, final Book book)
-    {
-        //异步
-        final List<Chapter> chapters = mDBOperate.getChapters(book.getUUID());
-        JSONObject bookInfo = BookUtil.getBookJson(book, chapters);
-        RequestBody requestBody =RequestBody.create(MEDIA_TYPE_MARKDOWN, bookInfo.toString());
-        Request request = new Request.Builder()
-                .url(url)
-                .patch(requestBody)
-                .addHeader("Authorization", auth)
-                .build();
-        OkHttpUtil.enqueue(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
 
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                //异步
-                mDBOperate.setBookStatus(book.getUUID(), Constant.STATUS_OK);
-                for (int k = chapters.size(); k > 0; k--)
-                {
-                    Chapter chapter = chapters.get(k-1);
-                    mDBOperate.resetChapterID(book.getUUID(), chapter.getId(), k);
-                }
-                mDBOperate.setChaptersStatus(book.getUUID(), Constant.STATUS_OK);
-            }
-        });
-    }
 
     //异步删除一本书,成功后删除本地书籍
-    public static void deletBook(String auth, String url, final String uuid)
+    public static void deleteBook(String auth, String url, Callback callback)
     {
+        Log.d("web", "start delete a book:"+url);
         Request request = new Request.Builder()
                 .url(url)
                 .delete()
                 .addHeader("Authorization", auth)
                 .build();
-        OkHttpUtil.enqueue(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                mDBOperate.deleteBook(uuid);
-            }
-        });
+        OkHttpUtil.enqueue(request, callback);
     }
 
     //异步标记一本书为未读,成功后修改标记
-    public static void setBookAfter(String auth, String url, final String uuid)
+    public static void setBookAfter(String auth, String url, Callback callback)
     {
-        HashMap<String, String> map = new HashMap<String, String>();
+        Log.d("web", "start set a book after:"+url);
+        HashMap<String, String> map = new HashMap<>();
         map.put("add_time",
                 TimeUtil.getNeedTime(System.currentTimeMillis()));
         JSONObject jsonObject = new JSONObject(map);
@@ -192,25 +152,14 @@ public class Web {
                 .put(requestBody)
                 .addHeader("Authorization", auth)
                 .build();
-        OkHttpUtil.enqueue(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                mDBOperate.setBookStatus(uuid, Constant.STATUS_OK);
-                mDBOperate.setChaptersStatus(uuid, Constant.STATUS_OK);
-            }
-        });
+        OkHttpUtil.enqueue(request, callback);
     }
 
-    public static void setBookNow(String auth, String url, final Book book)
+    //异步标记一本书在读，成功后修改标记
+    public static void setBookNow(String auth, String url, String start, String end, Callback callback)
     {
-        HashMap<String, String> map = new HashMap<String, String>();
-        String start = book.getStartTime();
-        String end = book.getEndTime();
+        Log.d("web", "start set a book now:"+url);
+        HashMap<String, String> map = new HashMap<>();
 
         if (start == null || end == null || end.compareTo(start) <= 0) {
             start = TimeUtil.getNeedTime(System.currentTimeMillis());
@@ -225,21 +174,13 @@ public class Web {
                 .put(requestBody)
                 .addHeader("Authorization", auth)
                 .build();
-        OkHttpUtil.enqueue(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                mDBOperate.setBookStatus(book.getUUID(), Constant.STATUS_OK);
-            }
-        });
+        OkHttpUtil.enqueue(request, callback);
     }
 
-    public static void setBookBefore(String auth, String url, final String uuid)
+    //异步标记一本书已读，成功后修改标记
+    public static void setBookBefore(String auth, String url, Callback callback)
     {
+        Log.d("web", "start set a book before:" + url);
         HashMap<String, String> map = new HashMap<String, String>();
         map.put("end_time",
                 TimeUtil.getNeedTime(System.currentTimeMillis()));
@@ -250,47 +191,35 @@ public class Web {
                 .put(requestBody)
                 .addHeader("Authorization", auth)
                 .build();
-        OkHttpUtil.enqueue(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                mDBOperate.setBookStatus(uuid, Constant.STATUS_OK);
-                mDBOperate.setChaptersStatus(uuid, Constant.STATUS_OK);
-            }
-        });
+        OkHttpUtil.enqueue(request, callback);
     }
 
-    public static void insertChapter(String auth, String url, final String uuid, final int id, String name)
+    //在已存在服务器切未被删除的书中，异步插入一个章节，成功后修改标记
+    public static void insertChapter(String auth, String url, final Chapter chapter, Callback callback)
     {
-        HashMap<String, String> map = new HashMap<String, String>();
-        map.put("name", name);
+        Log.d("web", "start insert a chapter");
+
+        if(chapter.getWebBookId()!= null && chapter.getWebBookId().length() == 32 && chapter.getId() > 0)
+        {
+            mDBOperate.setChapterStatus(chapter.getId(), Constant.STATUS_MOD);
+        }
+        HashMap<String, String> map = new HashMap<>();
+        map.put("name", chapter.getName());
         JSONObject jsonObject = new JSONObject(map);
         RequestBody requestBody = RequestBody.create(MEDIA_TYPE_MARKDOWN, jsonObject.toString());
-        Request request = new Request.Builder()
+        final Request request = new Request.Builder()
                 .url(url)
                 .addHeader("Authorization", auth)
                 .post(requestBody)
                 .build();
-        OkHttpUtil.enqueue(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                mDBOperate.setChapterStatus(uuid, id, Constant.STATUS_OK);
-            }
-        });
+        OkHttpUtil.enqueue(request, callback);
     }
 
-    public static void modifyChapter(String auth, String url, final String uuid, final int id, String name)
+    //在已存在服务器切未被删除的书中，异步修改一个章节，成功后修改标记
+    public static void modifyChapter(String auth, String url, String name, Callback callback)
     {
-        HashMap<String, String> map = new HashMap<String, String>();
+        Log.d("web", "start modify a chapter");
+        HashMap<String, String> map = new HashMap<>();
         map.put("name", name);
         JSONObject jsonObject = new JSONObject(map);
         RequestBody requestBody = RequestBody.create(MEDIA_TYPE_MARKDOWN, jsonObject.toString());
@@ -299,62 +228,41 @@ public class Web {
                 .addHeader("Authorization", auth)
                 .patch(requestBody)
                 .build();
-        OkHttpUtil.enqueue(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                mDBOperate.setChapterStatus(uuid, id, Constant.STATUS_OK);
-            }
-        });
+        OkHttpUtil.enqueue(request, callback);
     }
 
-    public static void deleteChapter(String auth, String url, final String uuid, final int id)
+    //在已存在服务器切未被删除的书中，异步删除一个章节，成功后删除
+    public static void deleteChapter(String auth, String url, Callback callback)
     {
+        Log.d("web", "start delete a chapter");
+
         Request request = new Request.Builder()
                 .url(url)
                 .addHeader("Authorization", auth)
                 .delete()
                 .build();
-        OkHttpUtil.enqueue(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                mDBOperate.deleteChapter(uuid, id);
-            }
-        });
+        OkHttpUtil.enqueue(request,callback);
     }
 
-    public static void setChapterAfter(String auth, String url, final String uuid, final int id)
+    //异步标记一章节未读，成功后修改标记
+    public static void setChapterAfter(String auth, String url, Callback callback)
     {
+        Log.d("web", "start set a chapter after:"+url);
+        RequestBody requestBody = RequestBody.create(MEDIA_TYPE_MARKDOWN, "{\"status\":0}");
         Request request = new Request.Builder()
                 .url(url)
-                .put(null)
+                .put(requestBody)
                 .addHeader("Authorization", auth)
                 .build();
-        OkHttpUtil.enqueue(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                mDBOperate.setChapterStatus(uuid, id, Constant.STATUS_OK);
-            }
-        });
+        OkHttpUtil.enqueue(request, callback);
     }
 
-    public static void setChapterNow(String auth, String url, final String uuid, final int id)
+    //异步标记一章节在读，成功后修改标记
+    public static void setChapterNow(String auth, String url, Callback callback)
     {
-        HashMap<String, String> map = new HashMap<String, String>();
+        Log.d("web", "start set a chapter now:"+url);
+
+        HashMap<String, String> map = new HashMap<>();
         map.put("start_time",
                 TimeUtil.getNeedTime(System.currentTimeMillis()));
         JSONObject jsonObject = new JSONObject(map);
@@ -364,21 +272,14 @@ public class Web {
                 .put(requestBody)
                 .addHeader("Authorization", auth)
                 .build();
-        OkHttpUtil.enqueue(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                mDBOperate.setChapterStatus(uuid, id, Constant.STATUS_OK);
-            }
-        });
+        OkHttpUtil.enqueue(request, callback);
     }
 
-    public static void setChapterBefore(String auth, String url, final String uuid, final int id)
+    //异步标记一章节已读，成功后修改标记
+    public static void setChapterBefore(String auth, String url, Callback callback)
     {
+        Log.d("web", "start set a chapter before:"+url);
+
         HashMap<String, String> map = new HashMap<String, String>();
         map.put("end_time",
                 TimeUtil.getNeedTime(System.currentTimeMillis()));
@@ -389,16 +290,123 @@ public class Web {
                 .put(requestBody)
                 .addHeader("Authorization", auth)
                 .build();
-        OkHttpUtil.enqueue(request, new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
+        OkHttpUtil.enqueue(request, callback);
+    }
 
+    //同步查找所有未读或已读书籍,返回uuid集合
+    public static List<String> queryWishOrRead(String auth, String url)
+    {
+        List<String> uuids = new ArrayList<>();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", auth)
+                .build();
+        try {
+            Response response = OkHttpUtil.execute(request);
+            if(response.isSuccessful())
+            {
+                try {
+                    JSONArray jsonArray = new JSONArray(response.body().string());
+                    for(int i = 0; i < jsonArray.length(); i++)
+                    {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        uuids.add(jsonObject.getString("uuid"));
+                    }
+                    return uuids;
+                }catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
             }
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return uuids;
+    }
 
-            @Override
-            public void onResponse(Response response) throws IOException {
-                mDBOperate.setChapterStatus(uuid, id, Constant.STATUS_OK);
+    //同步查找所有在读书籍，返回uuid集合和type集合
+    public static HashMap<String,List<Integer>> queryReading(String auth, String url, List<TimeInfo> timeList)
+    {
+        HashMap<String,List<Integer>> hashMap = new HashMap<>();
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", auth)
+                .build();
+        try {
+            Response response = OkHttpUtil.execute(request);
+            if(response.isSuccessful())
+            {
+                try {
+                    JSONArray jsonArray = new JSONArray(response.body().string());
+                    for(int i = 0; i < jsonArray.length(); i++)
+                    {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        String uuid = jsonObject.getString("uuid");
+                        timeList.add(new TimeInfo(
+                                        jsonObject.getString("start_time"),
+                                        jsonObject.getString("end_time")));
+
+                        List<Integer> typeList = new ArrayList<>();
+                        JSONArray chapters = jsonObject.getJSONArray("chapters");
+                        for (int j = 0; j < chapters.length(); j++) {
+                            //取得一本书一个章节json串，改变章节类型
+                            JSONObject chapter = chapters.getJSONObject(j);
+                            String typeString = chapter.getString("status");
+                            int type;
+                            if (typeString.contains("null"))
+                                type = Constant.TYPE_AFTER;
+                            else
+                                type = Integer.parseInt(typeString);
+                            typeList.add(type);
+                        }
+                        hashMap.put(uuid, typeList);
+                    }
+                    return hashMap;
+                }catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
             }
-        });
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return hashMap;
+    }
+
+    //异步查找书籍
+    public static void getBook(String auth, String url, Callback callback)
+    {
+        Request request = new Request.Builder()
+               .url(url)
+                .addHeader("Authorization", auth)
+                .build();
+        OkHttpUtil.enqueue(request, callback);
+    }
+
+    //同步清楚服务器数据
+    public static boolean clearWeb(String auth, String url)
+    {
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", auth)
+                .delete()
+                .build();
+        try {
+            return OkHttpUtil.execute(request).isSuccessful();
+        }catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static void queryWords(String url, Callback callback)
+    {
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        OkHttpUtil.enqueue(request, callback);
     }
 }

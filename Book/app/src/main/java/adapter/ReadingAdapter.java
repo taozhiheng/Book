@@ -3,6 +3,7 @@ package adapter;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,20 +65,37 @@ public class ReadingAdapter extends RecyclerView.Adapter<ReadingAdapter.MyViewHo
         Chapter chapter = mList.get(position);
         String url = chapter.getUrl();
         if(url != null && !url.equals("null")) {
-            holder.mIconText.setVisibility(View.GONE);
-            holder.mIcon.setVisibility(View.VISIBLE);
             File file = new File(url);
-            if(file.exists())
+            if(file.exists()) {
+                holder.mIconText.setVisibility(View.GONE);
+                Log.d("reading", "load file:"+url);
                 Picasso.with(mContext).load(file).into(holder.mIcon);
+            }
+            else if(url.startsWith("http")) {
+                holder.mIconText.setVisibility(View.GONE);
+                Log.d("reading", "load from internet:"+url);
+                Picasso.with(mContext).load(Uri.parse(url)).placeholder(R.drawable.book_cover).into(holder.mIcon);
+            }
             else
-                Picasso.with(mContext).load(Uri.parse(url)).into(holder.mIcon);
+            {
+                Log.d("reading", "load default");
+                Picasso.with(mContext).load(R.drawable.book_cover).into(holder.mIcon);
+                holder.mIconText.setVisibility(View.VISIBLE);
+                String name = chapter.getBookName();
+                if(name != null && name.length() > 2)
+                    name = name.substring(0, 2);
+                holder.mIconText.setText(name);
+            }
         }
         else
         {
-            holder.mIcon.setVisibility(View.GONE);
+            Log.d("reading", "load default");
+            Picasso.with(mContext).load(R.drawable.book_cover).into(holder.mIcon);
             holder.mIconText.setVisibility(View.VISIBLE);
-            holder.mIconText.setText(chapter.getBookName());
-            holder.mIconText.setBackgroundColor(Constant.COLOR);
+            String name = chapter.getBookName();
+            if(name != null && name.length() > 2)
+                name = name.substring(0, 2);
+            holder.mIconText.setText(name);
         }
         holder.mChapter.setText(chapter.getName());
         holder.mBook.setText(chapter.getBookName());

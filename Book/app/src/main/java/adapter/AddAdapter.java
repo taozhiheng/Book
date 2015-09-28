@@ -6,7 +6,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hustunique.myapplication.R;
@@ -32,6 +34,8 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.MyViewHolder> {
 
     private Context mContext;
 
+    private final static int STD_SIZE = 20;
+
     public AddAdapter(Context context, List<Book> list)
     {
         this.mContext = context;
@@ -41,6 +45,13 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.MyViewHolder> {
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if(viewType == 1)
+        {
+            Button button = new Button(parent.getContext());
+            button.setText("加载更多");
+            button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            return new MyViewHolder(button);
+        }
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.add_item, parent, false);
         return new MyViewHolder(view, R.id.add_item_icon,
                 R.id.add_item_name, R.id.add_item_author, R.id.add_item_press,R.id.add_item_num,
@@ -49,6 +60,12 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.MyViewHolder> {
 
     @Override
     public void onBindViewHolder(AddAdapter.MyViewHolder holder, int position) {
+        if(position == mList.size())
+        {
+            holder.itemView.setTag(position);
+            holder.itemView.setOnClickListener(mOnClickListener);
+            return;
+        }
         Book book = mList.get(position);
         holder.mFlag.setTag(position);
         holder.mFlag.setOnClickListener(mOnClickListener);
@@ -60,7 +77,7 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.MyViewHolder> {
         holder.mName.setText(book.getName());
         holder.mAuthor.setText(book.getAuthor());
         holder.mPress.setText(book.getPress());
-        holder.mNum.setText(book.getFinishNum()+"/"+book.getChapterNum()+"章    "+book.getWordNum()+" K字");
+        holder.mNum.setText(book.getFinishNum()+"/"+book.getChapterNum()+"章    "+book.getWordNum()+" 千字");
         if(book.getType() == Constant.TYPE_NOW)
         {
             holder.mFlag.setSelected(true);
@@ -73,7 +90,16 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.MyViewHolder> {
 
     @Override
     public int getItemCount() {
+        if(mList.size() >= STD_SIZE)
+            return mList.size()+1;
         return mList.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(position == mList.size())
+            return 1;
+        return super.getItemViewType(position);
     }
 
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -84,6 +110,8 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.MyViewHolder> {
                 int position = (Integer)v.getTag();
                 if(v instanceof ImageView)
                     mOnItemClickListener.onItemFlagClick((ImageView) v, position);
+                else if(v instanceof Button)
+                    mOnItemClickListener.onClick(mList.size());
                 else
                     mOnItemClickListener.onItemClick(position);
             }
@@ -99,6 +127,12 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.MyViewHolder> {
         private TextView mPress;
         private TextView mNum;
         private ImageView mFlag;
+
+        public MyViewHolder(View view)
+        {
+            super(view);
+        }
+
         public MyViewHolder(View view,int iconRes,
                             int nameRes, int authorRes, int pressRes, int numRes,
                             int flagRes)
@@ -130,6 +164,8 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.MyViewHolder> {
          * when the whole item view is clicked,the method will be called
          * */
         void onItemClick(int position);
+
+        void onClick(int size);
     }
 
 }

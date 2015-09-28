@@ -40,7 +40,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        Log.d("net", "viewpager get position:"+position);
+        Log.d("life cycle", "viewpager get position:"+position);
         if(mFragmentCreator != null)
             return mFragmentCreator.newInstance(position);
         return mFragmentList.get(position);
@@ -59,6 +59,5 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     public int getCount() {
         return titles.length;
     }
-
 
 }

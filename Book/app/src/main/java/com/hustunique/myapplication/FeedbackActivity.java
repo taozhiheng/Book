@@ -6,6 +6,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.umeng.analytics.MobclickAgent;
+import com.zhuge.analysis.stat.ZhugeSDK;
+
 import feedbackActivity.FeedbackFrag;
 import feedbackActivity.SetUserMailDlgFrag;
 
@@ -19,7 +23,31 @@ public class FeedbackActivity extends AppCompatActivity {
 	private Toolbar mToolbar;
 
 	/* 继承：FeedbackActivity */
-	
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		MobclickAgent.onPageStart("Feedback Activity");
+		MobclickAgent.onResume(this);
+
+		ZhugeSDK.getInstance().init(getApplicationContext());
+
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		MobclickAgent.onPageEnd("Feedback Activity");
+		MobclickAgent.onPause(this);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		ZhugeSDK.getInstance().flush(getApplicationContext());
+
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

@@ -3,10 +3,12 @@ package com.hustunique.myapplication;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,13 +27,20 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.squareup.picasso.Picasso;
+import com.umeng.analytics.MobclickAgent;
+import com.zhuge.analysis.stat.ZhugeSDK;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +51,8 @@ import data.ChapterInfo;
 import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
 import service.AddTask;
 import service.EditTask;
+import service.QueryChaptersTask;
+import ui.ColorPickerSeekBar;
 import ui.DividerItemDecoration;
 import ui.StickyLayout;
 import util.Constant;
@@ -63,7 +74,6 @@ public class CreateActivity extends AppCompatActivity {
     private EditText mAuthor;
     private EditText mPress;
     private RecyclerView mRecycler;
-    //private ColorPickerSeekBar mSeekBar;
 //    private StickyLayout mStickyLayout;
 
     private SystemBarTintManager mTintManager;
@@ -85,8 +95,38 @@ public class CreateActivity extends AppCompatActivity {
     private boolean mChanged;
 
 
-    private int colorSelected = Color.rgb(0xe9, 0x1e, 0x63);
+    private int mColorIndex = 0;
 
+    private RadioGroup mColors;
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("Create Or Edit Book Activity");
+        MobclickAgent.onResume(this);
+
+        ZhugeSDK.getInstance().init(getApplicationContext());
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("Create Or Edit Book Activity");
+        MobclickAgent.onPause(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ZhugeSDK.getInstance().flush(getApplicationContext());
+        if(mProgressDialog != null)
+            mProgressDialog.dismiss();
+        mHandler.removeCallbacks(null);
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +134,6 @@ public class CreateActivity extends AppCompatActivity {
         mAction = getIntent().getIntExtra(Constant.KEY_ACTION, Constant.VIEW_BOOK);
 
         setContentView(R.layout.activity_create);
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
             mTintManager = new SystemBarTintManager(this);
@@ -110,9 +149,8 @@ public class CreateActivity extends AppCompatActivity {
         mPress = (EditText) findViewById(R.id.create_press);
         mRecycler = (RecyclerView) findViewById(R.id.create_recycler);
         createDialogs();
-        //mSeekBar = (ColorPickerSeekBar) findViewById(R.id.create_seekBar);
-//        mCreateText = (EditText) findViewById(R.id.create_text);
-//        mStickyLayout = (StickyLayout) findViewById(R.id.create_sticky);
+        mColors = (RadioGroup) findViewById(R.id.colors);
+
 
         mRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRecycler.setItemAnimator(new SlideInDownAnimator());
@@ -144,64 +182,136 @@ public class CreateActivity extends AppCompatActivity {
             }
         });
 
+        mColors.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId)
+                {
+                    case R.id.red:
+                        mColorIndex = 0;
+                        break;
+                    case R.id.orange:
+                        mColorIndex = 1;
+                        break;
+                    case R.id.green:
+                        mColorIndex = 2;
+                        break;
+                    case R.id.blue:
+                        mColorIndex = 3;
+                        break;
+                    case R.id.blue_light:
+                        mColorIndex = 4;
+                        break;
+                    case R.id.purple:
+                        mColorIndex = 5;
+                        break;
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    mTintManager.setStatusBarTintColor(Constant.colors[mColorIndex]);
+                    //getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
+                }
+                mToolbar.setBackgroundColor(Constant.colors[mColorIndex]);
+                if(mAdapter != null)
+                    mAdapter.setValidColor(Constant.colors[mColorIndex]);
+            }
+        });
+
         mChanged = false;
 
         setListeners();
 
         loadData();
 
-        setupAdapter();
-
-
     }
+
+    private Handler mLoadHandler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            if(msg.what == 0)
+            {
+                Chapter chapter;
+                for (int i = 0; i < mChapterList.size(); i++) {
+                    chapter = mChapterList.get(i);
+                    mGroupList.add(new ChapterInfo(i, chapter.getName()));
+                }
+                setupAdapter();
+            }
+        }
+    };
 
     private void loadData()
     {
         //读入数据
         mDeletePosList = new ArrayList<>();
         mGroupList =new ArrayList<>();
+        //编辑书籍，从数据库读取
         if(mAction == Constant.ACTION_EDIT_BOOK)
         {
             mBook = getIntent().getParcelableExtra(Constant.KEY_BOOK);
 
-            Log.d("net", "read book info from local");
-            mChapterList = MyApplication.getDBOperateInstance().getChapters(mBook.getUUID());
-            Chapter chapter;
-            if (mChapterList != null) {
-                for (int i = 0; i < mChapterList.size(); i++) {
-                    chapter = mChapterList.get(i);
-                    mGroupList.add(new ChapterInfo(i, chapter.getName()));
-                }
+            mColorIndex = mBook.getColor();
+            if(getSupportActionBar() != null)
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Constant.colors[mColorIndex]));
+//            Log.d("color", "read color:"+mColorIndex+ ",max:"+mSeekBar.getMax()+",set progress:"+(mColorIndex * (mSeekBar.getMax() / 6) + mSeekBar.getMax() / 12));
+
+            ((RadioButton)mColors.getChildAt(mColorIndex)).setChecked(true);
+//            mSeekBar.setProgress(mColorIndex * (mSeekBar.getMax() / 6) + mSeekBar.getMax() / 12);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                mTintManager.setStatusBarTintColor(Constant.colors[mColorIndex]);
+                //getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
             }
+            mToolbar.setBackgroundColor(Constant.colors[mColorIndex]);
+            Log.d("net", "read book info from local");
+//            mChapterList = MyApplication.getDBOperateInstance().getChapters(mBook.getId());
+            mChapterList = new ArrayList<>();
+            new QueryChaptersTask(mChapterList, mLoadHandler).execute(mBook.getId());
+
 
             String url = mBook.getUrl();
             if(url != null && !url.equals("null")) {
-                mIconText.setVisibility(View.GONE);
                 File file = new File(url);
-                if(file.exists())
+                if(file.exists()) {
+                    mIconText.setVisibility(View.GONE);
                     Picasso.with(this).load(file).into(mIcon);
+                }
+                else if(url.startsWith("http")) {
+                    mIconText.setVisibility(View.GONE);
+                    Picasso.with(this).load(Uri.parse(url)).placeholder(R.drawable.book_cover).into(mIcon);
+                }
                 else
-                    Picasso.with(this).load(Uri.parse(url)).into(mIcon);
+                {
+                    mIconText.setVisibility(View.VISIBLE);
+                    Picasso.with(this).load(R.drawable.book_cover).into(mIcon);
+                    String titleName = mBook.getName();
+                    if(titleName.length()>2)
+                        titleName = titleName.substring(0, 2);
+                    mIconText.setText(titleName);
+                }
             }
             else
             {
+                mIconText.setVisibility(View.VISIBLE);
+                Picasso.with(this).load(R.drawable.book_cover).into(mIcon);
                 String titleName = mBook.getName();
                 if(titleName.length()>2)
                     titleName = titleName.substring(0, 2);
                 mIconText.setText(titleName);
-                mIconText.setTextSize(30);
-                mIconText.setBackgroundColor(colorSelected);
             }
             mName.setText(mBook.getName());
             mAuthor.setText(mBook.getAuthor());
             mPress.setText(mBook.getPress());
             mChapterNum.setText(mBook.getFinishNum()+"/"+mBook.getChapterNum()+"章");
             mWordNum.setText(mBook.getWordNum()+"");
-
-
         }
-        else
+        else //添加书籍
         {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                mTintManager.setStatusBarTintColor(Constant.colors[mColorIndex]);
+                //getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
+            }
+            mToolbar.setBackgroundColor(Constant.colors[mColorIndex]);
+            //扫描方式，从intent获取
             if(mAction == Constant.ACTION_SCAN_BOOK)
             {
                 mBook = getIntent().getParcelableExtra(Constant.KEY_BOOK);
@@ -209,9 +319,11 @@ public class CreateActivity extends AppCompatActivity {
                 if(list != null)
                     mGroupList.addAll(list);
             }
+            setupAdapter();
             if(mBook == null)
             {
                 mBook = new Book();
+                Picasso.with(this).load(R.drawable.book_cover).into(mIcon);
             }
             else
             {
@@ -219,24 +331,36 @@ public class CreateActivity extends AppCompatActivity {
                 mAuthor.setText(mBook.getAuthor());
                 mPress.setText(mBook.getPress());
                 mChapterNum.setText("0/"+mBook.getChapterNum()+"章");
-                mWordNum.setText(mBook.getWordNum()+"");
+                mWordNum.setText(mBook.getWordNum() + "");
                 String url = mBook.getUrl();
                 if(url != null && !url.equals("null")) {
-                    mIconText.setVisibility(View.GONE);
                     File file = new File(url);
-                    if(file.exists())
+                    if(file.exists()) {
+                        mIconText.setVisibility(View.GONE);
                         Picasso.with(this).load(file).into(mIcon);
+                    }
+                    else if(url.startsWith("http")) {
+                        mIconText.setVisibility(View.GONE);
+                        Picasso.with(this).load(Uri.parse(url)).placeholder(R.drawable.book_cover).into(mIcon);
+                    }
                     else
-                        Picasso.with(this).load(Uri.parse(url)).into(mIcon);
+                    {
+                        mIconText.setVisibility(View.VISIBLE);
+                        Picasso.with(this).load(R.drawable.book_cover).into(mIcon);
+                        String titleName = mBook.getName();
+                        if(titleName.length()>2)
+                            titleName = titleName.substring(0, 2);
+                        mIconText.setText(titleName);
+                    }
                 }
                 else
                 {
+                    mIconText.setVisibility(View.VISIBLE);
+                    Picasso.with(this).load(R.drawable.book_cover).into(mIcon);
                     String titleName = mBook.getName();
                     if(titleName.length()>2)
                         titleName = titleName.substring(0, 2);
                     mIconText.setText(titleName);
-                    mIconText.setTextSize(30);
-                    mIconText.setBackgroundColor(colorSelected);
                 }
             }
         }
@@ -245,19 +369,35 @@ public class CreateActivity extends AppCompatActivity {
     private void setupAdapter()
     {
         mAdapter = new ChapterCreateAdapter(mGroupList);
+        mAdapter.setValidColor(Constant.colors[mColorIndex]);
         mRecycler.setAdapter(mAdapter);
         mAdapter.setOnItemChangedListener(new ChapterCreateAdapter.MyOnItemChangedListener() {
 
             //增加一项时，chapterNum增加１；若书已完成，则finishNum同步增加１
             @Override
-            public void onItemInsert(int position, String str) {
+            public void onItemInsert(View v, int position, String str) {
+                Log.d("create", "item insert:" + position);
+                if(str.compareTo("") == 0)
+                {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromInputMethod(v.getWindowToken(),0);
+                    return;
+                }
+
                 mGroupList.add(new ChapterInfo(-1, str));
+
                 if(mBook.getType() == Constant.TYPE_BEFORE )
                     mBook.setFinishNum(mBook.getFinishNum()+1);
-                mBook.setChapterNum(mBook.getChapterNum()+1);
-                mChapterNum.setText(mBook.getFinishNum()+"/"+mBook.getChapterNum()+"章");
-                mAdapter.notifyItemChanged(position);
-                mAdapter.notifyItemInserted(position+1);
+                mBook.setChapterNum(mBook.getChapterNum() + 1);
+                mChapterNum.setText(mBook.getFinishNum() + "/" + mBook.getChapterNum() + "章");
+                mAdapter.notifyItemInserted(position);
+                v.setTag(position + 1);
+                EditText t = (EditText) v;
+                t.setText(null);
+                t.requestFocus();
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(t, InputMethodManager.RESULT_SHOWN);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
                 if(!mChanged)
                     mChanged = true;
             }
@@ -267,7 +407,8 @@ public class CreateActivity extends AppCompatActivity {
             //若删除不是原有的，但是书已完成，finishNum同步减少１
             @Override
             public void onItemDelete(int position) {
-                Toast.makeText(getBaseContext(), "delete:"+position, Toast.LENGTH_SHORT).show();
+                Log.d("create", "item delete:" + position);
+//                Toast.makeText(getBaseContext(), "delete:"+position, Toast.LENGTH_SHORT).show();
                 ChapterInfo chapterInfo = mGroupList.get(position);
                 int index = chapterInfo.getPosition();
                 if (index != -1) {
@@ -277,21 +418,30 @@ public class CreateActivity extends AppCompatActivity {
                 }
                 else if(mBook.getType() == Constant.TYPE_BEFORE)
                     mBook.setFinishNum(mBook.getFinishNum()-1);
-                mBook.setChapterNum(mBook.getChapterNum()-1);
-                mChapterNum.setText(mBook.getFinishNum()+"/"+mBook.getChapterNum()+"章");
+                mBook.setChapterNum(mBook.getChapterNum() - 1);
+                mChapterNum.setText(mBook.getFinishNum() + "/" + mBook.getChapterNum() + "章");
                 mGroupList.remove(position);
                 mAdapter.notifyItemRemoved(position);
-                mAdapter.notifyItemChanged(mGroupList.size());
+                mAdapter.notifyItemRangeChanged(position, mAdapter.getItemCount()-position);
                 if(!mChanged)
                     mChanged = true;
             }
 
             @Override
             public void onItemModify(int position, String str) {
+
                 ChapterInfo chapterInfo = mGroupList.get(position);
                 chapterInfo.setName(str);
                 if(!mChanged)
                     mChanged = true;
+            }
+
+            @Override
+            public void onFocus() {
+                Log.d("create", "onFocus");
+                int height = mStickyLayout.getHeaderHeight();
+                if(height > 0)
+                    mStickyLayout.smoothSetHeaderHeight(height, 0, 300);
             }
         });
     }
@@ -302,7 +452,7 @@ public class CreateActivity extends AppCompatActivity {
         mProgressDialog.setMessage("正在添加...");
         mProgressDialog.setCancelable(false);
 
-        mDialog = new AlertDialog.Builder(this, R.style.AppTheme_Dialog)
+        mDialog = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
                 .setTitle("添加到")
                 .setItems(
                         new String[]{"想读", "在读", "已读"},
@@ -315,6 +465,7 @@ public class CreateActivity extends AppCompatActivity {
                                         MyApplication.setShouldUpdate(Constant.INDEX_AFTER);
                                         break;
                                     case 1:
+                                        mTime.setText(null);
                                         mPlanDialog.show();
                                         return;
                                     case 2:
@@ -335,7 +486,7 @@ public class CreateActivity extends AppCompatActivity {
                             }
                         })
                 .create();
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AppTheme_Dialog);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT);
         View view = LayoutInflater.from(this).inflate(R.layout.plan_dialog, null);
         mPicker = (DatePicker)view.findViewById(R.id.dialog_datePicker);
         mTime = (EditText)view.findViewById(R.id.dialog_time);
@@ -344,7 +495,7 @@ public class CreateActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 long startTime = TimeUtil.getTimeMillis(mPicker.getYear(), mPicker.getMonth(), mPicker.getDayOfMonth());
-                int days = (mTime.getText().toString().length() <=0)? 1 : Integer.parseInt(mTime.getText().toString());
+                long days = (mTime.getText().toString().length() <=0)? 1 : Long.parseLong(mTime.getText().toString());
                 if(days == 0)
                     days = 1;
                 long endTime = startTime+days * 24 * 60 * 60 * 1000;
@@ -465,7 +616,10 @@ public class CreateActivity extends AppCompatActivity {
         {
             //移动焦点,使最后改变生效
             mName.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(mName.getWindowToken(), 0);
             //记录添加或修改信息
+            mBook.setColor(mColorIndex);
             mBook.setName(mName.getText().toString().trim());
             mBook.setAuthor(mAuthor.getText().toString().trim());
             mBook.setPress(mPress.getText().toString().trim());
@@ -489,6 +643,7 @@ public class CreateActivity extends AppCompatActivity {
                 Log.d("net", "edit book");
                 Log.d("net", "write book to local");
                 //保存书籍，章节信息
+                mProgressDialog.setMessage("正在保存...");
                 mProgressDialog.show();
                 new EditTask(mBook, mGroupList, mChapterList, mDeletePosList, mEditHandler).execute();
 
@@ -522,13 +677,6 @@ public class CreateActivity extends AppCompatActivity {
             finish();
         }
     };
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(mProgressDialog != null)
-            mProgressDialog.dismiss();
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -48,20 +48,23 @@ public class ColorPickerSeekBar extends SeekBar implements SeekBar.OnSeekBarChan
 
     /**
      * Initializes the color seekbar with the gradient
+     * new int[]{0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF,
+     0xFFFF0000, 0xFFFF00FF, 0xFFFFFF00, 0xFFFFFFFF}
      */
     public void init(){
         this.setPadding(0,0,0,0);
         LinearGradient colorGradient = new LinearGradient(0.f, 0.f,
                 this.getMeasuredWidth(), //- this.getThumb().getIntrinsicWidth(),
                 0.f,
-                new int[]{0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF,
-                        0xFFFF0000, 0xFFFF00FF, 0xFFFFFF00, 0xFFFFFFFF},
+                new int[]{0xffe91e63, 0xfff44336, 0xff7fd68b,
+                0xff2196f3, 0xff86a8f8, 0xffcb8ef6}
+                ,
                 null, Shader.TileMode.CLAMP
         );
         ShapeDrawable shape = new ShapeDrawable(new RectShape());
         shape.getPaint().setShader(colorGradient);
         this.setProgressDrawable(shape);
-        this.setMax(256 * 7 - 1);
+        //this.setMax(256 * 7 - 1);
     }
 
     /**
@@ -107,7 +110,6 @@ public class ColorPickerSeekBar extends SeekBar implements SeekBar.OnSeekBarChan
 
     public static int calColor(int progress)
     {
-
         int r = 0;
         int g = 0;
         int b = 0;

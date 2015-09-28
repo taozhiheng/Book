@@ -14,17 +14,41 @@
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
 
-    <application android:allowBackup="true" android:icon="@mipmap/logo" android:label="@string/app_name" android:name=".MyApplication" android:theme="@style/AppTheme">
+    <application android:allowBackup="true" android:icon="@mipmap/logo" android:label="@string/app_name" android:name=".MyApplication"
+        android:theme="@style/AppTheme.BLUE_LIGHT">
 
 
         <activity android:name="com.umeng.fb.ConversationActivity"/>
         <meta-data android:name="UMENG_APPKEY" android:value="556ef52c67e58e297a002f7e"/>
         <meta-data android:name="UMENG_CHANNEL" android:value="Channel ID"/>
 
-        <activity android:name=".MainActivity">
+        <meta-data
+            android:value="7c1655bd882940ca9b1e04660281e779" android:name =
+            "ZHUGE_APPKEY"/>
+        <meta-data
+            android:value="Channel ID" android:name =
+            "ZHUGE_CHANNEL"/>
+
+        <activity android:name="com.sina.weibo.sdk.component.WeiboSdkBrowser"
+            android:configChanges="keyboardHidden|orientation"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false" >
+        </activity>
+        <activity android:name=".StartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".GuideActivity">
+            <intent-filter>
+                <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".MainActivity">
+            <intent-filter>
+
                 <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT"/>
             </intent-filter>
         </activity>
@@ -38,7 +62,8 @@
                 <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name=".AboutActivity">
+        <activity android:name=".AboutActivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT"/>
             </intent-filter>
@@ -63,7 +88,8 @@
                 <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name=".CreateActivity">
+        <activity android:name=".CreateActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize">
             <intent-filter>
                 <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT"/>
             </intent-filter>
@@ -93,6 +119,7 @@
                 <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT"/>
             </intent-filter>
         </activity>
+
         <service android:name="service.WebService">
             <intent-filter>
                 <action android:name="com.hustunique.myapplication.UPDATE"/>

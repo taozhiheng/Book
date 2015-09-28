@@ -21,6 +21,7 @@ public class MyFragmentAdapter extends FragmentPagerAdapter {
     private FragmentTransaction mCurTransaction;
     private Fragment mCurrentPrimaryItem;
 
+
     public MyFragmentAdapter(FragmentManager fm)
     {
         super(fm);
@@ -29,13 +30,14 @@ public class MyFragmentAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
+        Log.d("life cycle-f adapter", "getItem:"+position);
         switch (position) {
             case 0:
                 return ReadingFragment.newInstance();
             case 1:
                 return new BookshelfFragment();
-            case 2:
-                return new CalendarFragment();
+//            case 2:
+//                return new CalendarFragment();
             default:
                 return null;
         }
@@ -43,7 +45,7 @@ public class MyFragmentAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 5;
+        return 2;
     }
 
     private String makeFragmentName(int container, long id)

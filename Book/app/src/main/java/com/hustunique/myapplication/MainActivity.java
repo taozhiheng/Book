@@ -17,6 +17,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,20 +33,20 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.picasso.OkHttpDownloader;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+import com.umeng.analytics.MobclickAgent;
+import com.zhuge.analysis.stat.ZhugeSDK;
+
 import net.MyJsonObjectRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.ArrayList;
-import java.util.List;
+
 import adapter.MyFragmentAdapter;
 import data.DBOperate;
 import data.UserPref;
-import fragment.BeforeFragment;
 import fragment.AddListener;
-import fragment.NowFragment;
 import fragment.ReadingFragment;
 import service.Counter;
 import service.WebService;
@@ -61,17 +62,15 @@ public class MainActivity extends AppCompatActivity implements AddListener{
     private NavigationView mNavigationView;
     private Toolbar mToolbar;
     private ActionBarDrawerToggle mToggle;
-    private List<Fragment> mFragmentList;
     private String[] titles = new String[]{"今日阅读", "我的书架", "阅读日历"};
 
     private MyFragmentAdapter mFragmentPagerAdapter;
     private LinearLayout mHeader;
     private ImageView mIcon;
     private TextView mUser;
-    private TextView mEmail;
+//    private TextView mEmail;
     private FrameLayout mContainer;
 
-    private SystemBarTintManager mTintManager;
 
     private AlertDialog mDialog;
 
@@ -81,6 +80,9 @@ public class MainActivity extends AppCompatActivity implements AddListener{
 
     private ProgressDialog mProgressDialog;
 
+    private final static String TAG = "life cycle-main";
+
+    private int mCurrentItem = -1;
 
     private void autoLogin()
     {
@@ -91,25 +93,40 @@ public class MainActivity extends AppCompatActivity implements AddListener{
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
-                                Log.d("net", "login:"+response.toString());
-                                try
-                                {
+                                Log.d(TAG, "auto login:" + response.toString());
+                                try {
                                     //读取用户基本信息
-                                    MyApplication.setUserOnLine(true);
                                     String mail = response.getString("mail");
                                     String username = response.getString("username");
                                     String sexStr = response.getString("sex");
                                     boolean sex = false;
-                                    if(sexStr.equals("true"))
+                                    if (sexStr.equals("true"))
                                         sex = true;
                                     String avatar = response.getString("avatar");
                                     //记录基本信息
                                     MyApplication.setUser(username);
                                     MyApplication.setUserSex(sex);
-                                    if(!avatar.contains("http"))
+                                    if (!avatar.contains("http"))
                                         avatar = MyApplication.getUrlHead() + avatar;
                                     MyApplication.setUserUrl(avatar);
                                     MyApplication.setUserMail(mail);
+                                    MyApplication.setUserOnLine(true);
+
+                                    JSONObject personObject = new JSONObject();
+                                    //预置字段部分示例
+                                    personObject.put("avatar", avatar);
+                                    personObject.put("name", username);
+                                    if (sex)
+                                        personObject.put("gender", "女");
+                                    else
+                                        personObject.put("gender", "男");
+                                    personObject.put("email", mail);
+
+                                    //进行标识，第二个参数为您在您的APP中标识用户的ID
+                                    ZhugeSDK.getInstance().identify(getApplicationContext(), mail,
+                                            personObject);
+
+
                                     //通知fragment刷新
                                     MyApplication.setShouldUpdate(Constant.INDEX_READ);
                                     MyApplication.setShouldUpdate(Constant.INDEX_AFTER);
@@ -120,33 +137,30 @@ public class MainActivity extends AppCompatActivity implements AddListener{
 
                                     //检查数据状态
                                     mRequestQueue.add(new MyJsonObjectRequest(
-                                                    Request.Method.GET,
-                                                    Constant.URL_BOOKS_COUNT,
-                                                    null,
-                                                    new Response.Listener<JSONObject>() {
-                                                        @Override
-                                                        public void onResponse(JSONObject response) {
-                                                            try
-                                                            {
-                                                                int netCount = response.getInt("count");
-                                                                int localCount =
-                                                                        MyApplication.getDBOperateInstance().getBookNum();
-                                                                Toast.makeText(getBaseContext(), "localCount:"+localCount+" netCount:"+netCount, Toast.LENGTH_SHORT).show();
-                                                                if(localCount <= 0 && netCount != 0)
-                                                                    sync(Constant.CHOICE_WEB);
-                                                                else if(netCount <= 0 && localCount != 0)
-                                                                    sync(Constant.CHOICE_LOCAL);
-                                                            }catch (JSONException e)
-                                                            {
-                                                                e.printStackTrace();
-                                                            }
-                                                        }
-                                                    },null
+                                            Request.Method.GET,
+                                            Constant.URL_BOOKS_COUNT,
+                                            null,
+                                            new Response.Listener<JSONObject>() {
+                                                @Override
+                                                public void onResponse(JSONObject response) {
+                                                    try {
+                                                        int netCount = response.getInt("count");
+                                                        int localCount =
+                                                                MyApplication.getDBOperateInstance().getBookNum();
+//                                                                Toast.makeText(getBaseContext(), "localCount:"+localCount+" netCount:"+netCount, Toast.LENGTH_SHORT).show();
+                                                        if (localCount <= 0 && netCount != 0)
+                                                            sync(Constant.CHOICE_WEB);
+                                                        else if (netCount <= 0 && localCount != 0)
+                                                            sync(Constant.CHOICE_LOCAL);
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            }, null
                                     ));
                                     mRequestQueue.start();
 
-                                } catch (JSONException e)
-                                {
+                                } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
@@ -154,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements AddListener{
                         new Response.ErrorListener() {
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                               setUserInfo();
+
                             }
                         })
         );
@@ -163,22 +177,52 @@ public class MainActivity extends AppCompatActivity implements AddListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "main activity on create");
+//        UserPref.init(this);
+//        if(UserPref.getFirstUse())
+//        {
+//            Intent intent=new Intent(this,GuideActivity.class);
+//            startActivity(intent);
+//            finish();
+//        }
+//        if(!getIntent().getBooleanExtra("start",false))
+//        {
+//            Intent intent=new Intent(this,StartActivity.class);
+//            startActivity(intent);
+//            finish();
+//        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            mTintManager = new SystemBarTintManager(this);
-            mTintManager.setStatusBarTintEnabled(true);
-        }
+
+
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView) findViewById(R.id.navigation_view);
         mHeader = (LinearLayout) mNavigationView.findViewById(R.id.header);
         mIcon = (ImageView) mHeader.findViewById(R.id.drawer_user_icon);
         mUser = (TextView) mHeader.findViewById(R.id.drawer_user_name);
-        mEmail = (TextView) mHeader.findViewById(R.id.drawer_user_email);
+//        mEmail = (TextView) mHeader.findViewById(R.id.drawer_user_email);
         mToolbar = (Toolbar) findViewById(R.id.main_toolbar);
         mContainer = (FrameLayout) findViewById(R.id.main_container);
-        mDialog = new AlertDialog.Builder(this)
+
+        mDrawerLayout.setStatusBarBackground(R.color.accent_material_dark);
+        init();
+
+        mRequestQueue = Volley.newRequestQueue(this);
+        MobclickAgent.openActivityDurationTrack(false);
+
+        ((MyApplication)getApplication()).init();
+        Log.d(TAG, "start service");
+        startService(new Intent(this, WebService.class));
+        IntentFilter filter = new IntentFilter("com.hustunique.myapplication.MAIN_RECEIVER");
+        registerReceiver(mReceiver, filter);
+
+        MyApplication.setAuthorization(UserPref.getUserAuth());
+        autoLogin();
+    }
+
+    private void init()
+    {
+        mDialog = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
                 .setTitle("退出")
                 .setMessage("你确定要退出应用吗?")
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -191,34 +235,12 @@ public class MainActivity extends AppCompatActivity implements AddListener{
                         MyApplication.setUserMail(null);
                         MyApplication.setUserUrl(null);
                         finish();
+                        android.os.Process.killProcess(android.os.Process.myPid());
                     }
                 })
                 .setNegativeButton("再看会儿", null)
                 .create();
-        mDrawerLayout.setStatusBarBackground(R.color.accent_material_dark);
-        init();
-
-        mRequestQueue = Volley.newRequestQueue(this);
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                MyApplication.copyOldDB();
-//            }
-//        }).start();
-
-        Log.d("web", "start service");
-        startService(new Intent(this, WebService.class));
-        IntentFilter filter = new IntentFilter("com.hustunique.myapplication.MAIN_RECEIVER");
-        registerReceiver(mReceiver, filter);
-
-        UserPref.init(this);
-        MyApplication.setAuthorization(UserPref.getUserAuth());
-        autoLogin();
-    }
-
-    private void init()
-    {
-        mChoseDialog = new AlertDialog.Builder(this, R.style.AppTheme_Dialog)
+        mChoseDialog = new AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
                 .setMessage("检测到本地数据与您当前帐号不一致,将进行同步,您希望怎样同步?")
                 .setPositiveButton("以本地为准", new DialogInterface.OnClickListener() {
                     @Override
@@ -268,29 +290,27 @@ public class MainActivity extends AppCompatActivity implements AddListener{
                 mToggle.syncState();
             }
         });
-        mFragmentList = new ArrayList<>();
         mFragmentPagerAdapter = new MyFragmentAdapter(getSupportFragmentManager());
 
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem menuItem) {
-                switch(menuItem.getItemId())
-                {
+                switch (menuItem.getItemId()) {
                     case R.id.drawer_reading:
                         setCurrentItem(0);
                         break;
                     case R.id.drawer_bookshelf:
                         setCurrentItem(1);
                         break;
-                    case R.id.drawer_calendar:
-                        setCurrentItem(2);
-                        break;
-                    case R.id.drawer_sync:
-                        if(MyApplication.getUserOnLine() && MyApplication.getAuthorization() != null) {
-                            mChoseDialog.setCancelable(true);
-                            mChoseDialog.show();
-                        }
-                        break;
+//                    case R.id.drawer_calendar:
+//                        setCurrentItem(2);
+//                        break;
+//                    case R.id.drawer_sync:
+//                        if(MyApplication.getUserOnLine() && MyApplication.getAuthorization() != null) {
+//                            mChoseDialog.setCancelable(true);
+//                            mChoseDialog.show();
+//                        }
+//                        break;
                     case R.id.drawer_feedback:
                         startActivity(new Intent(MainActivity.this, FeedbackActivity.class));
                         break;
@@ -317,6 +337,8 @@ public class MainActivity extends AppCompatActivity implements AddListener{
 
     private void setCurrentItem(int position)
     {
+        if(mCurrentItem == position)
+            return;
         mNavigationView.getMenu().getItem(position).setChecked(true);
         Fragment fragment = (Fragment) mFragmentPagerAdapter.instantiateItem(mContainer, position);
         mFragmentPagerAdapter.setPrimaryItem(mContainer, 0, fragment);
@@ -328,23 +350,64 @@ public class MainActivity extends AppCompatActivity implements AddListener{
 
     @Override
     protected void onResume() {
+        Log.d(TAG, "main activity on resume");
+
         super.onResume();
+        MobclickAgent.onResume(this);
+
+        ZhugeSDK.getInstance().init(getApplicationContext());
+
+    }
+
+
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "main activity on pause");
+        super.onPause();
+        MobclickAgent.onPause(this);
+    }
+
+    @Override
+    protected void onStop() {
+        Log.d(TAG, "main activity on stop");
+        super.onStop();
+    }
+
+
+
+    @Override
+    protected void onStart() {
+        Log.d(TAG, "main activity on start");
+//        if(mFragmentPagerAdapter == null) {
+//            mFragmentPagerAdapter = new MyFragmentAdapter(getSupportFragmentManager());
+//            setCurrentItem(0);
+//
+//        }
+        super.onStart();
+    }
+
+    @Override
+    protected void onRestart() {
+        Log.d(TAG, "main activity on restart");
+
+        super.onRestart();
     }
 
     private void setUserInfo()
     {
         String str;
-        if((str=MyApplication.getUserUrl()) != null) {
-            OkHttpClient picassoClient = new OkHttpClient();
-            picassoClient.setCache(null);
-            Picasso picasso=new Picasso.Builder(this).downloader(new OkHttpDownloader(picassoClient)).build();
-            picasso.load(str).resize(100, 100).into(mIcon);
-        }
+        Picasso.with(this).load(R.drawable.ic_user_icon).resize(100, 100).into(mIcon);
+        if((str=MyApplication.getUserUrl())!= null && !str.contains("null"))
+            MyApplication.getPicasso().load(Uri.parse(str))
+                    .memoryPolicy(MemoryPolicy.NO_CACHE)
+                    .networkPolicy(NetworkPolicy.NO_CACHE)
+                    .resize(100, 100).into(mIcon);
+        Log.d(TAG, "url:" + str);
         if((str=MyApplication.getUser()) != null)
             mUser.setText(str);
         else
             mUser.setText("请登录");
-        mEmail.setText(MyApplication.getUserMail());
+//        mEmail.setText(MyApplication.getUserMail());
     }
 
 
@@ -352,9 +415,9 @@ public class MainActivity extends AppCompatActivity implements AddListener{
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         if(resultCode == RESULT_OK)
         {
-            setUserInfo();
             if(requestCode == Constant.LOGIN)
             {
+                setUserInfo();
                 //检查数据
                 mRequestQueue.add(new MyJsonObjectRequest(
                         Request.Method.GET,
@@ -368,7 +431,7 @@ public class MainActivity extends AppCompatActivity implements AddListener{
                                     int netCount = response.getInt("count");
                                     int localCount =
                                             MyApplication.getDBOperateInstance().getBookNum();
-                                    Toast.makeText(getBaseContext(), "localCount:"+localCount+" netCount:"+netCount, Toast.LENGTH_SHORT).show();
+//                                    Toast.makeText(getBaseContext(), "localCount:"+localCount+" netCount:"+netCount, Toast.LENGTH_SHORT).show();
                                     if(localCount <= 0 && netCount != 0)
                                         sync(Constant.CHOICE_WEB);
                                     else if(netCount <= 0 && localCount != 0)
@@ -391,11 +454,22 @@ public class MainActivity extends AppCompatActivity implements AddListener{
                 mRequestQueue.start();
 
             }
+            else if(requestCode == Constant.PERSON && data.getBooleanExtra(Constant.KEY_USER_ICON_CHANGE, false))
+            {
+                String str;
+                Picasso.with(this).load(R.drawable.ic_user_icon).resize(100, 100).into(mIcon);
+                if((str=MyApplication.getUserUrl())!= null && !str.contains("null"))
+                    MyApplication.getPicasso().load(Uri.parse(str))
+                            .memoryPolicy(MemoryPolicy.NO_CACHE)
+                            .resize(100, 100).into(mIcon);
+                mUser.setText(MyApplication.getUser());
+//                mEmail.setText(MyApplication.getUserMail());
+            }
         }else if(resultCode == RESULT_CANCELED && requestCode == Constant.PERSON)
         {
-            Picasso.with(this).load(R.mipmap.ic_user_icon).into(mIcon);
+            Picasso.with(this).load(R.drawable.ic_user_icon).resize(100, 100).into(mIcon);
             mUser.setText("请登录");
-            mEmail.setText(null);
+//            mEmail.setText(null);
         }
     }
 
@@ -404,31 +478,39 @@ public class MainActivity extends AppCompatActivity implements AddListener{
     {
         if(!MyApplication.getUserOnLine())
             return;
-        mProgressDialog.show();
         Intent intent = new Intent(this, WebService.class);
         intent.putExtra(Constant.KEY_CMD, Constant.CMD_SYNC);
-        if(choice == Constant.CHOICE_WEB)
-            intent.putExtra(Constant.KEY_CHOICE, Constant.CHOICE_WEB);
-        else
-            intent.putExtra(Constant.KEY_CHOICE, Constant.CHOICE_LOCAL);
+        mProgressDialog.show();
         MyApplication.setSync(true);
+        intent.putExtra(Constant.KEY_CHOICE, choice);
         startService(intent);
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        startActivity(intent);
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK)
+        {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+            startActivity(intent);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
-
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "main activity on back pressed");
+        super.onBackPressed();
+    }
 
     @Override
     protected void onDestroy() {
+        Log.d(TAG, "main activity on destroy");
         super.onDestroy();
+        ZhugeSDK.getInstance().flush(getApplicationContext());
+
         if(mDialog != null) {
             mDialog.dismiss();
         }
@@ -437,7 +519,7 @@ public class MainActivity extends AppCompatActivity implements AddListener{
         if(mChoseDialog != null)
             mChoseDialog.dismiss();
 
-        Log.d("web", "stop service");
+        Log.d(TAG, "stop service");
         stopService(new Intent(this, WebService.class));
         DBOperate dbOperate = MyApplication.getDBOperateInstance();
         if(dbOperate != null )
@@ -454,15 +536,21 @@ public class MainActivity extends AppCompatActivity implements AddListener{
             MyApplication.setSync(false);
 
             Counter counter = intent.getParcelableExtra("counter");
-            String head = "同步成功:";
-            if(counter.getBookFinishNum() < counter.getBookNum())
-                head = "同步不完整:";
-            Toast.makeText(getBaseContext(), head+counter.getBookFinishNum()+"/"+counter.getBookNum()+"本"+" "+counter.getChapterNum()+"章", Toast.LENGTH_SHORT).show();
-            ReadingFragment.executeLoad();
-            MyApplication.setShouldUpdate(Constant.INDEX_READ);
-            MyApplication.setShouldUpdate(Constant.INDEX_AFTER);
-            MyApplication.setShouldUpdate(Constant.INDEX_NOW);
-            MyApplication.setShouldUpdate(Constant.INDEX_BEFORE);
+            int choice = intent.getIntExtra("choice", Constant.CHOICE_LOCAL);
+            String str;
+            str = "同步成功:";
+            if (counter.getBookFinishNum() < counter.getBookNum())
+                str = "同步不完整:";
+
+            str += counter.getBookFinishNum()+"/"+counter.getBookNum()+"本 "+counter.getChapterNum()+"章";
+            Toast.makeText(getBaseContext(), str, Toast.LENGTH_SHORT).show();
+            if(choice == Constant.CHOICE_WEB) {
+                ReadingFragment.executeLoad();
+                MyApplication.setShouldUpdate(Constant.INDEX_READ);
+                MyApplication.setShouldUpdate(Constant.INDEX_AFTER);
+                MyApplication.setShouldUpdate(Constant.INDEX_NOW);
+                MyApplication.setShouldUpdate(Constant.INDEX_BEFORE);
+            }
         }
     };
 }

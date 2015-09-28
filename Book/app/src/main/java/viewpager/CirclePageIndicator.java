@@ -430,10 +430,11 @@ public class CirclePageIndicator extends View implements PageIndicator {
      */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
         if (mOrientation == HORIZONTAL) {
-            setMeasuredDimension(measureLong(widthMeasureSpec), measureShort(heightMeasureSpec));
+            setMeasuredDimension(measureLong(widthMeasureSpec), measureShort(heightMeasureSpec)+(int)mRadius*2);
         } else {
-            setMeasuredDimension(measureShort(widthMeasureSpec), measureLong(heightMeasureSpec));
+            setMeasuredDimension(measureShort(widthMeasureSpec)+(int)mRadius*2, measureLong(heightMeasureSpec));
         }
     }
 

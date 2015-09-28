@@ -1,0 +1,55 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" tools:context=".MainActivity">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/m_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:flipInterval="100"
+        android:persistentDrawingCache="animation"
+        />
+    <!--<viewpager.CirclePageIndicator-->
+        <!--android:id="@+id/m_viewpager_indicator"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_marginTop="100dp" />-->
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:layout_marginBottom="40dp"
+        android:id="@+id/radio_group">
+
+        <RadioButton
+            android:button="@drawable/radio_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/radioButton"
+            android:checked="true"
+            android:clickable="false"
+            />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:button="@drawable/radio_background"
+            android:id="@+id/radioButton2"
+            android:clickable="false"
+
+            />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:button="@drawable/radio_background"
+            android:clickable="false"
+            android:id="@+id/radioButton3" />
+
+    </RadioGroup>
+</RelativeLayout>

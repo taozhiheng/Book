@@ -32,23 +32,43 @@ public class BookRecyclerAdapter extends RecyclerView.Adapter<BookRecyclerAdapte
     private MyOnItemLongClickListener mOnItemLongClickListener;
 
     private Context mContext;
+    private boolean mComplete;
+
+
+    private final static int[] mTags = new int[]{
+            R.mipmap.ic_red, R.mipmap.ic_orange, R.mipmap.ic_green,
+            R.mipmap.ic_blue, R.mipmap.ic_blue_light, R.mipmap.ic_purple};
 
     public BookRecyclerAdapter(Context context, List<Book> list)
     {
-        this.mContext = context;
-        this.mList = list;
-        mResources = new int[]{R.layout.book_item, R.id.item_icon, R.id.item_icon_text,
-                R.id.book_item_time, R.id.book_item_name,
-                R.id.book_item_author, R.id.book_item_num};
+        this(context, list, false);
     }
 
+    public BookRecyclerAdapter(Context context, List<Book> list, boolean complete)
+    {
+        this.mContext = context;
+        this.mList = list;
+        this.mComplete = complete;
+        if(complete)
+            mResources = new int[]{R.layout.book_item, R.id.item_icon, R.id.item_icon_text,
+                R.id.book_item_time, R.id.book_item_name,
+                R.id.book_item_author, R.id.book_item_num, R.id.book_item_tag};
+        else
+            mResources = new int[]{R.layout.book_item2, R.id.item_icon, R.id.item_icon_text,
+                    R.id.book_item_time, R.id.book_item_name,
+                    R.id.book_item_author, R.id.book_item_num, R.id.book_item_tag};
+    }
 
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(mResources[0], parent, false);
-        return new MyViewHolder(view, mResources[1], mResources[2], mResources[3],
-                mResources[4], mResources[5], mResources[6]);
+        if(mComplete)
+            return new MyViewHolder(view, mResources[1], mResources[2], mResources[3],
+                mResources[4], mResources[5], mResources[6], mResources[7], true);
+        else
+            return new MyViewHolder(view, mResources[1], mResources[2], mResources[3],
+                    mResources[4], mResources[5], mResources[6], mResources[7], false);
     }
 
     @Override
@@ -62,37 +82,59 @@ public class BookRecyclerAdapter extends RecyclerView.Adapter<BookRecyclerAdapte
         holder.itemView.setTag(position);
         holder.itemView.setOnClickListener(mOnClickListener);
         holder.itemView.setOnLongClickListener(mOnLongClickListener);
+        int index = book.getColor();
+        if(index < 0 || index > 5)
+            index = 0;
+        holder.mTag.setImageResource(mTags[index]);
         String url = book.getUrl();
         if(url != null && !url.equals("null")) {
-            holder.mIconText.setVisibility(View.GONE);
-            holder.mIcon.setVisibility(View.VISIBLE);
             File file = new File(url);
-            if(file.exists())
+            if(file.exists()) {
+                holder.mIconText.setVisibility(View.GONE);
                 Picasso.with(mContext).load(file).into(holder.mIcon);
+            }
+            else if(url.startsWith("http")) {
+                holder.mIconText.setVisibility(View.GONE);
+                Picasso.with(mContext).load(Uri.parse(url)).placeholder(R.drawable.book_cover).into(holder.mIcon);
+            }
             else
-                Picasso.with(mContext).load(Uri.parse(url)).into(holder.mIcon);
+            {
+                holder.mIconText.setVisibility(View.VISIBLE);
+                Picasso.with(mContext).load(R.drawable.book_cover).into(holder.mIcon);
+                String name = book.getName();
+                if(name != null && name.length() > 2)
+                    name = name.substring(0, 2);
+                holder.mIconText.setText(name);
+            }
         }
         else
         {
-            holder.mIcon.setVisibility(View.GONE);
+            Picasso.with(mContext).load(R.drawable.book_cover).into(holder.mIcon);
             holder.mIconText.setVisibility(View.VISIBLE);
-            holder.mIconText.setText(book.getName());
-            holder.mIconText.setBackgroundColor(Constant.COLOR);
+            String name = book.getName();
+            if(name != null && name.length() > 2)
+                name = name.substring(0, 2);
+            holder.mIconText.setText(name);
         }
-        String startTimeStr = book.getStartTime();
-        if(startTimeStr != null && !startTimeStr.equals("null"))
-            startTimeStr = startTimeStr.substring(startTimeStr.indexOf('-')+1, startTimeStr.indexOf('T'));
-        else
-            startTimeStr = "未知";
-        String endTimeStr = book.getEndTime();
-        if(endTimeStr != null && !endTimeStr.equals("null"))
-            endTimeStr = endTimeStr.substring(endTimeStr.indexOf('-')+1, endTimeStr.indexOf('T'));
-        else
-            endTimeStr = "未知";
-        holder.mTime.setText(startTimeStr+" ~ "+endTimeStr);
+        if(mComplete) {
+            String startTimeStr = book.getStartTime();
+            if (startTimeStr != null && !startTimeStr.equals("null"))
+                startTimeStr = startTimeStr.substring(startTimeStr.indexOf('-') + 1, startTimeStr.indexOf('T'));
+            else
+                startTimeStr = "未知";
+            String endTimeStr = book.getEndTime();
+            if (endTimeStr != null && !endTimeStr.equals("null"))
+                endTimeStr = endTimeStr.substring(endTimeStr.indexOf('-') + 1, endTimeStr.indexOf('T'));
+            else
+                endTimeStr = "未知";
+            if (book.getType() != Constant.TYPE_NOW)
+                holder.mTime.setText(null);
+            else
+                holder.mTime.setText(startTimeStr + " ~ " + endTimeStr);
+        }
         holder.mName.setText(book.getName());
         holder.mAuthor.setText(book.getAuthor());
-        holder.mNum.setText(book.getFinishNum()+"/"+book.getChapterNum()+"章    "+book.getWordNum()+" K字");
+        holder.mNum.setText(book.getFinishNum()+"/"+book.getChapterNum()+"章    "+book.getWordNum()+" 千字");
     }
 
     static class MyViewHolder extends RecyclerView.ViewHolder
@@ -103,16 +145,20 @@ public class BookRecyclerAdapter extends RecyclerView.Adapter<BookRecyclerAdapte
         private TextView mName;
         private TextView mAuthor;
         private TextView mNum;
+        private ImageView mTag;
 
-        public MyViewHolder(View view, int iconRes, int iconTextRes, int timeRes, int nameRes, int authorRes, int numRes)
+        public MyViewHolder(View view, int iconRes, int iconTextRes, int timeRes,
+                            int nameRes, int authorRes, int numRes, int tagRes, boolean complete)
         {
             super(view);
             this.mIcon = (ImageView) view.findViewById(iconRes);
             this.mIconText = (TextView) view.findViewById(iconTextRes);
-            this.mTime = (TextView) view.findViewById(timeRes);
+            if(complete)
+                this.mTime = (TextView) view.findViewById(timeRes);
             this.mName = (TextView) view.findViewById(nameRes);
             this.mAuthor = (TextView) view.findViewById(authorRes);
             this.mNum = (TextView) view.findViewById(numRes);
+            this.mTag = (ImageView) view.findViewById(tagRes);
         }
     }
 

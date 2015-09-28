@@ -2,25 +2,34 @@ package com.hustunique.myapplication;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.squareup.picasso.Picasso;
+import com.umeng.analytics.MobclickAgent;
+import com.zhuge.analysis.stat.ZhugeSDK;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +37,14 @@ import adapter.ChapterAdapter;
 import data.Book;
 import data.Chapter;
 import data.DBOperate;
-import fragment.ReadingFragment;
 import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
+import service.QueryChaptersTask;
 import ui.DividerItemDecoration;
+import ui.MyAnimation;
 import ui.StickyLayout;
+import uk.co.senab.photoview.PhotoViewAttacher;
 import util.Constant;
+import util.FileUtil;
 
 
 /**
@@ -41,6 +53,8 @@ import util.Constant;
  * after to now：chapter type change,ReadingFragment update
  * finish to now：chapter type change,Book finishNum change,ReadingFragment update
  * now to after：chapter type change,ReadingFragment update
+ * 持有数据:chapterId,type
+ * 数据操作：改变章节类型，改变持有章节类型，改变数据库章节类型，typeS=type
  * */
 
 public class DetailActivity extends AppCompatActivity {
@@ -55,6 +69,9 @@ public class DetailActivity extends AppCompatActivity {
     private RecyclerView mRecycler;
     private StickyLayout mStickyLayout;
 
+//    private ImageView mPhotoView;
+//    private ImageView shadow;
+
     private SystemBarTintManager mTintManager;
 
     private List<Chapter> mChapterList;
@@ -63,10 +80,45 @@ public class DetailActivity extends AppCompatActivity {
 
     private int mAction;
 
-    private int colorSelected = Color.rgb(0xe9, 0x1e, 0x63);
+    private int mColorIndex = 0;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("Book Detail Activity");
+        MobclickAgent.onResume(this);
+
+        ZhugeSDK.getInstance().init(getApplicationContext());
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("Book Detail Activity");
+        MobclickAgent.onPause(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ZhugeSDK.getInstance().flush(getApplicationContext());
+        mHandler.removeCallbacks(null);
+
+    }
+
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        if(keyCode == KeyEvent.KEYCODE_BACK && mPhotoView.getVisibility() == View.VISIBLE)
+//        {
+//            mPhotoView.setVisibility(View.GONE);
+//            return true;
+//        }
+//        return super.onKeyDown(keyCode, event);
+//    }
+
+    @Override
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("detail", "activity onCreate");
         mAction = getIntent().getIntExtra(Constant.KEY_ACTION, Constant.VIEW_BOOK);
@@ -84,6 +136,9 @@ public class DetailActivity extends AppCompatActivity {
         mAuthor = (TextView) findViewById(R.id.detail_author);
         mPress = (TextView) findViewById(R.id.detail_press);
         mRecycler = (RecyclerView) findViewById(R.id.detail_recycler);
+//        mPhotoView = (ImageView) findViewById(R.id.photo_view);
+//        shadow = (ImageView) findViewById(R.id.detail_shadow);
+
         mToolbar.setTitle("书籍详情");
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -114,48 +169,71 @@ public class DetailActivity extends AppCompatActivity {
         load();
     }
 
+    private Bitmap getBitmap(View view)
+    {
+        view.setDrawingCacheEnabled(true);
+        view.buildDrawingCache();
+        return view.getDrawingCache();
+    }
+
     private void load()
     {
         Log.d("detail", "activity load");
+        mColorIndex = mBook.getColor();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            mTintManager.setStatusBarTintColor(Constant.colors[mColorIndex]);
+        }
+        mToolbar.setBackgroundColor(Constant.colors[mColorIndex]);
         mName.setText(mBook.getName());
         mAuthor.setText(mBook.getAuthor());
         mPress.setText(mBook.getPress());
-        mChapterNum.setText(mBook.getFinishNum()+"/"+mBook.getChapterNum()+"章  　 "+mBook.getWordNum()+" K字");
+        mChapterNum.setText(mBook.getFinishNum()+"/"+mBook.getChapterNum()+"章  　 "+mBook.getWordNum()+" 千字");
         String mUrl = mBook.getUrl();
         if(mUrl != null && !mUrl.equals("null")) {
-            mIconText.setVisibility(View.GONE);
             File file = new File(mUrl);
-            if(file.exists())
+            if(file.exists()) {
+                mIconText.setVisibility(View.GONE);
                 Picasso.with(this).load(file).into(mIcon);
+            }
+            else if(mUrl.startsWith("http")) {
+                mIconText.setVisibility(View.GONE);
+                Picasso.with(this).load(Uri.parse(mUrl)).placeholder(R.drawable.book_cover).into(mIcon);
+            }
             else
-                Picasso.with(this).load(Uri.parse(mUrl)).into(mIcon);
+            {
+                mIconText.setVisibility(View.VISIBLE);
+                Picasso.with(this).load(R.drawable.book_cover).into(mIcon);
+                String name = mBook.getName();
+                if(name != null && name.length() > 2)
+                    name = name.substring(0, 2);
+                mIconText.setText(name);
+            }
         }
         else
         {
-            mIconText.setText(mBook.getName());
-            mIconText.setTextSize(30);
-            mIconText.setBackgroundColor(colorSelected);
+            mIconText.setVisibility(View.VISIBLE);
+            Picasso.with(this).load(R.drawable.book_cover).into(mIcon);
+            String name = mBook.getName();
+            if(name != null && name.length() > 2)
+                name = name.substring(0, 2);
+            mIconText.setText(name);
         }
+
+//        DBOperate dbOperate = MyApplication.getDBOperateInstance();
+//
+//        mChapterList = dbOperate.getChapters(mBook.getId());
+        mChapterList = new ArrayList<>();
+        new QueryChaptersTask(mChapterList, mHandler).execute(mBook.getId());
+
+        Log.d("detail", "activity finish load");
+    }
+
+    private void setupAdapter()
+    {
         boolean visible = false;
         if (mAction == Constant.ADD_CHAPTER)
             visible = true;
-        DBOperate dbOperate = MyApplication.getDBOperateInstance();
-        if ((mChapterList = dbOperate.getChapters(mBook.getUUID())) == null) {
-            if(mBook.getUUID().matches("[0-9]+")) {
-                mBook.setUUID(dbOperate.getBookUUID(Integer.parseInt(mBook.getUUID())));
-                mChapterList = dbOperate.getChapters(mBook.getUUID());
-            }
-            if (mChapterList == null)
-                mChapterList = new ArrayList<>();
-            else
-            {
-                MyApplication.setShouldUpdate(Constant.INDEX_READ);
-                MyApplication.setShouldUpdate(Constant.INDEX_AFTER);
-                MyApplication.setShouldUpdate(Constant.INDEX_NOW);
-                MyApplication.setShouldUpdate(Constant.INDEX_BEFORE);
-            }
-        }
-        mAdapter = new ChapterAdapter(mChapterList, visible);
+        mAdapter = new ChapterAdapter(mChapterList, visible, mColorIndex);
         mRecycler.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(new ChapterAdapter.ChapterOnItemClickListener() {
             @Override
@@ -172,11 +250,7 @@ public class DetailActivity extends AppCompatActivity {
                 }
                 chapter.setType(type);
 
-                dbOperate.setChapterType(mBook.getUUID(), chapter.getId(), type);
-                int status = Constant.STATUS_MOD;
-                if(chapter.getStatus() == Constant.STATUS_ADD)
-                    status = Constant.STATUS_ADD;
-                dbOperate.setChapterStatus(mBook.getUUID(), chapter.getId(), status);
+                dbOperate.setChapterType(chapter.getId(), type);
 
                 if (type == Constant.TYPE_NOW) {
                     Toast.makeText(getBaseContext(), "已添加", Toast.LENGTH_SHORT).show();
@@ -184,8 +258,18 @@ public class DetailActivity extends AppCompatActivity {
                 MyApplication.setShouldUpdate(Constant.INDEX_READ);
             }
         });
-        Log.d("detail", "activity finish load");
     }
+
+    private Handler mHandler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            if(msg.what == 0)
+            {
+                setupAdapter();
+            }
+        }
+    };
 
 
     @Override

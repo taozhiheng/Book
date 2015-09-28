@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="function.AdviceActivity">
     <item android:id="@+id/action_feedback_email"
-        android:title="完成"
-        android:icon="@mipmap/ic_feedback"
+        android:title="联系方式"
         android:orderInCategory="100" app:showAsAction="ifRoom" />
 </menu>

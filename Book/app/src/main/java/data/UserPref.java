@@ -19,6 +19,11 @@ public class UserPref {
         if(mPref == null)
             mPref = context.getSharedPreferences(Constant.PREF_NAME, Context.MODE_PRIVATE);
     }
+
+    public static boolean getFirstUse()
+    {
+        return mPref.getBoolean(Constant.PREF_FIRST_USE, true);
+    }
     
     public static String getUserMail()
     {
@@ -53,11 +58,16 @@ public class UserPref {
         return null;
     }
 
-    public static String getTime()
+    public static long getTime()
     {
-        return mPref.getString(Constant.PREF_TIME, null);
+        return mPref.getLong(Constant.PREF_TIME, 0);
     }
 
+
+    public static void clearFirstUse()
+    {
+        mPref.edit().putBoolean(Constant.PREF_FIRST_USE, false).apply();
+    }
 
     public static void setWords(int flag, String words)
     {
@@ -76,9 +86,9 @@ public class UserPref {
         mPref.edit().putString(key, words).apply();
     }
 
-    public static void setTime(String time)
+    public static void setTime(long time)
     {
-        mPref.edit().putString(Constant.PREF_TIME, time).apply();
+        mPref.edit().putLong(Constant.PREF_TIME, time).apply();
     }
 
 

@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,8 +18,12 @@ import android.widget.Toast;
 
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
+import com.umeng.analytics.MobclickAgent;
+import com.zhuge.analysis.stat.ZhugeSDK;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -39,20 +44,45 @@ public class PersonActivity extends AppCompatActivity {
     private TextView mUser;
     private Button mLogout;
 
+    private boolean mIconChanged;
+
 
     private SystemBarTintManager mTintManager;
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("View UserInfo Activity");
+        MobclickAgent.onResume(this);
+
+        ZhugeSDK.getInstance().init(getApplicationContext());
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("View UserInfo Activity");
+        MobclickAgent.onPause(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ZhugeSDK.getInstance().flush(getApplicationContext());
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_person);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            mTintManager = new SystemBarTintManager(this);
-            mTintManager.setStatusBarTintEnabled(true);
-            // Holo light action bar color is #DDDDDD
-        }
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//            mTintManager = new SystemBarTintManager(this);
+//            mTintManager.setStatusBarTintEnabled(true);
+//            // Holo light action bar color is #DDDDDD
+//        }
 
         mToolbar = (Toolbar) findViewById(R.id.person_toolbar);
         mIcon = (ImageView) findViewById(R.id.person_icon);
@@ -69,7 +99,9 @@ public class PersonActivity extends AppCompatActivity {
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(RESULT_OK, null);
+                Intent intent = new Intent();
+                intent.putExtra(Constant.KEY_USER_ICON_CHANGE, mIconChanged);
+                setResult(RESULT_OK, intent);
                 finish();
             }
         });
@@ -91,6 +123,8 @@ public class PersonActivity extends AppCompatActivity {
             }
         });
 
+        mIconChanged = false;
+
         UserReadInfo userReadInfo = MyApplication.getDBOperateInstance().getUserReadInfo();
         mBooks.setText(""+userReadInfo.getBookNum());
         mChapters.setText(""+userReadInfo.getChapterNum());
@@ -98,26 +132,15 @@ public class PersonActivity extends AppCompatActivity {
         mWords.setText(""+userReadInfo.getWordNum());
 
         mUser.setText(MyApplication.getUser());
-        setUserIcon();
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    private void setUserIcon()
-    {
+        Picasso.with(this).load(R.drawable.ic_user_icon).resize(146, 146).into(mIcon);
         String picturePath = MyApplication.getUserUrl();
-        if (picturePath != null) {
-            OkHttpClient picassoClient = new OkHttpClient();
-            picassoClient.setCache(null);
-            Picasso picasso=new Picasso.Builder(this).downloader(new OkHttpDownloader(picassoClient)).build();
-            picasso.load(picturePath).resize(146,146).into(mIcon);
-//            Picasso.with(this).invalidate(Uri.parse(picturePath));
-//            Picasso.with(this).load(Uri.parse(picturePath)).resize(137,137).into(mIcon);
+        if (picturePath != null && !picturePath.contains("null")) {
+            Log.d("pic", "url:"+picturePath);
+            MyApplication.getPicasso().load(Uri.parse(picturePath))
+                    .resize(146, 146).into(mIcon);
         }
+
     }
 
 
@@ -136,8 +159,19 @@ public class PersonActivity extends AppCompatActivity {
             String str = data.getStringExtra(Constant.KEY_USER_NAME);
             if(str != null)
                 mUser.setText(str);
-            if(data.getBooleanExtra(Constant.KEY_USER_ICON_CHANGE, false))
-                setUserIcon();
+            mIconChanged = data.getBooleanExtra(Constant.KEY_USER_ICON_CHANGE, false);
+            if(mIconChanged)
+            {
+                String picturePath = MyApplication.getUserUrl();
+                if (picturePath != null) {
+                    Log.d("pic", "url:"+picturePath);
+                    MyApplication.getPicasso().load(Uri.parse(picturePath))
+                            .memoryPolicy(MemoryPolicy.NO_CACHE)
+                            .networkPolicy(NetworkPolicy.NO_CACHE)
+                            .placeholder(mIcon.getDrawable())
+                            .resize(146, 146).into(mIcon);
+                }
+            }
         }
     }
 
@@ -157,8 +191,9 @@ public class PersonActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        setResult(RESULT_OK, null);
+        Intent intent = new Intent();
+        intent.putExtra(Constant.KEY_USER_ICON_CHANGE, mIconChanged);
+        setResult(RESULT_OK, intent);
         finish();
     }
 }

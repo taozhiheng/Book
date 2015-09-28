@@ -15,6 +15,8 @@ import android.widget.Toast;
 import com.hustunique.myapplication.AddActivity;
 import com.hustunique.myapplication.MyApplication;
 import com.hustunique.myapplication.R;
+import com.umeng.analytics.MobclickAgent;
+
 import adapter.ViewPagerAdapter;
 import util.Constant;
 
@@ -97,7 +99,6 @@ public class BookshelfFragment extends Fragment{
             }
         });
         mIndicator.setupWithViewPager(mViewPager);
-        NowFragment.executeLoad();
         return root;
     }
 
@@ -114,5 +115,17 @@ public class BookshelfFragment extends Fragment{
         if (requestCode == Constant.ADD_BOOK && resultCode == Activity.RESULT_OK && null != data) {
             Toast.makeText(getActivity(), "添加书籍", Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("My Bookshelf Fragment");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("My Bookshelf Fragment");
     }
 }

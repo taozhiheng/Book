@@ -11,18 +11,14 @@
             android:id="@+id/drawer_bookshelf"
             android:icon="@mipmap/ic_bookshelf"
             android:title="@string/drawer_bookshelf"/>
-        <item
-            android:id="@+id/drawer_calendar"
-            android:icon="@mipmap/ic_calendar"
-            android:title="@string/drawer_calendar"/>
+        <!--<item-->
+            <!--android:id="@+id/drawer_calendar"-->
+            <!--android:icon="@mipmap/ic_calendar"-->
+            <!--android:title="@string/drawer_calendar"/>-->
     </group>
 
     <item>
         <menu>
-            <item
-                android:id="@+id/drawer_sync"
-                android:icon="@mipmap/ic_sync"
-                android:title="@string/drawer_sync"/>
             <item
                 android:id="@+id/drawer_feedback"
                 android:icon="@mipmap/ic_feedback"

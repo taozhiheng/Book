@@ -8,6 +8,9 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.umeng.analytics.MobclickAgent;
+import com.zhuge.analysis.stat.ZhugeSDK;
+
 import util.Constant;
 
 /**
@@ -17,6 +20,30 @@ import util.Constant;
 public class WBAuthActivity extends AppCompatActivity{
 
     private WebView mWebView;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("WBAuth Activity");
+        MobclickAgent.onResume(this);
+
+        ZhugeSDK.getInstance().init(getApplicationContext());
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("WBAuth Activity");
+        MobclickAgent.onPause(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ZhugeSDK.getInstance().flush(getApplicationContext());
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +60,7 @@ public class WBAuthActivity extends AppCompatActivity{
     private class HelloWebViewClient extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            Toast.makeText(getBaseContext(), url, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getBaseContext(), url, Toast.LENGTH_SHORT).show();
             Log.d("net", "url:"+url);
             if(url.contains(Constant.WB_REDIRECT_URL)) {
                 String code = url.substring(url.indexOf('?') + 1);

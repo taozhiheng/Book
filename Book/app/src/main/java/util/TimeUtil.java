@@ -1,6 +1,7 @@
 package util;
 
 import android.text.format.DateFormat;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -57,7 +58,9 @@ public class TimeUtil {
 
     public static String getNeedTime(long millis)
     {
-        return getUTCString(millis, Constant.TIME_FORMAT).replace('.', 'T')+".000000";
+        String str = getUTCString(millis, Constant.TIME_FORMAT).replace('.', 'T')+".000000";
+        Log.d("web", "get need time,millis:"+millis+" timeStr:"+str);
+        return str;
     }
 
 

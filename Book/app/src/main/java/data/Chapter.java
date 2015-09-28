@@ -11,13 +11,16 @@ public class Chapter implements Parcelable{
 
 
 
-    private int mId;
-    private String mBookId;
+    private long mId;
+    private long mBookId;
+    private int mWebId;
+    private String mWebBookId;
     private String mName;
 
     private int mType;
     private String mCreateTime;
     private int mStatus;
+    private int mTypeStatus;
 
     private String mBookName;
     private String mUrl;
@@ -28,40 +31,74 @@ public class Chapter implements Parcelable{
     }
 
 
-    public Chapter(int id, String bookId, String name,
-                   int type, String createTime, int status)
+    public Chapter(long id, long bookId, int webId, String webBookId, String name,
+                   int type, String createTime, int status, int typeStatus)
     {
-        this(id, bookId, name, type, createTime, status, null, null);
+        this(id, bookId, webId, webBookId, name, type, createTime, status, typeStatus, null, null);
     }
 
-    public Chapter(int id, String bookId, String name,
-                   int type, String createTime, int status,
+    public Chapter(long id, long bookId, int webId, String webBookId, String name,
+                   int type, String createTime, int status, int typeStatus,
                    String bookName, String url)
     {
         this.mId = id;
         this.mBookId = bookId;
+        this.mWebId = webId;
+        this.mWebBookId = webBookId;
         this.mName = name;
 
         this.mType = type;
         this.mCreateTime = createTime;
         this.mStatus = status;
+        this.mTypeStatus = typeStatus;
 
         this.mBookName = bookName;
         this.mUrl = url;
     }
 
-    public void setId(int id)
+    public void setId(long id)
     {
         this.mId = id;
     }
 
-    public void setBookId(String bookId)
+    public void setBookId(long bookId)
     {
         this.mBookId = bookId;
     }
 
-    public int getId() {
+    public void setTypeStatus(int status)
+    {
+        this.mTypeStatus = status;
+    }
+
+    public long getId()
+    {
         return mId;
+    }
+
+    public long getBookId()
+    {
+        return mBookId;
+    }
+
+    public int getTypeStatus()
+    {
+        return mTypeStatus;
+    }
+
+
+    public void setWebId(int id)
+    {
+        this.mWebId = id;
+    }
+
+    public void setWebBookId(String bookId)
+    {
+        this.mWebBookId = bookId;
+    }
+
+    public int getWebId() {
+        return mWebId;
     }
 
     public String getName() {
@@ -72,8 +109,8 @@ public class Chapter implements Parcelable{
         this.mName = name;
     }
 
-    public String getBookId() {
-        return mBookId;
+    public String getWebBookId() {
+        return mWebBookId;
     }
 
     public int getType() {
@@ -120,24 +157,30 @@ public class Chapter implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.mId);
-        dest.writeString(this.mBookId);
+        dest.writeLong(this.mId);
+        dest.writeLong(this.mBookId);
+        dest.writeInt(this.mWebId);
+        dest.writeString(this.mWebBookId);
         dest.writeString(this.mName);
         dest.writeInt(this.mType);
         dest.writeString(this.mCreateTime);
         dest.writeInt(this.mStatus);
+        dest.writeInt(this.mTypeStatus);
         dest.writeString(this.mBookName);
         dest.writeString(this.mUrl);
 
     }
 
     protected Chapter(Parcel in) {
-        this.mId = in.readInt();
-        this.mBookId = in.readString();
+        this.mId = in.readLong();
+        this.mBookId = in.readLong();
+        this.mWebId = in.readInt();
+        this.mWebBookId = in.readString();
         this.mName = in.readString();
         this.mType = in.readInt();
         this.mCreateTime = in.readString();
         this.mStatus = in.readInt();
+        this.mTypeStatus = in.readInt();
         this.mBookName = in.readString();
         this.mUrl = in.readString();
     }

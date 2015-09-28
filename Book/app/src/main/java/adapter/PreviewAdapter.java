@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
+
 import com.hustunique.myapplication.R;
 import java.util.List;
 import data.ChapterInfo;
@@ -27,8 +29,8 @@ public class PreviewAdapter extends RecyclerView.Adapter<PreviewAdapter.MyViewHo
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.addbooklist_item, parent, false);
-        return new MyViewHolder(view, R.id.add_name);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.preview_item, parent, false);
+        return new MyViewHolder(view, R.id.preview_name);
     }
 
     @Override
@@ -48,11 +50,11 @@ public class PreviewAdapter extends RecyclerView.Adapter<PreviewAdapter.MyViewHo
     static class MyViewHolder extends RecyclerView.ViewHolder
     {
 
-        private EditText mContent;
+        private TextView mContent;
         public MyViewHolder(View view, int contentRes)
         {
             super(view);
-            this.mContent = (EditText) view.findViewById(contentRes);
+            this.mContent = (TextView) view.findViewById(contentRes);
         }
     }
 

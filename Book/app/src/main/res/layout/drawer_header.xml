@@ -5,47 +5,47 @@
     android:orientation="vertical"
     android:id="@+id/header"
     android:background="@color/drawer_header"
-    android:layout_width="273dp"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="140dp">
+        android:layout_height="@dimen/drawer_width1">
         <ui.CircleImageView
             android:id="@+id/drawer_user_icon"
-            android:src="@mipmap/ic_user_icon"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:scaleType="centerCrop"
-            app:border_width="6dp"
+            android:src="@drawable/ic_user_icon"
+            android:layout_width="@dimen/drawer_width2"
+            android:layout_height="@dimen/drawer_height1"
+            android:layout_marginTop="@dimen/drawer_margin1"
+            android:layout_marginBottom="@dimen/drawer_margin1"
+            app:border_width="@dimen/drawer_border_width"
             app:border_color="@color/drawer_user_circle"
-            android:layout_marginLeft="20dp" />
+            android:layout_marginLeft="@dimen/drawer_margin1" />
         <TextView
             android:id="@+id/drawer_user_name"
             android:layout_toRightOf="@id/drawer_user_icon"
             android:layout_centerVertical="true"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textSize="21sp"
+            android:textSize="@dimen/drawer_text_size1"
             android:text="请登录"
+            android:textColor="@color/white"
             android:gravity="center_horizontal|top"
             android:singleLine="true"/>
-        <TextView
-            android:textSize="11sp"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/drawer_user_email"
-            android:layout_below="@id/drawer_user_name"
-            android:layout_toRightOf="@id/drawer_user_icon"
-            android:singleLine="true"
-            android:textColor="@color/drawer_user_email"
-            android:gravity="center_horizontal|bottom"
-             />
+        <!--<TextView-->
+            <!--android:textSize="@dimen/drawer_text_size2"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/drawer_user_email"-->
+            <!--android:layout_below="@id/drawer_user_name"-->
+            <!--android:layout_toRightOf="@id/drawer_user_icon"-->
+            <!--android:singleLine="true"-->
+            <!--android:textColor="@color/drawer_user_email"-->
+            <!--android:gravity="center_horizontal|bottom"-->
+             <!--/>-->
     </RelativeLayout>
     <View
         android:layout_width="match_parent"
-        android:layout_height="10dp"
+        android:layout_height="@dimen/drawer_height2"
         android:background="@color/drawer_line"
         />
 </LinearLayout>

@@ -1,6 +1,7 @@
 package com.hustunique.myapplication;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,11 +25,21 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
+import com.sina.weibo.sdk.WeiboAppManager;
+import com.sina.weibo.sdk.auth.AuthInfo;
+import com.sina.weibo.sdk.auth.WeiboAuthListener;
+import com.sina.weibo.sdk.auth.sso.SsoHandler;
+import com.sina.weibo.sdk.exception.WeiboException;
+import com.umeng.analytics.MobclickAgent;
+import com.zhuge.analysis.stat.ZhugeSDK;
+
 import net.MyJsonObjectRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
 import data.UserPref;
 import util.Constant;
 
@@ -53,9 +64,35 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean mIsNormalLogin;
 
+    //wb
+    private AuthInfo mAuthInfo;
+    private SsoHandler mSsoHandler;
+
+    public final static String REQUEST_TAG = "MyLoginRequest";
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onPageStart("Login Activity");
+        MobclickAgent.onResume(this);
+
+        ZhugeSDK.getInstance().init(getApplicationContext());
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPageEnd("Login Activity");
+        MobclickAgent.onPause(this);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ZhugeSDK.getInstance().flush(getApplicationContext());
+
         if(mProgressDialog != null) {
             mProgressDialog.dismiss();
         }
@@ -65,22 +102,22 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            mTintManager = new SystemBarTintManager(this);
-            mTintManager.setStatusBarTintEnabled(true);
-            // Holo light action bar color is #DDDDDD
-
-        }
+//        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//            mTintManager = new SystemBarTintManager(this);
+//            mTintManager.setStatusBarTintEnabled(true);
+//            // Holo light action bar color is #DDDDDD
+//
+//        }
         mUser = (EditText) findViewById(R.id.user_name);
         mPassword = (EditText) findViewById(R.id.password);
         mLogin = (Button) findViewById(R.id.login);
         mDBLogin = (Button) findViewById(R.id.db_login);
         mWBLogin = (Button) findViewById(R.id.wb_login);
         mRegister = (TextView) findViewById(R.id.register_entrance);
-        mUser.addTextChangedListener(mTextWatcher);
-        mPassword.addTextChangedListener(mTextWatcher);
-        mLogin.setEnabled(false);
+        //mUser.addTextChangedListener(mTextWatcher);
+        //mPassword.addTextChangedListener(mTextWatcher);
+        //mLogin.setEnabled(false);
         mLogin.setOnClickListener(mLoginOnClickListener);
         mDBLogin.setOnClickListener(mLoginOnClickListener);
         mWBLogin.setOnClickListener(mLoginOnClickListener);
@@ -93,45 +130,48 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
-            }});
-
-        mRequestQueue = Volley.newRequestQueue(this);
-
+            }
+        });
 
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setMessage("正在登录...");
-//        mProgressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-//            @Override
-//            public void onDismiss(DialogInterface dialog) {
-//                mRequestQueue.cancelAll(null);
-//            }
-//        });
+        mProgressDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                mRequestQueue.cancelAll(REQUEST_TAG);
+            }
+        });
+
+        mRequestQueue = Volley.newRequestQueue(this);
 
         UserPref.init(this);
         mUser.setText(UserPref.getUserMail());
         mPassword.setText(UserPref.getUserPassword());
+
+        mAuthInfo = new AuthInfo(this, Constant.WB_APP_KEY, Constant.WB_REDIRECT_URL, Constant.WB_SCOPE);
+        mSsoHandler = new SsoHandler(this, mAuthInfo);
     }
 
-    private TextWatcher mTextWatcher = new TextWatcher()
-    {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if(TextUtils.isEmpty(mUser.getText())|| TextUtils.isEmpty(mPassword.getText()))
-                mLogin.setEnabled(false);
-            else
-                mLogin.setEnabled(true);
-        }
-    };
+//    private TextWatcher mTextWatcher = new TextWatcher()
+//    {
+//        @Override
+//        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//        }
+//
+//        @Override
+//        public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//        }
+//
+//        @Override
+//        public void afterTextChanged(Editable s) {
+//            if(TextUtils.isEmpty(mUser.getText())|| TextUtils.isEmpty(mPassword.getText()))
+//                mLogin.setEnabled(false);
+//            else
+//                mLogin.setEnabled(true);
+//        }
+//    };
 
     private View.OnClickListener mRegisterOnClickListener = new View.OnClickListener() {
         @Override
@@ -161,7 +201,7 @@ public class LoginActivity extends AppCompatActivity {
                     break;
                 case R.id.wb_login:
                     mIsNormalLogin = false;
-                    doWBLogin();
+                    doWBLogin2();
                     break;
             }
         }
@@ -178,16 +218,66 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    //使用豆瓣登录
+    //使用豆瓣登录,仅web授权
     private void doDBLogin()
     {
         startActivityForResult(new Intent(this, DBAuthActivity.class), Constant.DB_LOGIN);
     }
 
-    //使用微博登录
+    //使用微博登录， 仅web授权
     private void doWBLogin()
     {
         startActivityForResult(new Intent(this, WBAuthActivity.class), Constant.WB_LOGIN);
+    }
+
+    //使用微博登录，sso或web授权
+    private void doWBLogin2()
+    {
+        mSsoHandler.authorize(new AuthDialogListener());
+    }
+
+    private final static String TAG="weibo";
+    class AuthDialogListener implements WeiboAuthListener {
+
+        @Override
+        public void onCancel() {
+            Log.d(TAG, "===================AuathDialogListener=Auth cancel==========");
+//            Util.showToast(mContext, "取消授权操作。");
+        }
+
+        @Override
+        public void onComplete(Bundle values) {
+//            LOG.cstdr(TAG, "===================AuthDialogListener=onComplete==========");
+            for (String key : values.keySet()) {
+                Log.d(TAG, "values:key = " + key + " value = " + values.getString(key));
+            }
+            String uid = values.getString("uid");
+            String token = values.getString("access_token");
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("uid", uid);
+            map.put("access_token", token);
+            if(uid == null)
+            {
+                map.clear();
+                String code = values.getString(Constant.AUTH_CODE);
+                code = code.substring(code.indexOf('=') + 1);
+                map.put("code", code);
+            }
+            JSONObject body = new JSONObject(map);
+            map.clear();
+            map.put("site", "weibo");
+            map.put("body", body);
+            JSONObject jsonObject = new JSONObject(map);
+            executeLogin(MyApplication.getUrlHead() + Constant.URL_THIRD_PART_LOGIN, jsonObject);
+        }
+
+
+
+        @Override
+        public void onWeiboException(WeiboException e) {
+            Log.d(TAG, "===================AuthDialogListener=onWeiboException=WeiboException = " + e.getMessage());
+//            Util.showToast(mContext, "授权失败，请检查网络连接。出错信息：" + e.getMessage());
+        }
     }
 
 
@@ -197,23 +287,37 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK && data != null)
         {
-            HashMap<String, String> map = new HashMap<>();
-            switch (requestCode)
-            {
-                case Constant.WB_LOGIN:
-                    map.put("site", "weibo");
-                    Toast.makeText(this, "wb:"+data.getStringExtra(Constant.AUTH_CODE), Toast.LENGTH_SHORT).show();
-                    break;
-                case Constant.DB_LOGIN:
-                    map.put("site", "douban");
-                    Toast.makeText(this, "db:"+data.getStringExtra(Constant.AUTH_CODE), Toast.LENGTH_SHORT).show();
-                    break;
+            Log.d("login", "all:"+data.toString());
+            if(requestCode == Constant.DB_LOGIN) {
+                HashMap<String, Object> map = new HashMap<>();
+//            switch (requestCode)
+//            {
+//                case Constant.WB_LOGIN:
+//                    map.put("site", "weibo");
+//                    Toast.makeText(this, "wb:"+data.getStringExtra(Constant.AUTH_CODE), Toast.LENGTH_SHORT).show();
+//                    break;
+//                case Constant.DB_LOGIN:
+//                    map.put("site", "douban");
+////                    Toast.makeText(this, "db:"+data.getStringExtra(Constant.AUTH_CODE), Toast.LENGTH_SHORT).show();
+//                    break;
+
+//            }
+                String code = data.getStringExtra(Constant.AUTH_CODE);
+                code = code.substring(code.indexOf('=') + 1);
+                map.put("code", code);
+                JSONObject body = new JSONObject(map);
+                map.clear();
+                map.put("site", "douban");
+                map.put("body", body);
+                Log.d("login", code);
+                JSONObject jsonObject = new JSONObject(map);
+                executeLogin(MyApplication.getUrlHead() + Constant.URL_THIRD_PART_LOGIN, jsonObject);
             }
-            String code = data.getStringExtra(Constant.AUTH_CODE);
-            code = code.substring(code.indexOf('=')+1);
-            map.put("code", code);
-            JSONObject jsonObject = new JSONObject(map);
-            executeLogin(MyApplication.getUrlHead()+Constant.URL_THIRD_PART_LOGIN, jsonObject);
+            else
+            {
+                if(mSsoHandler != null)
+                    mSsoHandler.authorizeCallBack(requestCode, resultCode, data);
+            }
         }
     }
 
@@ -222,7 +326,8 @@ public class LoginActivity extends AppCompatActivity {
     private void executeLogin(String url, JSONObject jsonObject)
     {
         mProgressDialog.show();
-        mRequestQueue.add(new JsonObjectRequest(
+
+        JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
                 url,
                 jsonObject,
@@ -230,7 +335,8 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            String authorization = response.getString("auth");
+                            Log.d("net", "login:"+response);
+                            final String authorization = response.getString("auth");
                             //记录授权，设置用户在线
                             MyApplication.setAuthorization(authorization);
                             UserPref.setUserAuth(authorization);
@@ -241,11 +347,10 @@ public class LoginActivity extends AppCompatActivity {
                                             new Response.Listener<JSONObject>() {
                                                 @Override
                                                 public void onResponse(JSONObject response) {
-                                                    Log.d("net", "login:"+response.toString());
+                                                    Log.d("net", "login,read user info:"+response.toString());
                                                     try
                                                     {
                                                         //读取用户基本信息
-                                                        MyApplication.setUserOnLine(true);
                                                         String mail = response.getString("mail");
                                                         String username = response.getString("username");
                                                         String sexStr = response.getString("sex");
@@ -260,6 +365,22 @@ public class LoginActivity extends AppCompatActivity {
                                                             avatar = MyApplication.getUrlHead() + avatar;
                                                         MyApplication.setUserUrl(avatar);
                                                         MyApplication.setUserMail(mail);
+                                                        MyApplication.setUserOnLine(true);
+
+                                                        JSONObject personObject = new JSONObject();
+                                                        //预置字段部分示例
+                                                        personObject.put("avatar", avatar);
+                                                        personObject.put("name", username);
+                                                        if(sex)
+                                                            personObject.put("gender", "女");
+                                                        else
+                                                            personObject.put("gender", "男");
+                                                        personObject.put("email", mail);
+
+                                                        //进行标识，第二个参数为您在您的APP中标识用户的ID
+                                                        ZhugeSDK.getInstance().identify(getApplicationContext(), mail,
+                                                                personObject);
+
                                                         //通知fragment刷新
                                                         MyApplication.setShouldUpdate(Constant.INDEX_READ);
                                                         MyApplication.setShouldUpdate(Constant.INDEX_AFTER);
@@ -324,7 +445,9 @@ public class LoginActivity extends AppCompatActivity {
                 headers.put("Content-Type", "application/json; charset=UTF-8");
                 return headers;
             }
-        });
+        };
+        request.setTag(REQUEST_TAG);
+        mRequestQueue.add(request);
         mRequestQueue.start();
     }
 }

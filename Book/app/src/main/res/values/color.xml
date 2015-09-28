@@ -70,6 +70,7 @@
     <color name="person_text">#7a7a7a</color>
     <color name="person_num">#4dbc77</color>
     <color name="toolbar">#4dbc77</color>
+    <color name="status">#72d572</color>
 
     <color name="reading_chapter_text">#323232</color>
     <color name="reading_finish">#c8e6d3</color>
@@ -78,6 +79,7 @@
     <color name="reading_book_text">#919191</color>
     <color name="reading_divider">#cecece</color>
     <color name="reading_main">#80cd9d</color>
+    <color name="reading_shadow">#593c3c3c</color>
     
     <color name="bookshelf_title_check">#7bc898</color>
     <color name="bookshelf_title">#4d4d4d</color>
@@ -91,7 +93,14 @@
     <color name="bookshelf_dialog_text">#7a7a7a</color>
 
     <color name="detail_unselected">#ffffff</color>
-    <color name="detail_selected">#c8e6d3</color>
+    <color name="detail_selected0">#e91e63</color>
+    <color name="detail_selected1">#f44336</color>
+    <color name="detail_selected2">#7fd68b</color>
+    <color name="detail_selected3">#2196f3</color>
+    <color name="detail_selected4">#86a8f8</color>
+    <color name="detail_selected5">#cb8ef6</color>
+
+
 
     <color name="add_dialog_title">#4dbc77</color>
     <color name="add_dialog_text">#919191</color>
@@ -111,5 +120,16 @@
 
     <color name="white_dark">@color/dim_foreground_material_dark</color>
 
+    <color name="book_red">#e91e63</color>
+    <color name="book_orange">#f44336</color>
+    <color name="book_green">#7fd68b</color>
+    <color name="book_blue">#2196f3</color>
+    <color name="book_blue_light">#86a8f8</color>
+    <color name="book_purple">#cb8ef6</color>
+    
+    <color name="about_title">#222222</color>
+    <color name="about_describe">#5f5f5f</color>
+    <color name="about_table">#5f5f5f</color>
+    <color name="about_divider">#cecece</color>
 
 </resources>
