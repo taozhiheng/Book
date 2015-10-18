@@ -151,7 +151,7 @@ public class FeedbackFrag extends Fragment implements SyncListener, OnRefreshLis
 		super.onPause();
 		
 		// 关闭自动同步
-		stopAutpSync();
+		stopAutoSync();
 	}
 	
 	@Override
@@ -249,7 +249,7 @@ public class FeedbackFrag extends Fragment implements SyncListener, OnRefreshLis
 	 */
 	private void beginAutoSync() {
 		// 关闭上一同步状态
-		stopAutpSync();
+		stopAutoSync();
 		
 		// 10之后，每间隔10秒刷新一次
 		timer = new Timer();
@@ -268,7 +268,7 @@ public class FeedbackFrag extends Fragment implements SyncListener, OnRefreshLis
 	/**
 	 * 关闭自动同步。
 	 */
-	private void stopAutpSync() {
+	private void stopAutoSync() {
 		// 取消自动同步
 		if (timer != null) {
 			timer.cancel();

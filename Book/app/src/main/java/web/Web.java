@@ -258,7 +258,7 @@ public class Web {
     }
 
     //异步标记一章节在读，成功后修改标记
-    public static void setChapterNow(String auth, String url, Callback callback)
+    public static void setChapterNowOrRepeat(String auth, String url, Callback callback)
     {
         Log.d("web", "start set a chapter now:"+url);
 
@@ -292,6 +292,7 @@ public class Web {
                 .build();
         OkHttpUtil.enqueue(request, callback);
     }
+
 
     //同步查找所有未读或已读书籍,返回uuid集合
     public static List<String> queryWishOrRead(String auth, String url)

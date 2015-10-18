@@ -42,6 +42,7 @@ import java.util.Objects;
 
 import data.UserPref;
 import util.Constant;
+import util.GuideUtil;
 
 /**
  * Created by taozhiheng on 15-5-15.
@@ -49,13 +50,13 @@ import util.Constant;
  */
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText mUser;
-    private EditText mPassword;
-    private Button mLogin;
-    private TextView mRegister;
+//    private EditText mUser;
+//    private EditText mPassword;
+//    private Button mLogin;
+//    private TextView mRegister;
     private Toolbar mToolbar;
-    private Button mDBLogin;
-    private Button mWBLogin;
+    private View mDBLogin;
+    private View mWBLogin;
     private ProgressDialog mProgressDialog;
 
     private  SystemBarTintManager mTintManager;
@@ -98,10 +99,14 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login_modify);
+
+
 //        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 //            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 //            mTintManager = new SystemBarTintManager(this);
@@ -109,19 +114,19 @@ public class LoginActivity extends AppCompatActivity {
 //            // Holo light action bar color is #DDDDDD
 //
 //        }
-        mUser = (EditText) findViewById(R.id.user_name);
-        mPassword = (EditText) findViewById(R.id.password);
-        mLogin = (Button) findViewById(R.id.login);
-        mDBLogin = (Button) findViewById(R.id.db_login);
-        mWBLogin = (Button) findViewById(R.id.wb_login);
-        mRegister = (TextView) findViewById(R.id.register_entrance);
+//        mUser = (EditText) findViewById(R.id.user_name);
+//        mPassword = (EditText) findViewById(R.id.password);
+//        mLogin = (Button) findViewById(R.id.login);
+        mDBLogin =  findViewById(R.id.db_login);
+        mWBLogin =  findViewById(R.id.wb_login);
+//        mRegister = (TextView) findViewById(R.id.register_entrance);
         //mUser.addTextChangedListener(mTextWatcher);
         //mPassword.addTextChangedListener(mTextWatcher);
         //mLogin.setEnabled(false);
-        mLogin.setOnClickListener(mLoginOnClickListener);
+//        mLogin.setOnClickListener(mLoginOnClickListener);
         mDBLogin.setOnClickListener(mLoginOnClickListener);
         mWBLogin.setOnClickListener(mLoginOnClickListener);
-        mRegister.setOnClickListener(mRegisterOnClickListener);
+//        mRegister.setOnClickListener(mRegisterOnClickListener);
         mToolbar = (Toolbar) findViewById(R.id.login_toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle("登录");
@@ -145,8 +150,8 @@ public class LoginActivity extends AppCompatActivity {
         mRequestQueue = Volley.newRequestQueue(this);
 
         UserPref.init(this);
-        mUser.setText(UserPref.getUserMail());
-        mPassword.setText(UserPref.getUserPassword());
+//        mUser.setText(UserPref.getUserMail());
+//        mPassword.setText(UserPref.getUserPassword());
 
         mAuthInfo = new AuthInfo(this, Constant.WB_APP_KEY, Constant.WB_REDIRECT_URL, Constant.WB_SCOPE);
         mSsoHandler = new SsoHandler(this, mAuthInfo);
@@ -186,14 +191,14 @@ public class LoginActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.login:
-                    mIsNormalLogin = true;
-                    String user = mUser.getText().toString().trim();
-                    String password = mPassword.getText().toString().trim();
-                    if (user.length() > 1 && user.length() < 17 && password.length() > 7 && password.length() < 17) {
-                        Log.d("net", "start login");
-                        doLogin(user, password);
-                    } else
-                        Toast.makeText(getBaseContext(), Constant.USER_OR_PASSWORD_ILLEGAL, Toast.LENGTH_SHORT).show();
+//                    mIsNormalLogin = true;
+//                    String user = mUser.getText().toString().trim();
+//                    String password = mPassword.getText().toString().trim();
+//                    if (user.length() > 1 && user.length() < 17 && password.length() > 7 && password.length() < 17) {
+//                        Log.d("net", "start login");
+//                        doLogin(user, password);
+//                    } else
+//                        Toast.makeText(getBaseContext(), Constant.USER_OR_PASSWORD_ILLEGAL, Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.db_login:
                     mIsNormalLogin = false;
@@ -390,12 +395,13 @@ public class LoginActivity extends AppCompatActivity {
                                                         Intent intent = new Intent();
                                                         intent.putExtra(Constant.KEY_OLD_MAIL, UserPref.getUserMail());
                                                         intent.putExtra(Constant.KEY_MAIL, mail);
+                                                        UserPref.setUserMail(mail);
 
-                                                        if(mIsNormalLogin)
-                                                        {
-                                                            UserPref.setUserMail(mail);
-                                                            UserPref.setUserPassword(mPassword.getText().toString().trim());
-                                                        }
+//                                                        if(mIsNormalLogin)
+//                                                        {
+//                                                            UserPref.setUserMail(mail);
+//                                                            UserPref.setUserPassword(mPassword.getText().toString().trim());
+//                                                        }
 
                                                         mProgressDialog.dismiss();
 

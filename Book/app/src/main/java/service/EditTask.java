@@ -61,6 +61,7 @@ public class EditTask extends AsyncTask<Void, Integer, Void> {
         dbOperate.setBookStatus(book.getId(), status);
         //更新或增加
         int index = dbOperate.getBookMaxChapterIndex(book.getId());
+        boolean hasNew = false;
         for (ChapterInfo chapterInfo : groupList) {
             int position = chapterInfo.getPosition();
             Chapter chapter;
@@ -75,10 +76,13 @@ public class EditTask extends AsyncTask<Void, Integer, Void> {
                 if(chapter.getStatus() == Constant.STATUS_ADD)
                     chapterStatus = Constant.STATUS_ADD;
                 dbOperate.setChapterStatus(chapter.getId(), chapterStatus);
-            } else if(chapterInfo.getName().trim().compareTo("") != 0)//增加
+            }
+            else if(chapterInfo.getName().trim().compareTo("") != 0)//增加
             {
                 index++;
                 dbOperate.insertChapter(book.getId(), index, book.getUUID(), chapterInfo.getName());
+                if(!hasNew)
+                    hasNew = true;
             }
         }
         //删除
@@ -88,6 +92,10 @@ public class EditTask extends AsyncTask<Void, Integer, Void> {
                 dbOperate.setChapterDelete(chapterList.get(position).getId());
             if(book.getType() == Constant.TYPE_NOW)
                 dbOperate.checkBookFinish(book.getId());
+        }
+        if(hasNew && book.getType() == Constant.TYPE_BEFORE)
+        {
+            dbOperate.setBookBefore(book.getId(), book.getEndTime());
         }
         return null;
     }

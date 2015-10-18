@@ -107,4 +107,9 @@
         <item name="android:windowIsTranslucent">true</item>
     </style>
 
+    <style name="view_anim">
+        <item name="android:inAnimation">@anim/fade_in</item>
+        <item name="android:outAnimation">@anim/fade_out</item>
+    </style>
+
 </resources>

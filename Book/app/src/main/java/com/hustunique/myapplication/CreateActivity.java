@@ -566,6 +566,14 @@ public class CreateActivity extends AppCompatActivity {
         public void onFocusChange(View v, boolean hasFocus) {
             if(!mChanged)
                 mChanged = true;
+            if(v.getId() == R.id.create_name && !hasFocus)
+            {
+                String titleName = mName.getText().toString().trim();
+                if(titleName.length()>2)
+                    titleName = titleName.substring(0, 2);
+                mIconText.setText(titleName);
+            }
+
         }
     };
 

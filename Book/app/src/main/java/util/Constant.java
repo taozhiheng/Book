@@ -78,6 +78,9 @@ public class Constant {
 
     public final static String PREF_FIRST_USE = "firstUse";
 
+    public final static String PREF_FIRST_GUIDE0 = "firstGuide1";
+    public final static String PREF_FIRST_GUIDE1 = "firstGuide2";
+
     public final static String USER_OR_PASSWORD_ILLEGAL = "用户名或密码太长或太短";
     public final static String REGISTER_SUCCEED = "注册成功";
     public final static String REGISTER_FAIL = "注册失败";
@@ -126,6 +129,9 @@ public class Constant {
     public final static int DB_LOGIN = 11;
 
 
+    public final static int chapterNormal = Color.rgb(0x4e, 0x4e, 0x4e);
+    public final static int chapterFinish = Color.rgb(0xc8, 0xc8, 0xc8);
+
     public static int colors[]={
             Color.rgb(0xe9, 0x1e, 0x63),Color.rgb(0xf4,0x43,0x36),
             Color.rgb(0x7f,0xd6,0x8b),Color.rgb(0x21,0x96,0xf3),
@@ -152,6 +158,7 @@ public class Constant {
     public final static int TYPE_AFTER= 0;
     public final static int TYPE_NOW = 1;
     public final static int TYPE_BEFORE = 2;
+    public final static int TYPE_REPEAT = 3;
 
     //data status
     public final static int STATUS_OK = 0;

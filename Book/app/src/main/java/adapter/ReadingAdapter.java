@@ -4,10 +4,12 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hustunique.myapplication.R;
@@ -40,9 +42,26 @@ public class ReadingAdapter extends RecyclerView.Adapter<ReadingAdapter.MyViewHo
         this.mList = list;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if(position == mList.size())
+            return 1;
+        return super.getItemViewType(position);
+    }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if(viewType == 1)
+        {
+            TextView textView = new TextView(parent.getContext());
+            textView.setText("已经没有要读的章节了");
+            textView.setTextSize(13);
+            textView.setPadding(0, 20, 0, 20);
+            textView.setGravity(Gravity.CENTER);
+            textView.setTextColor(parent.getContext().getResources().getColor(R.color.search_hint));
+            textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            return new MyViewHolder(textView);
+        }
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.reading_item, parent, false);
         return new MyViewHolder(view,
                 R.id.reading_item_finish, R.id.reading_item_icon, R.id.reading_item_icon_text,
@@ -52,6 +71,11 @@ public class ReadingAdapter extends RecyclerView.Adapter<ReadingAdapter.MyViewHo
 
     @Override
     public void onBindViewHolder(ReadingAdapter.MyViewHolder holder, int position) {
+        if(position == mList.size()) {
+
+            Log.d("reading", "pos:"+position);
+            return;
+        }
         SwipeLayout sample1 = (SwipeLayout) holder.itemView;
         sample1.addDrag(SwipeLayout.DragEdge.Left, sample1.findViewById(R.id.bottom_wrapper));
         sample1.addDrag(SwipeLayout.DragEdge.Right, sample1.findViewById(R.id.bottom_wrapper_2));
@@ -103,6 +127,8 @@ public class ReadingAdapter extends RecyclerView.Adapter<ReadingAdapter.MyViewHo
 
     @Override
     public int getItemCount() {
+        if(mList.size() == 0)
+            return 1;
         return mList.size();
     }
 
@@ -142,6 +168,10 @@ public class ReadingAdapter extends RecyclerView.Adapter<ReadingAdapter.MyViewHo
         private ImageView mDelete;
         private ImageView mTop;
 
+        public MyViewHolder(View view)
+        {
+            super(view);
+        }
 
         public MyViewHolder(View view, int finishRes, int iconRes, int iconTextRes, int contentRes, int bookRes, int delRes, int topRes)
         {

@@ -4,11 +4,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.SyncStateContract;
 import android.util.Log;
 
 import com.hustunique.myapplication.MyApplication;
-import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -195,12 +193,16 @@ public class Update {
                             new TypeChapterCall(bundle.getLong("id"), (Counter)msg.obj));
                     break;
                 case 11:
-                    Web.setChapterNow(auth, bundle.getString("url"),
-                            new TypeChapterCall(bundle.getLong("id"), (Counter)msg.obj));
+                    Web.setChapterNowOrRepeat(auth, bundle.getString("url"),
+                            new TypeChapterCall(bundle.getLong("id"), (Counter) msg.obj));
                     break;
                 case 12:
                     Web.setChapterBefore(auth, bundle.getString("url"),
                             new TypeChapterCall(bundle.getLong("id"), (Counter)msg.obj));
+                    break;
+                case 13:
+                    Web.setChapterNowOrRepeat(auth, bundle.getString("url"),
+                            new TypeChapterCall(bundle.getLong("id"), (Counter) msg.obj));
                     break;
 
             }
@@ -802,6 +804,10 @@ public class Update {
                     case 2:
                         message.what = 12;
                         bundle.putString("url", urlHead+"/"+chapter.getWebBookId()+"/chapters/reads/"+chapter.getWebId());
+                        break;
+                    case 3:
+                        message.what = 13;
+                        bundle.putString("url", urlHead+"/"+chapter.getWebBookId()+"/chapters/readings/"+chapter.getWebId());
                         break;
                 }
                 bundle.putLong("id", chapter.getId());

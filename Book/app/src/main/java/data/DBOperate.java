@@ -183,7 +183,7 @@ public class DBOperate {
     public int getBookReadingNum(long id)
     {
         open();
-        return mDatabase.query(Constant.TABLE_CHAPTER, null, "local_book_id="+id+" and type=1 and status<3",
+        return mDatabase.query(Constant.TABLE_CHAPTER, null, "local_book_id="+id+" and type=1 or type=3 and status<3",
                 null, null, null, null).getCount();
     }
 
@@ -425,7 +425,7 @@ public class DBOperate {
         List<Chapter> chapterList = new ArrayList<>();
         Cursor cursor = mDatabase.query(Constant.TABLE_CHAPTER,
                 new String[]{"id", "book_id", "name", "type","status", "_id", "local_book_id", "type_status"},
-                "type=1"+" and status<3" , null, null, null, null);
+                "type=1 or type=3"+" and status<3" , null, null, null, null);
         while (cursor.moveToNext())
         {
             long bookId = cursor.getLong(6);
@@ -477,6 +477,7 @@ public class DBOperate {
     /**
      * id获取某本书的所有章节status<3
      * id,book_id,name,type,status
+     * 新增排序
      * */
     public List<Chapter> getChapters(long id)
     {
@@ -486,6 +487,7 @@ public class DBOperate {
         Cursor cursor = mDatabase.query(Constant.TABLE_CHAPTER,
                 new String[]{"id", "book_id", "name", "type","status", "_id", "local_book_id", "type_status"},
                 "local_book_id="+id+" and status<3" , null, null, null, null);
+        List<Chapter> finishList = new ArrayList<>();
         while (cursor.moveToNext())
         {
             int webId = cursor.getInt(0);
@@ -494,16 +496,21 @@ public class DBOperate {
             int type = cursor.getInt(3);
             int status = cursor.getInt(4);
 
-            Log.d("web", "book chapter:"+name+" type:"+type+" status:"+status+" "+webBookId+"/"+id);
-
-            chapterList.add(new Chapter(cursor.getLong(5), cursor.getLong(6), webId, webBookId, name, type, null,status, cursor.getInt(7)));
+            Log.d("web", "book chapter:" + name + " type:" + type + " status:" + status + " " + webBookId + "/" + id);
+            Chapter chapter = new Chapter(cursor.getLong(5), cursor.getLong(6), webId, webBookId, name, type, null,status, cursor.getInt(7));
+            if(type == Constant.TYPE_BEFORE)
+                finishList.add(chapter);
+            else
+                chapterList.add(chapter);
         }
+        Log.d("web", "book chapter name:" + chapterList.size() + ", " + finishList.size());
+        chapterList.addAll(finishList);
         cursor.close();
         return chapterList;
     }
 
     /**
-     * chapterId修改ok,modify书的章节的类型,0-未读，１－在读，２－已读，同时标记其为增加或修改状态
+     * chapterId修改ok,modify书的章节的类型,0-未读，１－在读，２－已读，3－重复，同时标记其为增加或修改状态
      * 检查书是否已完成
      * */
     public void setChapterType(long chapterId, int type)

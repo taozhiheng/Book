@@ -36,10 +36,13 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.MyViewHo
             R.drawable.chapter_background2, R.drawable.chapter_background3,
             R.drawable.chapter_background4, R.drawable.chapter_background5};
 
+
     private final static int[] iconRes = new int[]{
             R.drawable.chapter_icon_background0, R.drawable.chapter_icon_background1,
             R.drawable.chapter_icon_background2, R.drawable.chapter_icon_background3,
             R.drawable.chapter_icon_background4, R.drawable.chapter_icon_background5};
+
+    private final static int iconResDark = R.drawable.chapter_icon_background;
 
     private final static int[] itemRes = new int[]{
             R.drawable.recycler_item_background0, R.drawable.recycler_item_background1,
@@ -74,19 +77,40 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.MyViewHo
         holder.mIcon.setBackgroundResource(bkgRes[mColorIndex]);
         if(mVisible) {
             holder.mFlag.setVisibility(View.VISIBLE);
-            holder.mFlag.setBackgroundResource(iconRes[mColorIndex]);
-            holder.mFlag.setTag(new Info(holder.itemView, holder.mIcon, position));
+            int type = chapter.getType();
+            if(type == Constant.TYPE_AFTER || type == Constant.TYPE_NOW)
+            {
+                holder.mFlag.setBackgroundResource(iconRes[mColorIndex]);
+            }
+            else
+            {
+                holder.mFlag.setBackgroundResource(iconResDark);
+            }
+            if(type == Constant.TYPE_BEFORE)
+                holder.mContent.setTextColor(Constant.chapterFinish);
+            else
+                holder.mContent.setTextColor(Constant.chapterNormal);
+
+
+            holder.mFlag.setTag(new Info(holder.itemView, holder.mIcon, holder.mContent, position));
             holder.mFlag.setOnClickListener(mOnClickListener);
-            if(chapter.getType() == Constant.TYPE_NOW) {
+//            holder.itemView.setTag(new Info(holder.itemView, holder.mIcon, holder.mFlag, position));
+//            holder.itemView.setOnClickListener(mOnClickListener);
+
+            //false <-after - now-> true
+            //false <-before - repeat-> true
+            if(type == Constant.TYPE_NOW || type == Constant.TYPE_REPEAT) {
                 holder.mIcon.setSelected(true);
                 holder.mFlag.setSelected(true);
                 holder.itemView.setSelected(true);
             }
-            else {
+            else
+            {
                 holder.mIcon.setSelected(false);
                 holder.mFlag.setSelected(false);
                 holder.itemView.setSelected(false);
             }
+
         }
         else
         {
@@ -111,19 +135,37 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.MyViewHo
                     return;
                 int position = info.position;
                 int type = mList.get(position).getType();
-                if(type == Constant.TYPE_NOW)
+                //now to after
+                //repeat to before
+                if(type == Constant.TYPE_NOW || type == Constant.TYPE_REPEAT)
                 {
-                    type = Constant.TYPE_AFTER;
+                    if(type == Constant.TYPE_NOW)
+                    {
+                        type = Constant.TYPE_AFTER;
+                    }
+                    else
+                    {
+                        type = Constant.TYPE_BEFORE;
+                        if(info.contentView instanceof TextView)
+                            ((TextView)info.contentView).setTextColor(Constant.chapterFinish);
+                    }
                     v.setSelected(false);
                     info.itemView.setSelected(false);
                     info.iconView.setSelected(false);
                 }
+                //before to now
+                //after to repeat
                 else
                 {
-                    type = Constant.TYPE_NOW;
+                    if(type == Constant.TYPE_BEFORE && info.contentView instanceof TextView)
+                        ((TextView)info.contentView).setTextColor(Constant.chapterNormal);
+                    if(type == Constant.TYPE_AFTER)
+                        type = Constant.TYPE_NOW;
+                    else
+                        type = Constant.TYPE_REPEAT;
                     v.setSelected(true);
                     info.itemView.setSelected(true);
-                    info.iconView.setSelected(true);
+                    info.iconView.setSelected(true );
                 }
                 mOnItemClickListener.onItemClick(position, type);
             }
@@ -135,12 +177,14 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.MyViewHo
     {
         private View itemView;
         private View iconView;
+        private View contentView;
         private int position;
 
-        public Info(View itemView, View iconView, int position)
+        public Info(View itemView, View iconView, View contentView, int position)
         {
             this.itemView = itemView;
             this.iconView = iconView;
+            this.contentView = contentView;
             this.position = position;
         }
     }

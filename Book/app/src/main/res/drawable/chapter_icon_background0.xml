@@ -2,6 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_selected="false"
         android:drawable="@mipmap/ic_10_red"/>
-    <item android:state_selected="true"
+    <item
+        android:state_selected="true"
         android:drawable="@mipmap/ic_finish"/>
 </selector>

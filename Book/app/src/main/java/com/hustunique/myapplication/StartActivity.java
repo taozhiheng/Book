@@ -40,6 +40,7 @@ public class StartActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         Log.d(TAG, "start activity on create");
         UserPref.init(this);
         if(UserPref.getFirstUse())
@@ -47,10 +48,10 @@ public class StartActivity extends AppCompatActivity {
             Intent intent=new Intent(this,GuideActivity.class);
             startActivity(intent);
             finish();
+            return;
         }
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
 //        ImageView view = (ImageView) View.inflate(this, , null);
 

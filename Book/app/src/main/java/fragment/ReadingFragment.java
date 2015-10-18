@@ -48,6 +48,7 @@ import service.QueryChaptersTask;
 import ui.DividerItemDecoration;
 import ui.StickyLayout;
 import util.Constant;
+import util.GuideUtil;
 import util.TimeUtil;
 
 /**
@@ -76,6 +77,8 @@ public class ReadingFragment extends Fragment {
     private AddListener mListener;
 
     private static ReadingFragment mFragmentInstance;
+
+    private final static int[] guideResIds = {R.drawable.left_guide, R.drawable.right_guide, R.drawable.add_chapter_guide};
 
     Bundle savedState;
 
@@ -128,7 +131,6 @@ public class ReadingFragment extends Fragment {
                 return false;
             }
         });
-
         return root;
     }
 
@@ -142,6 +144,17 @@ public class ReadingFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        if(UserPref.getFirstGuide(0)) {
+            GuideUtil guideUtil = GuideUtil.getInstance();
+            guideUtil.setClearGuideListener(new GuideUtil.ClearGuideListener() {
+                @Override
+                public void clearGuide() {
+                    UserPref.clearFirstGuide(0);
+                }
+            });
+            guideUtil.setFirst(true);
+            guideUtil.initGuide(getActivity(), guideResIds);
+        }
         MobclickAgent.onPageStart("Today Reading Fragment");
         checkTime();
         if (MyApplication.getUpdateFlag(Constant.INDEX_READ) || !restoreStateFromArguments()) {
@@ -427,8 +440,10 @@ public class ReadingFragment extends Fragment {
 
                     mChapterList.remove(mPosition);
                     mAdapter.notifyItemRemoved(mPosition);
-                    mAdapter.notifyItemRangeChanged(mPosition, mAdapter.getItemCount()-mPosition);
+                    mAdapter.notifyItemRangeChanged(mPosition, mAdapter.getItemCount() - mPosition);
                     Toast.makeText(getActivity(), "已读完", Toast.LENGTH_SHORT).show();
+                    NowFragment.executeLoad();
+                    BeforeFragment.executeLoad();
                     MyApplication.setShouldUpdate(Constant.INDEX_NOW);
                     MyApplication.setShouldUpdate(Constant.INDEX_BEFORE);
                     break;
@@ -444,7 +459,10 @@ public class ReadingFragment extends Fragment {
                 case 2://delete
                     //标记章节为未读
                     Log.d(TAG, "delete, local");
-                    MyApplication.getDBOperateInstance().setChapterType(chapter.getId(), Constant.TYPE_AFTER);
+                    int type = Constant.TYPE_AFTER;
+                    if(chapter.getType() == Constant.TYPE_REPEAT)
+                        type = Constant.TYPE_BEFORE;
+                    MyApplication.getDBOperateInstance().setChapterType(chapter.getId(), type);
 
                     mChapterList.remove(mPosition);
                     mAdapter.notifyItemRemoved(mPosition);

@@ -61,6 +61,8 @@
     <color name="login_btn">#5bda8b</color>
     <color name="login_main">#ffffff</color>
     <color name="login_border_text">#cfcfcf</color>
+    <color name="login_item">#aaaaaa</color>
+    <color name="login_title">#737373</color>
 
     <color name="register_border_text">#cecece</color>
     <color name="register_btn">#5bda8b</color>
@@ -131,5 +133,8 @@
     <color name="about_describe">#5f5f5f</color>
     <color name="about_table">#5f5f5f</color>
     <color name="about_divider">#cecece</color>
+
+    <color name="chapter_normal">#4e4e4e</color>
+    <color name="chapter_finish">#c8c8c8</color>
 
 </resources>

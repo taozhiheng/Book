@@ -104,6 +104,7 @@ public class DetailActivity extends AppCompatActivity {
         super.onDestroy();
         ZhugeSDK.getInstance().flush(getApplicationContext());
         mHandler.removeCallbacks(null);
+        setResult(RESULT_OK);
 
     }
 
@@ -242,9 +243,18 @@ public class DetailActivity extends AppCompatActivity {
                 DBOperate dbOperate = MyApplication.getDBOperateInstance();
                 //原来状态是完成，标记为在读或未读，book finishNum减少１
                 //原来状态是未读或在读，book不变
+
+                //以前是已读，现在变成重复，数目减少一
                 if (chapter.getType() == Constant.TYPE_BEFORE)
                 {
                     mBook.setFinishNum(mBook.getFinishNum() - 1);
+                    mChapterNum.setText(mBook.getFinishNum() + "/" + mBook.getChapterNum() + "章  　 "
+                            + mBook.getWordNum() + " K字");
+                }
+                //以前是重复，现在变成已读，数目增加一
+                else if(chapter.getType() == Constant.TYPE_REPEAT)
+                {
+                    mBook.setFinishNum(mBook.getFinishNum() + 1);
                     mChapterNum.setText(mBook.getFinishNum() + "/" + mBook.getChapterNum() + "章  　 "
                             + mBook.getWordNum() + " K字");
                 }
@@ -252,7 +262,8 @@ public class DetailActivity extends AppCompatActivity {
 
                 dbOperate.setChapterType(chapter.getId(), type);
 
-                if (type == Constant.TYPE_NOW) {
+                //现在变成在读或重复,提示已添加
+                if (type == Constant.TYPE_NOW || type == Constant.TYPE_REPEAT) {
                     Toast.makeText(getBaseContext(), "已添加", Toast.LENGTH_SHORT).show();
                 }
                 MyApplication.setShouldUpdate(Constant.INDEX_READ);
@@ -290,6 +301,7 @@ public class DetailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 
 
     @Override

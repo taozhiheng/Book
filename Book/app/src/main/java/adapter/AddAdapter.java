@@ -3,12 +3,14 @@ package adapter;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.hustunique.myapplication.R;
@@ -36,21 +38,43 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.MyViewHolder> {
 
     private final static int STD_SIZE = 20;
 
+    private int total;
+
+    private int height = 120;
+
     public AddAdapter(Context context, List<Book> list)
     {
         this.mContext = context;
         this.mList = list;
+        this.total = STD_SIZE;
     }
 
+
+    public void setTotal(int total)
+    {
+        this.total = total;
+    }
+
+    public int getTotal()
+    {
+        return total;
+    }
+
+    public int getHideHeight()
+    {
+        return height;
+    }
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if(viewType == 1)
         {
-            Button button = new Button(parent.getContext());
-            button.setText("加载更多");
-            button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            return new MyViewHolder(button);
+            View textView =  LayoutInflater.from(parent.getContext()).inflate(R.layout.loading, parent, false);
+//            ProgressBar button = new ProgressBar(parent.getContext());
+//            button.setText("加载更多");
+
+//            button.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            return new MyViewHolder(textView);
         }
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.add_item, parent, false);
         return new MyViewHolder(view, R.id.add_item_icon,
@@ -63,7 +87,8 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.MyViewHolder> {
         if(position == mList.size())
         {
             holder.itemView.setTag(position);
-            holder.itemView.setOnClickListener(mOnClickListener);
+//            holder.itemView.setOnClickListener(mOnClickListener);
+            height = holder.itemView.getHeight();
             return;
         }
         Book book = mList.get(position);
@@ -90,7 +115,7 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.MyViewHolder> {
 
     @Override
     public int getItemCount() {
-        if(mList.size() >= STD_SIZE)
+        if(mList.size() < total && mList.size() >= STD_SIZE)
             return mList.size()+1;
         return mList.size();
     }
@@ -110,8 +135,8 @@ public class AddAdapter extends RecyclerView.Adapter<AddAdapter.MyViewHolder> {
                 int position = (Integer)v.getTag();
                 if(v instanceof ImageView)
                     mOnItemClickListener.onItemFlagClick((ImageView) v, position);
-                else if(v instanceof Button)
-                    mOnItemClickListener.onClick(mList.size());
+//                else if(v instanceof TextView)
+//                    mOnItemClickListener.onClick(mList.size());
                 else
                     mOnItemClickListener.onItemClick(position);
             }

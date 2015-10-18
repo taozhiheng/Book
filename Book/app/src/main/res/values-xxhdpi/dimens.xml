@@ -8,6 +8,10 @@
     <dimen name="login_margin3">156dp</dimen>
     <dimen name="login_margin4">23dp</dimen>
     <dimen name="login_margin5">17dp</dimen>
+    <dimen name="login_margin6">160dp</dimen>
+    <dimen name="login_margin7">80dp</dimen>
+    <dimen name="login_margin8">150dp</dimen>
+    <dimen name="login_padding">20dp</dimen>
     <dimen name="login_width1">292dp</dimen>
     <dimen name="login_width2">230dp</dimen>
     <dimen name="login_width3">129dp</dimen>
@@ -130,9 +134,9 @@
     <dimen name="bookshelf_height1">4dp</dimen>
     <dimen name="bookshelf_height2">2dp</dimen>
 
-    <dimen name="reading_margin1">18dp</dimen>
+    <dimen name="reading_margin1">10dp</dimen>
     <dimen name="reading_margin2">31dp</dimen>
-    <dimen name="reading_margin3">5dp</dimen>
+    <dimen name="reading_margin3">10dp</dimen>
 
     <dimen name="reading_height1">160dp</dimen>
 
@@ -182,6 +186,8 @@
     <!--字体大小-->
     <dimen name="login_text_size1">22sp</dimen>
     <dimen name="login_text_size2">17sp</dimen>
+    <dimen name="login_text_size3">18sp</dimen>
+    <dimen name="login_text_size4">22sp</dimen>
 
 
     <dimen name="edit_text_size1">27sp</dimen>

@@ -241,6 +241,15 @@ public class NowFragment extends Fragment implements NumFragment {
             // First Time, Initialize something here
             load();
         }
+        else if(mAdapter != null &&mBookList != null && mPosition >= 0 && mPosition < mBookList.size())
+        {
+            Book book = mBookList.get(mPosition);
+            if(book != null ) {
+                book.setFinishNum(
+                        MyApplication.getDBOperateInstance().getBookFinishNum(book.getId()));
+                mAdapter.notifyItemChanged(mPosition);
+            }
+        }
     }
 
     @Override
@@ -417,6 +426,18 @@ public class NowFragment extends Fragment implements NumFragment {
         }
     };
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == Constant.ADD_CHAPTER
+                && resultCode == Activity.RESULT_OK
+                && data != null)
+        {
+            Book book = mBookList.get(mPosition);
+            book.setFinishNum(
+                    MyApplication.getDBOperateInstance().getBookFinishNum(book.getId()));
+            mAdapter.notifyItemChanged(mPosition);
+        }
+    }
 
     public static void executeLoad()
     {

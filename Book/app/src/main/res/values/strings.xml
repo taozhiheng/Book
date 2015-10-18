@@ -69,4 +69,8 @@
                               口袋树屋是几个在校大学生的课余制作,
                               能力有限请见谅.
                               如有任何意见,欢迎反馈给我们,我们将会耐心倾听!</string>
+
+    <string name="login_wb">新浪微博</string>
+    <string name="login_db">　豆瓣　</string>
+    <string name="login_accounts">使用社交帐号登录</string>
 </resources>

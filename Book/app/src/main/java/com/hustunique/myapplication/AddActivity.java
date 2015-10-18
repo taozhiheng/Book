@@ -52,6 +52,7 @@ import data.DBOperate;
 import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
 import service.AddTask;
 import ui.DividerItemDecoration;
+import ui.OnRcvScrollListener;
 import util.Constant;
 import util.TimeUtil;
 import web.OkHttpUtil;
@@ -98,6 +99,8 @@ public class AddActivity extends AppCompatActivity{
     private final static int COLOR_SIZE = 6;
 
     private int addCount;
+
+    private boolean isLoadingData;
 
     @Override
     protected void onResume() {
@@ -146,7 +149,7 @@ public class AddActivity extends AppCompatActivity{
             MobclickAgent.onEventValue(AddActivity.this, "search", map, addCount);
             JSONObject event = new JSONObject(map);
             ZhugeSDK.getInstance().track(getApplicationContext(), "search", event);
-            Log.d("send", "search:"+mLastQuery+"-"+addCount);
+            Log.d("send", "search:" + mLastQuery + "-" + addCount);
         }
     }
 
@@ -191,6 +194,7 @@ public class AddActivity extends AppCompatActivity{
                     mBookList.clear();
                     mHashMap.clear();
                     mAdapter.notifyDataSetChanged();
+                    mAdapter.setTotal(20);
                     query(query, 0);
                     mLastQuery = query.trim();
                 }
@@ -202,6 +206,7 @@ public class AddActivity extends AppCompatActivity{
                 return false;
             }
         });
+        mSearch.setSubmitButtonEnabled(true);
         createDialogs();
         initDataSet();
     }
@@ -295,6 +300,10 @@ public class AddActivity extends AppCompatActivity{
             @Override
             public void onDismiss(DialogInterface dialog) {
                 mRequestQueue.cancelAll(REQUEST_TAG);
+                if (isLoadingData) {
+                    isLoadingData = false;
+                    mRecycler.scrollBy(0, -mAdapter.getHideHeight());
+                }
             }
         });
     }
@@ -320,6 +329,24 @@ public class AddActivity extends AppCompatActivity{
         mBookList = new ArrayList<>();
         mAdapter = new AddAdapter(this, mBookList);
         mRecycler.setAdapter(mAdapter);
+        mRecycler.addOnScrollListener(new OnRcvScrollListener(){
+            @Override
+            public void onBottom() {
+                super.onBottom();
+                // 到底部自动加载
+                int size = mAdapter.getItemCount()-1;
+                if (!isLoadingData && mAdapter.getItemViewType(size) == 1){
+                    if(size < total) {
+                        query(mLastQuery, size);
+                        isLoadingData = true;
+                    }
+                    else
+                    {
+                        Toast.makeText(getBaseContext(), "抱歉,已到天涯海角^-^", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
         mAdapter.setOnItemClickListener(new AddAdapter.AddOnItemClickListener() {
             @Override
             public void onItemFlagClick(ImageView imageView, int position) {
@@ -351,10 +378,10 @@ public class AddActivity extends AppCompatActivity{
 
             @Override
             public void onClick(int size) {
-                if(size < total)
-                    query(mLastQuery, size);
-                else
-                    Toast.makeText(getBaseContext(), "抱歉,已到天涯海角^-^", Toast.LENGTH_SHORT).show();
+//                if(size < total)
+//                    query(mLastQuery, size);
+//                else
+//                    Toast.makeText(getBaseContext(), "抱歉,已到天涯海角^-^", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -491,14 +518,17 @@ public class AddActivity extends AppCompatActivity{
     private void query(final String key, final int start)
     {
         mSearch.clearFocus();
-        mProgressDialog.setMessage("玩命搜索中...");
-        mProgressDialog.show();
+        if(start == 0) {
+            mProgressDialog.setMessage("玩命搜索中...");
+            mProgressDialog.show();
+        }
         String keywords = key;
         try
         {
             keywords = URLEncoder.encode(key, "UTF-8"); //先对中文进行UTF-8编码
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            isLoadingData = false;
         }
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET,
@@ -516,6 +546,7 @@ public class AddActivity extends AppCompatActivity{
 //                                mHashMap.clear();
 //                                mAdapter.notifyDataSetChanged();
                                 total = response.getInt("total");
+                                mAdapter.setTotal(total);
                             }
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 jsonObject = jsonArray.getJSONObject(i);
@@ -550,12 +581,16 @@ public class AddActivity extends AppCompatActivity{
                         } catch (JSONException e) {
                             mProgressDialog.dismiss();
                         }
+                        finally {
+                            isLoadingData = false;
+                        }
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        mProgressDialog.dismiss();
+                        if(start == 0)
+                            mProgressDialog.dismiss();
                         Toast.makeText(AddActivity.this, "抱歉,没找到^-^", Toast.LENGTH_SHORT).show();
                     }
                 }) {

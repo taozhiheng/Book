@@ -25,7 +25,6 @@
             android:id="@+id/chapter_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
             android:textSize="@dimen/chapter_item_text_size1"
             android:textColor="@color/create_chapter_text"
             android:background="@null"

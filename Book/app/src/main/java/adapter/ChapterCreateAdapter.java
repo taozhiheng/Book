@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.hustunique.myapplication.R;
@@ -54,7 +55,18 @@ public class ChapterCreateAdapter extends RecyclerView.Adapter<ChapterCreateAdap
     }
 
     @Override
+    public int getItemViewType(int position) {
+        if(position == mGroupList.size())
+            return 1;
+        return super.getItemViewType(position);
+    }
+
+    @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if(viewType == 1) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.create_chapter_item, parent, false);
+            return new MyViewHolder(view, R.id.add_pointwithcolor, R.id.add_name, R.id.add_commit);
+        }
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.addbooklist_item, parent, false);
         return new MyViewHolder(view, R.id.add_pointwithcolor, R.id.add_name);
     }
@@ -74,6 +86,8 @@ public class ChapterCreateAdapter extends RecyclerView.Adapter<ChapterCreateAdap
             holder.mIcon.setColor(waitColor);
             holder.mContent.setText(null);
             holder.mContent.setHint("点击输入章节");
+            holder.mCommit.setTag(holder.mContent);
+            holder.mCommit.setOnClickListener(mCommitListener);
             if(isFirst)
                 isFirst = false;
 //            else {
@@ -100,13 +114,35 @@ public class ChapterCreateAdapter extends RecyclerView.Adapter<ChapterCreateAdap
 
         private Pointwithcolor mIcon;
         private EditText mContent;
+        private View mCommit;
+
         public MyViewHolder(View view,int iconRes, int contentRes)
         {
             super(view);
             this.mIcon =  (Pointwithcolor) view.findViewById(iconRes);
             this.mContent = (EditText) view.findViewById(contentRes);
         }
+
+        public MyViewHolder(View view,int iconRes, int contentRes, int commitRes)
+        {
+            super(view);
+            this.mIcon =  (Pointwithcolor) view.findViewById(iconRes);
+            this.mContent = (EditText) view.findViewById(contentRes);
+            this.mCommit =  view.findViewById(commitRes);
+        }
     }
+
+    private View.OnClickListener mCommitListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (mOnItemChangedListener != null) {
+                EditText t = (EditText) v.getTag();
+                String str = t.getText().toString();
+                int position = (Integer) t.getTag();
+                mOnItemChangedListener.onItemInsert(t, position, str);
+            }
+        }
+    };
 
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override

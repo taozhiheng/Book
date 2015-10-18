@@ -20,6 +20,14 @@ public class UserPref {
             mPref = context.getSharedPreferences(Constant.PREF_NAME, Context.MODE_PRIVATE);
     }
 
+    public static boolean getFirstGuide(int index)
+    {
+        if(index == 0)
+            return mPref.getBoolean(Constant.PREF_FIRST_GUIDE0, true);
+        else
+            return mPref.getBoolean(Constant.PREF_FIRST_GUIDE1, true);
+    }
+
     public static boolean getFirstUse()
     {
         return mPref.getBoolean(Constant.PREF_FIRST_USE, true);
@@ -63,6 +71,14 @@ public class UserPref {
         return mPref.getLong(Constant.PREF_TIME, 0);
     }
 
+
+    public static void clearFirstGuide(int index)
+    {
+        if(index == 0)
+            mPref.edit().putBoolean(Constant.PREF_FIRST_GUIDE0, false).apply();
+        else
+            mPref.edit().putBoolean(Constant.PREF_FIRST_GUIDE1, false).apply();
+    }
 
     public static void clearFirstUse()
     {

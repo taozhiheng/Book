@@ -18,7 +18,9 @@ import com.hustunique.myapplication.R;
 import com.umeng.analytics.MobclickAgent;
 
 import adapter.ViewPagerAdapter;
+import data.UserPref;
 import util.Constant;
+import util.GuideUtil;
 
 /**
  * Created by taozhiheng on 15-7-4.
@@ -31,6 +33,8 @@ public class BookshelfFragment extends Fragment{
     private TabLayout mIndicator;
     private FloatingActionButton mAdd;
     private String[] titles = new String[]{"想读", "在读", "已读"};
+
+    private final static int[] guideResIds = {R.drawable.click_guide, R.drawable.press_guide, R.drawable.add_book_guide};
 
 
     @Nullable
@@ -102,6 +106,7 @@ public class BookshelfFragment extends Fragment{
         return root;
     }
 
+
     @Override
     public void setMenuVisibility(boolean menuVisible) {
         super.setMenuVisibility(menuVisible);
@@ -121,6 +126,17 @@ public class BookshelfFragment extends Fragment{
     public void onResume() {
         super.onResume();
         MobclickAgent.onPageStart("My Bookshelf Fragment");
+        if(UserPref.getFirstGuide(1)) {
+            GuideUtil guideUtil = GuideUtil.getInstance();
+            guideUtil.setClearGuideListener(new GuideUtil.ClearGuideListener() {
+                @Override
+                public void clearGuide() {
+                    UserPref.clearFirstGuide(1);
+                }
+            });
+            guideUtil.setFirst(true);
+            guideUtil.initGuide(getActivity(), guideResIds);
+        }
     }
 
     @Override

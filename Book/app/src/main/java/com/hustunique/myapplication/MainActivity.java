@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -51,6 +52,7 @@ import fragment.ReadingFragment;
 import service.Counter;
 import service.WebService;
 import util.Constant;
+import util.GuideUtil;
 
 public class MainActivity extends AppCompatActivity implements AddListener{
 
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements AddListener{
 
     private void autoLogin()
     {
+        Log.d(TAG, "main activity auto login");
         mRequestQueue.add(new MyJsonObjectRequest(
                         Request.Method.GET,
                         MyApplication.getUrlHead() + Constant.URL_USER_INFO,
@@ -134,31 +137,31 @@ public class MainActivity extends AppCompatActivity implements AddListener{
                                     MyApplication.setShouldUpdate(Constant.INDEX_BEFORE);
 
                                     setUserInfo();
-
+                                    checkData(mail, mail);
                                     //检查数据状态
-                                    mRequestQueue.add(new MyJsonObjectRequest(
-                                            Request.Method.GET,
-                                            Constant.URL_BOOKS_COUNT,
-                                            null,
-                                            new Response.Listener<JSONObject>() {
-                                                @Override
-                                                public void onResponse(JSONObject response) {
-                                                    try {
-                                                        int netCount = response.getInt("count");
-                                                        int localCount =
-                                                                MyApplication.getDBOperateInstance().getBookNum();
-//                                                                Toast.makeText(getBaseContext(), "localCount:"+localCount+" netCount:"+netCount, Toast.LENGTH_SHORT).show();
-                                                        if (localCount <= 0 && netCount != 0)
-                                                            sync(Constant.CHOICE_WEB);
-                                                        else if (netCount <= 0 && localCount != 0)
-                                                            sync(Constant.CHOICE_LOCAL);
-                                                    } catch (JSONException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            }, null
-                                    ));
-                                    mRequestQueue.start();
+//                                    mRequestQueue.add(new MyJsonObjectRequest(
+//                                            Request.Method.GET,
+//                                            Constant.URL_BOOKS_COUNT,
+//                                            null,
+//                                            new Response.Listener<JSONObject>() {
+//                                                @Override
+//                                                public void onResponse(JSONObject response) {
+//                                                    try {
+//                                                        int netCount = response.getInt("count");
+//                                                        int localCount =
+//                                                                MyApplication.getDBOperateInstance().getBookNum();
+////                                                                Toast.makeText(getBaseContext(), "localCount:"+localCount+" netCount:"+netCount, Toast.LENGTH_SHORT).show();
+//                                                        if (localCount <= 0 && netCount != 0)
+//                                                            sync(Constant.CHOICE_WEB);
+//                                                        else if (netCount <= 0 && localCount != 0)
+//                                                            sync(Constant.CHOICE_LOCAL);
+//                                                    } catch (JSONException e) {
+//                                                        e.printStackTrace();
+//                                                    }
+//                                                }
+//                                            }, null
+//                                    ));
+//                                    mRequestQueue.start();
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -174,6 +177,8 @@ public class MainActivity extends AppCompatActivity implements AddListener{
         );
         mRequestQueue.start();
     }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -218,6 +223,8 @@ public class MainActivity extends AppCompatActivity implements AddListener{
 
         MyApplication.setAuthorization(UserPref.getUserAuth());
         autoLogin();
+
+
     }
 
     private void init()
@@ -411,6 +418,53 @@ public class MainActivity extends AppCompatActivity implements AddListener{
     }
 
 
+    private void checkData(final String mail, final String oldMail)
+    {
+        //检查数据
+        mRequestQueue.add(new MyJsonObjectRequest(
+                Request.Method.GET,
+                Constant.URL_BOOKS_COUNT,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            int netCount = response.getInt("count");
+                            int localCount =
+                                    MyApplication.getDBOperateInstance().getBookNum();
+                            if (localCount <= 0 && netCount != 0)
+                                sync(Constant.CHOICE_WEB);
+                            else if (netCount <= 0 && localCount != 0)
+                                sync(Constant.CHOICE_LOCAL);
+                            else if (localCount * netCount > 0) {
+
+                                if (!mail.equals(oldMail))
+                                    mChoseDialog.show();
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                int localCount =
+                        MyApplication.getDBOperateInstance().getBookNum();
+                if(localCount <= 0)
+                    Snackbar.make(mNavigationView, "读取数据失败,你可以重新登录或重试", Snackbar.LENGTH_SHORT)
+                    .setAction("重试", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            checkData(mail, oldMail);
+                        }
+                    }).show();
+            }
+        }
+        ));
+        mRequestQueue.start();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
         if(resultCode == RESULT_OK)
@@ -418,40 +472,9 @@ public class MainActivity extends AppCompatActivity implements AddListener{
             if(requestCode == Constant.LOGIN)
             {
                 setUserInfo();
-                //检查数据
-                mRequestQueue.add(new MyJsonObjectRequest(
-                        Request.Method.GET,
-                        Constant.URL_BOOKS_COUNT,
-                        null,
-                        new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                try
-                                {
-                                    int netCount = response.getInt("count");
-                                    int localCount =
-                                            MyApplication.getDBOperateInstance().getBookNum();
-//                                    Toast.makeText(getBaseContext(), "localCount:"+localCount+" netCount:"+netCount, Toast.LENGTH_SHORT).show();
-                                    if(localCount <= 0 && netCount != 0)
-                                        sync(Constant.CHOICE_WEB);
-                                    else if(netCount <= 0 && localCount != 0)
-                                        sync(Constant.CHOICE_LOCAL);
-                                    else if(localCount * netCount > 0)
-                                    {
-                                        String oldMail = data.getStringExtra(Constant.KEY_OLD_MAIL);
-                                        String mail = data.getStringExtra(Constant.KEY_MAIL);
-                                        if(!mail.equals(oldMail))
-                                            mChoseDialog.show();
-                                    }
-
-                                }catch (JSONException e)
-                                {
-                                    e.printStackTrace();
-                                }
-                            }
-                        },null
-                ));
-                mRequestQueue.start();
+                String oldMail = data.getStringExtra(Constant.KEY_OLD_MAIL);
+                String mail = data.getStringExtra(Constant.KEY_MAIL);
+                checkData(mail, oldMail);
 
             }
             else if(requestCode == Constant.PERSON && data.getBooleanExtra(Constant.KEY_USER_ICON_CHANGE, false))
@@ -484,6 +507,11 @@ public class MainActivity extends AppCompatActivity implements AddListener{
         MyApplication.setSync(true);
         intent.putExtra(Constant.KEY_CHOICE, choice);
         startService(intent);
+        //通知fragment刷新
+        MyApplication.setShouldUpdate(Constant.INDEX_READ);
+        MyApplication.setShouldUpdate(Constant.INDEX_AFTER);
+        MyApplication.setShouldUpdate(Constant.INDEX_NOW);
+        MyApplication.setShouldUpdate(Constant.INDEX_BEFORE);
     }
 
     @Override

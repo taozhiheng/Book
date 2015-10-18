@@ -1,9 +1,22 @@
 package data;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 import android.widget.Toast;
+
+import com.hustunique.myapplication.MainActivity;
+import com.hustunique.myapplication.R;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+
+import util.Constant;
+import util.TimeUtil;
 
 /**
  * Created by taozhiheng on 14-12-17.
@@ -54,11 +67,11 @@ public class DBHelper extends SQLiteOpenHelper{
     //id int 章节索引
     //book_id int 隶属书在服务器的唯一id，未录入时等于书的_id
     //name string  章节名
-    //type int 类型 0-未读　１－在读 2- 已读
+    //type int 类型 0-未读　１－在读 2－已读　３－重复
     //start_time　long 创建时间
     //end_time　long 最后编辑时间
     //status　 int 状态　０－同步正常　１－添加　２－修改　３－删除未同步
-    //type_status int 类型是否改变 -1-未改变，０－未读，１－在读，２－已读
+    //type_status int 类型是否改变 -1-未改变，０－未读，１－在读，２－已读，３－重复
     //local_book_id long 本地书籍的唯一id
     public static final String CREATE_CHAPTER = "CREATE TABLE chapter("+
             "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -84,6 +97,84 @@ public class DBHelper extends SQLiteOpenHelper{
         //Toast.makeText(myContext, "create database "+DB_NAME, Toast.LENGTH_SHORT).show();
         db.execSQL(CREATE_BOOK);
         db.execSQL(CREATE_CHAPTER);
+        init(db);
+    }
+
+    private void init(SQLiteDatabase db)
+    {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                makeFile();
+            }
+        }).start();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("name", "Hello World");
+        contentValues.put("color", 0);
+        contentValues.put("word_num", 16);
+        contentValues.put("type", 1);
+        String dirPath = Environment.getExternalStorageDirectory()
+                .getPath() + "/Pokebook"; // 要保存的路径
+        String fileName = "sample.jpeg"; // 文件名
+        contentValues.put("url", dirPath+"/"+fileName );
+        long millis = System.currentTimeMillis();
+        contentValues.put("start_time", TimeUtil.getNeedTime(millis));
+        contentValues.put("end_time", TimeUtil.getNeedTime(millis+4*24*60*60*1000));
+        contentValues.put("create_time", TimeUtil.getNeedTime(millis));
+        contentValues.put("status", 1);
+        contentValues.put("type_status", 1);
+        long id = db.insert(Constant.TABLE_BOOK, null, contentValues);
+
+        ContentValues values = new ContentValues();
+        values.put("local_book_id",id);
+        values.put("type", 0);
+        values.put("status", 1);
+        values.put("type_status", 0);
+
+        values.put("id", 1);
+        values.put("name", "与君初相识");
+        db.insert(Constant.TABLE_CHAPTER, null, values);
+        values.put("id", 2);
+        values.put("name", "犹如明月归");
+        db.insert(Constant.TABLE_CHAPTER, null, values);
+        values.put("id", 3);
+        values.put("name", "天涯明月新");
+        db.insert(Constant.TABLE_CHAPTER, null, values);
+        values.put("id", 4);
+        values.put("name", "朝暮最相思");
+        db.insert(Constant.TABLE_CHAPTER, null, values);
+    }
+
+    private void makeFile() {
+        if (Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED)) {
+            String dirPath = Environment.getExternalStorageDirectory()
+                    .getPath() + "/Pokebook"; // 要保存的路径
+            String fileName = "sample.jpeg"; // 文件名
+
+            try {
+                File dir = new File(dirPath);
+                if (!dir.exists()) {// 如果目录不存在，创建目录
+                    dir.mkdirs();
+                }
+
+                File file = new File(dirPath + "/" + fileName);
+                if (!file.exists()) {// 如果文件不存在，创建文件
+                    AssetManager assetManager = myContext.getAssets();
+                    InputStream ins = assetManager.open("sample.jpeg");
+                    FileOutputStream fos = new FileOutputStream(file);
+                    byte[] buffer = new byte[8192];
+                    int count = 0;
+                    while ((count = ins.read(buffer)) > 0) {
+                        fos.write(buffer, 0, count);
+                    }
+                    fos.close();
+                    ins.close();
+                }
+            } catch (Exception e) {
+
+            }
+        }
     }
 
     @Override
