@@ -6,14 +6,17 @@
             android:id="@+id/drawer_reading"
             android:icon="@mipmap/ic_reading"
             android:checked="true"
+            android:checkable="true"
             android:title="@string/drawer_reading"/>
         <item
             android:id="@+id/drawer_bookshelf"
             android:icon="@mipmap/ic_bookshelf"
+            android:checkable="true"
             android:title="@string/drawer_bookshelf"/>
         <!--<item-->
             <!--android:id="@+id/drawer_calendar"-->
             <!--android:icon="@mipmap/ic_calendar"-->
+            <!--android:checkable="false"-->
             <!--android:title="@string/drawer_calendar"/>-->
     </group>
 

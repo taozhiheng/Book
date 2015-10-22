@@ -8,21 +8,21 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.design.widget.Snackbar;
+
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.Animation;
+
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+
 import android.widget.TextView;
 import android.widget.Toast;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
@@ -40,11 +40,11 @@ import data.DBOperate;
 import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
 import service.QueryChaptersTask;
 import ui.DividerItemDecoration;
-import ui.MyAnimation;
+
 import ui.StickyLayout;
-import uk.co.senab.photoview.PhotoViewAttacher;
+
 import util.Constant;
-import util.FileUtil;
+
 
 
 /**
@@ -81,6 +81,8 @@ public class DetailActivity extends AppCompatActivity {
     private int mAction;
 
     private int mColorIndex = 0;
+
+    private final static boolean DEBUG = false;
 
     @Override
     protected void onResume() {
@@ -121,7 +123,8 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("detail", "activity onCreate");
+        if(DEBUG)
+            Log.d("detail", "activity onCreate");
         mAction = getIntent().getIntExtra(Constant.KEY_ACTION, Constant.VIEW_BOOK);
         setContentView(R.layout.activity_detail);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -179,7 +182,8 @@ public class DetailActivity extends AppCompatActivity {
 
     private void load()
     {
-        Log.d("detail", "activity load");
+        if(DEBUG)
+            Log.d("detail", "activity load");
         mColorIndex = mBook.getColor();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             mTintManager.setStatusBarTintColor(Constant.colors[mColorIndex]);
@@ -226,7 +230,8 @@ public class DetailActivity extends AppCompatActivity {
         mChapterList = new ArrayList<>();
         new QueryChaptersTask(mChapterList, mHandler).execute(mBook.getId());
 
-        Log.d("detail", "activity finish load");
+        if(DEBUG)
+            Log.d("detail", "activity finish load");
     }
 
     private void setupAdapter()

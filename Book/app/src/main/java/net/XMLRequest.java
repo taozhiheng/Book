@@ -12,10 +12,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 
-import data.Book;
-import data.ChapterInfo;
 
 /**
  * Created by taozhiheng on 15-7-18.

@@ -4,13 +4,9 @@ import android.app.Application;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.util.Log;
-import android.widget.ImageView;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -19,7 +15,6 @@ import data.Book;
 import data.ChapterInfo;
 import data.DBOperate;
 import data.DBhelper;
-import util.Constant;
 import web.Web;
 
 /**
@@ -45,17 +40,20 @@ public class MyApplication extends Application {
     private static Picasso mPicasso;
 
     private final static String TAG = "life cycle-app";
+    private final static boolean DEBUG = false;
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "app on create");
+        if(DEBUG)
+            Log.d(TAG, "app on create");
         super.onCreate();
         Fresco.initialize(this);
     }
 
     public void init()
     {
-        Log.d(TAG, "app init");
+        if(DEBUG)
+            Log.d(TAG, "app init");
         setUrlHead();
         mDBOperate = DBOperate.getInstance(this);
         Web.setDbOperate(mDBOperate);
@@ -66,7 +64,8 @@ public class MyApplication extends Application {
         mShouldUpdate[2] = true;
         mShouldUpdate[3] = true;
         mPicasso = Picasso.with(this);
-        Log.d(TAG, "app finish init");
+        if(DEBUG)
+            Log.d(TAG, "app finish init");
     }
 
     public static Picasso getPicasso()

@@ -10,15 +10,14 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/drawer_width1">
-        <ui.CircleImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/drawer_user_icon"
-            android:src="@drawable/ic_user_icon"
+
             android:layout_width="@dimen/drawer_width2"
             android:layout_height="@dimen/drawer_height1"
             android:layout_marginTop="@dimen/drawer_margin1"
             android:layout_marginBottom="@dimen/drawer_margin1"
-            app:border_width="@dimen/drawer_border_width"
-            app:border_color="@color/drawer_user_circle"
+
             android:layout_marginLeft="@dimen/drawer_margin1" />
         <TextView
             android:id="@+id/drawer_user_name"

@@ -20,7 +20,6 @@ import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -30,7 +29,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.squareup.okhttp.Callback;
 import com.umeng.analytics.MobclickAgent;
 import com.zhuge.analysis.stat.ZhugeSDK;
 
@@ -38,7 +36,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -48,14 +45,12 @@ import java.util.Map;
 import adapter.AddAdapter;
 import data.Book;
 import data.ChapterInfo;
-import data.DBOperate;
 import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
 import service.AddTask;
 import ui.DividerItemDecoration;
 import ui.OnRcvScrollListener;
 import util.Constant;
 import util.TimeUtil;
-import web.OkHttpUtil;
 
 /**
  * Created by taozhiheng on 15-7-7.
@@ -95,12 +90,16 @@ public class AddActivity extends AppCompatActivity{
     private int total;
 
     public final static String REQUEST_TAG = "MyQueryRequest";
+    public final static String REQUEST_WORD_TAG = "MyQueryWordRequest";
+
 
     private final static int COLOR_SIZE = 6;
 
     private int addCount;
 
     private boolean isLoadingData;
+
+    private final static boolean DEBUG = true;
 
     @Override
     protected void onResume() {
@@ -136,6 +135,8 @@ public class AddActivity extends AppCompatActivity{
         if(mProgressDialog != null) {
             mProgressDialog.dismiss();
         }
+        if(mRequestQueue != null)
+            mRequestQueue.cancelAll(REQUEST_WORD_TAG);
     }
 
     private void sendAddCount()
@@ -145,11 +146,12 @@ public class AddActivity extends AppCompatActivity{
             Map<String, String> map = new HashMap<>();
             map.put("key", mLastQuery);
             map.put("total", ""+mBookList.size());
-            map.put("append", ""+addCount);
+            map.put("append", "" + addCount);
             MobclickAgent.onEventValue(AddActivity.this, "search", map, addCount);
             JSONObject event = new JSONObject(map);
             ZhugeSDK.getInstance().track(getApplicationContext(), "search", event);
-            Log.d("send", "search:" + mLastQuery + "-" + addCount);
+            if(DEBUG)
+                Log.d("send", "search:" + mLastQuery + "-" + addCount);
         }
     }
 
@@ -206,7 +208,7 @@ public class AddActivity extends AppCompatActivity{
                 return false;
             }
         });
-        mSearch.setSubmitButtonEnabled(true);
+//        mSearch.setSubmitButtonEnabled(true);
         createDialogs();
         initDataSet();
     }
@@ -360,7 +362,8 @@ public class AddActivity extends AppCompatActivity{
                     else
                         Toast.makeText(getBaseContext(), "此书没有章节,无法添加^_^", Toast.LENGTH_SHORT).show();
                     for (ChapterInfo chapterInfo : mGroupList)
-                        Log.d("net", "chapter:" + chapterInfo.getName());
+                        if(DEBUG)
+                            Log.d("net", "chapter:" + chapterInfo.getName());
                 } else {
                     mDeleteDialog.show();
                 }
@@ -400,13 +403,15 @@ public class AddActivity extends AppCompatActivity{
             case R.id.action_add_scan:
                 MobclickAgent.onEvent(this, "scan");
                 ZhugeSDK.getInstance().track(this, "scan");
-                Log.d("send", "scan");
+                if(DEBUG)
+                    Log.d("send", "scan");
                 startActivityForResult(new Intent(this, MipcaActivityCapture.class), Constant.ACTION_SCAN_BOOK);
                 break;
             case R.id.action_add_input:
                 MobclickAgent.onEvent(this, "create");
                 ZhugeSDK.getInstance().track(this, "create");
-                Log.d("send", "create");
+                if(DEBUG)
+                    Log.d("send", "create");
                 Intent intent = new Intent(this, CreateActivity.class);
                 intent.putExtra(Constant.KEY_ACTION, Constant.ACTION_CREATE_BOOK);
                 startActivity(intent);
@@ -456,7 +461,8 @@ public class AddActivity extends AppCompatActivity{
                                             new Response.Listener<JSONObject>() {
                                                 @Override
                                                 public void onResponse(JSONObject response) {
-                                                    Log.d("net","words:"+response);
+                                                    if(DEBUG)
+                                                        Log.d("net","words:"+response);
                                                     try {
                                                         wordNum[0] = response.getLong("words");
                                                     } catch (JSONException e) {
@@ -490,7 +496,7 @@ public class AddActivity extends AppCompatActivity{
                                                 }
                                             }
                                     ));
-                            mRequestQueue.start();
+//                            mRequestQueue.start();
 
 
 
@@ -510,7 +516,7 @@ public class AddActivity extends AppCompatActivity{
                 });
         request.setTag(REQUEST_TAG);
         mRequestQueue.add(request);
-        mRequestQueue.start();
+//        mRequestQueue.start();
     }
 
 
@@ -537,7 +543,8 @@ public class AddActivity extends AppCompatActivity{
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d("net", "query response:" + response.toString());
+                        if(DEBUG)
+                            Log.d("net", "query response:" + response.toString());
                         try {
                             JSONArray jsonArray = response.getJSONArray("books");
                             JSONObject jsonObject;
@@ -570,10 +577,18 @@ public class AddActivity extends AppCompatActivity{
                                     JsonObjectRequest wordRequest = new JsonObjectRequest(
                                             Request.Method.GET,
                                             MyApplication.getUrlHead() + "/api/v1/books/" + isbn13 + "/words",
-                                            null, new WordListener(i), null);
-                                    wordRequest.setTag(REQUEST_TAG);
+                                            null, new WordListener(i), new Response.ErrorListener() {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                            if(DEBUG)
+                                                Log.d("web", "query book words error:" + error);
+                                        }
+                                    });
+                                    wordRequest.setTag(REQUEST_WORD_TAG);
                                     mRequestQueue.add(wordRequest);
-                                    mRequestQueue.start();
+                                    if(DEBUG)
+                                        Log.d("web", "query book words:" + title+"url:"+MyApplication.getUrlHead() + "/api/v1/books/" + isbn13 + "/words");
+//                                    mRequestQueue.start();
                                 }
                             }
                             mProgressDialog.dismiss();
@@ -603,7 +618,7 @@ public class AddActivity extends AppCompatActivity{
         };
         request.setTag(REQUEST_TAG);
         mRequestQueue.add(request);
-        mRequestQueue.start();
+//        mRequestQueue.start();
     }
 
     class WordListener implements Response.Listener<JSONObject> {
@@ -617,7 +632,8 @@ public class AddActivity extends AppCompatActivity{
 
         @Override
         public void onResponse(JSONObject response) {
-            Log.d("web","book words:"+response);
+            if(DEBUG)
+                Log.d("web","book words:"+response);
             try {
                 long wordNum = response.getLong("words");
                 if(wordNum != 0)
@@ -627,6 +643,8 @@ public class AddActivity extends AppCompatActivity{
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
+                if(DEBUG)
+                    Log.d("web","book words resolve exception:"+response);
 //              wordNum[0] = 0;
             }
 //            finally {
@@ -657,7 +675,8 @@ public class AddActivity extends AppCompatActivity{
     //对章节信息拆分，分成一个个的章节
     public static ArrayList<ChapterInfo> parseChapters(String response)
     {
-        Log.d("web", "catalog:"+response);
+        if(DEBUG)
+            Log.d("web", "catalog:"+response);
         ArrayList<ChapterInfo> chapterInfos = new ArrayList<>();
         if(response == null || response.compareTo("" )==0)
             return chapterInfos;
@@ -666,7 +685,8 @@ public class AddActivity extends AppCompatActivity{
         for(int i = 0; i < chapters.length; i++)
         {
             String name = chapters[i].trim();
-            Log.d("web", "catalog item:"+response);
+            if(DEBUG)
+                Log.d("web", "catalog item:"+response);
 
             if(name.compareTo("")==0)
                 continue;

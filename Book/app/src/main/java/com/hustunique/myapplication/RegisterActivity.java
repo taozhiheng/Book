@@ -164,7 +164,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Toast.makeText(getBaseContext(), "注册失败", Toast.LENGTH_SHORT).show();
-                        Log.d("net", "register:"+error.toString());
+
                     }
                 })
         {
@@ -176,7 +176,7 @@ public class RegisterActivity extends AppCompatActivity {
                 return headers;
             }
         });
-        mRequestQueue.start();
+//        mRequestQueue.start();
     }
 
 }

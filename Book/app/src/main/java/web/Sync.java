@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
 import android.util.Log;
 
 import com.hustunique.myapplication.MyApplication;
@@ -29,7 +28,6 @@ import data.DBOperate;
 import data.TimeInfo;
 import service.Counter;
 import util.Constant;
-import util.TimeUtil;
 
 /**
  * Created by taozhiheng on 15-7-29.

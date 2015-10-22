@@ -121,12 +121,14 @@ public class Book implements Parcelable {
 
     public void setChapterNum(int chapterNum)
     {
-        this.mChapterNum = chapterNum;
+        if(chapterNum >= 0)
+            this.mChapterNum = chapterNum;
     }
 
     public void setFinishNum(int finishNum)
     {
-        this.mFinishNum = finishNum;
+        if(finishNum >= 0 && finishNum <= mChapterNum)
+            this.mFinishNum = finishNum;
     }
 
     public void setWordNum(long wordNum) {

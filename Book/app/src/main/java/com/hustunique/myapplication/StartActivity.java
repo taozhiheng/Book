@@ -1,31 +1,17 @@
 package com.hustunique.myapplication;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.KeyEvent;
-import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.widget.ImageView;
-
-import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import data.UserPref;
-import uk.co.senab.photoview.PhotoView;
-import util.BitmapUtil;
-import util.DisplayUtil;
+
 
 /**
  * Created by taozhiheng on 15-9-26.
@@ -41,7 +27,14 @@ public class StartActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "start activity on create");
+        Log.d(TAG, "startActivity onCreate");
+
+        if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT) != 0) {
+            // Activity was brought to front and not created,
+            // Thus finishing this will get us to the last viewed activity
+            finish();
+            return;
+        }
         UserPref.init(this);
         if(UserPref.getFirstUse())
         {
@@ -70,7 +63,7 @@ public class StartActivity extends AppCompatActivity {
         SimpleDraweeView view = (SimpleDraweeView) findViewById(R.id.start_icon);
         view.setImageURI(Uri.parse("res://drawable/" + R.drawable.ic_start));
 //        view.setImageBitmap(bitmap);
-        Log.d(TAG, "finish set bitmap");
+
 
         mEnable = false;
         mTask = new TimeTask();

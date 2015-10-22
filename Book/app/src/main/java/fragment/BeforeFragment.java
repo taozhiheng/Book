@@ -56,6 +56,7 @@ public class BeforeFragment extends Fragment implements NumFragment {
 
     Bundle savedState;
 
+    private final static boolean DEBUG = false;
     public final static String TAG = "life cycle-before";
 
     @Override
@@ -67,7 +68,8 @@ public class BeforeFragment extends Fragment implements NumFragment {
 
     public static BeforeFragment newInstance()
     {
-        Log.d(TAG, "before new instance");
+        if(DEBUG)
+            Log.d(TAG, "before new instance");
         if(mFragmentInstance == null) {
             mFragmentInstance = new BeforeFragment();
             mFragmentInstance.setArguments(new Bundle());
@@ -77,7 +79,8 @@ public class BeforeFragment extends Fragment implements NumFragment {
 
     @Override
     public void onDetach() {
-        Log.d(TAG, "now on detach");
+        if(DEBUG)
+            Log.d(TAG, "now on detach");
         super.onDetach();
         mHandler.removeCallbacks(null);
     }
@@ -85,7 +88,8 @@ public class BeforeFragment extends Fragment implements NumFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d(TAG, "before create");
+        if(DEBUG)
+            Log.d(TAG, "before create");
         View root = inflater.inflate(R.layout.fragment_bookshelf_before, container, false);
         mRecycler = (RecyclerView) root;
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -134,7 +138,8 @@ public class BeforeFragment extends Fragment implements NumFragment {
                     days = 1;
                 long endTime = startTime+days*24*60*60*1000;
 
-                Log.d(TAG, "book to now, local");
+                if(DEBUG)
+                    Log.d(TAG, "book to now, local");
                 Book book = mBookList.get(mPosition);
                 book.setType(Constant.TYPE_NOW);
                 book.setFinishNum(0);
@@ -163,7 +168,8 @@ public class BeforeFragment extends Fragment implements NumFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //删除此书及所有章节
-                        Log.d(TAG, "delete book, local");
+                        if(DEBUG)
+                            Log.d(TAG, "delete book, local");
                         Book book = mBookList.get(mPosition);
                         DBOperate dbOperate = MyApplication.getDBOperateInstance();
                         dbOperate.setBookDelete(book.getId());
@@ -181,14 +187,16 @@ public class BeforeFragment extends Fragment implements NumFragment {
 
     @Override
     public void onStart() {
-        Log.d(TAG, "before start");
+        if(DEBUG)
+            Log.d(TAG, "before start");
         super.onStart();
 
     }
 
     @Override
     public void onResume() {
-        Log.d(TAG, "before resume");
+        if(DEBUG)
+            Log.d(TAG, "before resume");
         super.onResume();
         if (MyApplication.getUpdateFlag(Constant.INDEX_BEFORE) || !restoreStateFromArguments()) {
             // First Time, Initialize something here
@@ -199,12 +207,14 @@ public class BeforeFragment extends Fragment implements NumFragment {
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "before pause");
+        if(DEBUG)
+            Log.d(TAG, "before pause");
     }
 
     @Override
     public void onStop() {
-        Log.d(TAG, "before stop");
+        if(DEBUG)
+            Log.d(TAG, "before stop");
         super.onStop();
     }
 
@@ -227,7 +237,8 @@ public class BeforeFragment extends Fragment implements NumFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.d(TAG, "before destroy");
+        if(DEBUG)
+            Log.d(TAG, "before destroy");
 
         // Save State Here
         saveStateToArguments();
@@ -276,7 +287,8 @@ public class BeforeFragment extends Fragment implements NumFragment {
         mBookList =  savedInstanceState.getParcelableArrayList(Constant.KEY_BOOKS);
         if(mBookList == null)
             mBookList = new ArrayList<>();
-        Log.d(TAG, "before restore, book list size:"+mBookList.size());
+        if(DEBUG)
+            Log.d(TAG, "before restore, book list size:"+mBookList.size());
         if(mBookList.size() > 0)
             setupAdapter();
         else
@@ -314,13 +326,15 @@ public class BeforeFragment extends Fragment implements NumFragment {
     //从网络或本地数据库读取数据至list,并创建adapter
     private void load()
     {
-        Log.d(TAG, "before load data");
+        if(DEBUG)
+            Log.d(TAG, "before load data");
         if(mBookList == null)
             mBookList = new ArrayList<>();
         else
             mBookList.clear();
         new QueryBooksTask(mBookList, mHandler).execute(Constant.TYPE_BEFORE);
-        Log.d(TAG, "before finish start load data task");
+        if(DEBUG)
+            Log.d(TAG, "before finish start load data task");
     }
 
     //绑定设置adapter
@@ -331,18 +345,21 @@ public class BeforeFragment extends Fragment implements NumFragment {
             mAdapter.setOnItemClickListener(mOnItemClickListener);
             mAdapter.setOnItemLongClickListener(mOnItemLongClickListener);
             mRecycler.setAdapter(mAdapter);
-            Log.d(TAG, "before create and set adapter:" + mBookList.size());
+            if(DEBUG)
+                Log.d(TAG, "before create and set adapter:" + mBookList.size());
 
         }
         else if(mRecycler.getAdapter() == null)
         {
             mRecycler.setAdapter(mAdapter);
-            Log.d(TAG, "before set adapter:"+mBookList.size());
+            if(DEBUG)
+                Log.d(TAG, "before set adapter:"+mBookList.size());
         }
         else
         {
             mAdapter.notifyDataSetChanged();
-            Log.d(TAG, "before adapter notify:"+mBookList.size());
+            if(DEBUG)
+                Log.d(TAG, "before adapter notify:"+mBookList.size());
         }
 
     }
@@ -368,7 +385,8 @@ public class BeforeFragment extends Fragment implements NumFragment {
 
     public static void executeLoad()
     {
-        Log.d(TAG, "before execute load");
+        if(DEBUG)
+            Log.d(TAG, "before execute load");
         if(mFragmentInstance != null) {
             mFragmentInstance.load();
         }

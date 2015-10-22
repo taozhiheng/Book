@@ -3,19 +3,11 @@ package com.hustunique.myapplication;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -25,7 +17,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
-import com.sina.weibo.sdk.WeiboAppManager;
 import com.sina.weibo.sdk.auth.AuthInfo;
 import com.sina.weibo.sdk.auth.WeiboAuthListener;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
@@ -38,11 +29,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import data.UserPref;
 import util.Constant;
-import util.GuideUtil;
 
 /**
  * Created by taozhiheng on 15-5-15.
@@ -70,6 +59,9 @@ public class LoginActivity extends AppCompatActivity {
     private SsoHandler mSsoHandler;
 
     public final static String REQUEST_TAG = "MyLoginRequest";
+
+    private final static boolean DEBUG = true;
+
 
 
     @Override
@@ -246,7 +238,8 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         public void onCancel() {
-            Log.d(TAG, "===================AuathDialogListener=Auth cancel==========");
+            if(DEBUG)
+                Log.d(TAG, "===================AuathDialogListener=Auth cancel==========");
 //            Util.showToast(mContext, "取消授权操作。");
         }
 
@@ -254,7 +247,8 @@ public class LoginActivity extends AppCompatActivity {
         public void onComplete(Bundle values) {
 //            LOG.cstdr(TAG, "===================AuthDialogListener=onComplete==========");
             for (String key : values.keySet()) {
-                Log.d(TAG, "values:key = " + key + " value = " + values.getString(key));
+                if(DEBUG)
+                    Log.d(TAG, "values:key = " + key + " value = " + values.getString(key));
             }
             String uid = values.getString("uid");
             String token = values.getString("access_token");
@@ -292,7 +286,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK && data != null)
         {
-            Log.d("login", "all:"+data.toString());
+            if(DEBUG)
+                Log.d(TAG, "all:"+data.toString());
             if(requestCode == Constant.DB_LOGIN) {
                 HashMap<String, Object> map = new HashMap<>();
 //            switch (requestCode)
@@ -314,7 +309,8 @@ public class LoginActivity extends AppCompatActivity {
                 map.clear();
                 map.put("site", "douban");
                 map.put("body", body);
-                Log.d("login", code);
+                if(DEBUG)
+                    Log.d(TAG, code);
                 JSONObject jsonObject = new JSONObject(map);
                 executeLogin(MyApplication.getUrlHead() + Constant.URL_THIRD_PART_LOGIN, jsonObject);
             }
@@ -340,7 +336,8 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            Log.d("net", "login:"+response);
+                            if(DEBUG)
+                                Log.d(TAG, "login:"+response);
                             final String authorization = response.getString("auth");
                             //记录授权，设置用户在线
                             MyApplication.setAuthorization(authorization);
@@ -352,7 +349,8 @@ public class LoginActivity extends AppCompatActivity {
                                             new Response.Listener<JSONObject>() {
                                                 @Override
                                                 public void onResponse(JSONObject response) {
-                                                    Log.d("net", "login,read user info:"+response.toString());
+                                                    if(DEBUG)
+                                                        Log.d(TAG, "login,read user info:"+response.toString());
                                                     try
                                                     {
                                                         //读取用户基本信息
@@ -395,7 +393,6 @@ public class LoginActivity extends AppCompatActivity {
                                                         Intent intent = new Intent();
                                                         intent.putExtra(Constant.KEY_OLD_MAIL, UserPref.getUserMail());
                                                         intent.putExtra(Constant.KEY_MAIL, mail);
-                                                        UserPref.setUserMail(mail);
 
 //                                                        if(mIsNormalLogin)
 //                                                        {
@@ -412,7 +409,8 @@ public class LoginActivity extends AppCompatActivity {
                                                         e.printStackTrace();
                                                         mProgressDialog.dismiss();
                                                         Toast.makeText(getBaseContext(), "登录失败", Toast.LENGTH_SHORT).show();
-                                                        Log.d("net", "login:" + e.toString());
+                                                        if(DEBUG)
+                                                            Log.d(TAG, "login:" + e.toString());
                                                     }
                                                 }
                                             },
@@ -421,17 +419,19 @@ public class LoginActivity extends AppCompatActivity {
                                                 public void onErrorResponse(VolleyError error) {
                                                     mProgressDialog.dismiss();
                                                     Toast.makeText(getBaseContext(), "登录失败", Toast.LENGTH_SHORT).show();
-                                                    Log.d("net", "login:" + error.toString());
+                                                    if(DEBUG)
+                                                        Log.d(TAG, "login:" + error.toString());
                                                 }
                                             })
                             );
-                            mRequestQueue.start();
+//                            mRequestQueue.start();
                         }catch (JSONException e)
                         {
                             e.printStackTrace();
                             mProgressDialog.dismiss();
                             Toast.makeText(getBaseContext(), "登录失败", Toast.LENGTH_SHORT).show();
-                            Log.d("net", "login:"+e.toString());
+                            if(DEBUG)
+                                Log.d(TAG, "login:"+e.toString());
                         }
                     }
                 },
@@ -440,7 +440,8 @@ public class LoginActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         mProgressDialog.dismiss();
                         Toast.makeText(getBaseContext(), "登录失败", Toast.LENGTH_SHORT).show();
-                        Log.d("net", "login:"+error.toString());
+                        if(DEBUG)
+                            Log.d(TAG, "login:"+error.toString());
                     }
                 })
         {
@@ -454,6 +455,6 @@ public class LoginActivity extends AppCompatActivity {
         };
         request.setTag(REQUEST_TAG);
         mRequestQueue.add(request);
-        mRequestQueue.start();
+//        mRequestQueue.start();
     }
 }

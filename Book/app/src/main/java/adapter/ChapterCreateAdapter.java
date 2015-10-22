@@ -1,19 +1,12 @@
 package adapter;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.method.KeyListener;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 
 import com.hustunique.myapplication.R;
@@ -22,6 +15,7 @@ import java.util.List;
 
 import data.ChapterInfo;
 import ui.Pointwithcolor;
+import util.Constant;
 
 /**
  * Created by taozhiheng on 15-7-5.
@@ -78,6 +72,10 @@ public class ChapterCreateAdapter extends RecyclerView.Adapter<ChapterCreateAdap
             ChapterInfo chapterInfo = mGroupList.get(position);
             holder.mIcon.setColor(validColor);
             holder.mContent.setText(chapterInfo.getName());
+            if(chapterInfo.getType() == Constant.TYPE_BEFORE)
+                holder.mContent.setTextColor(Constant.chapterFinish);
+            else
+                holder.mContent.setTextColor(Constant.chapterNormal);
             Log.d("load", "position:"+position+" text:"+chapterInfo.getName());
         }
         else
@@ -87,6 +85,7 @@ public class ChapterCreateAdapter extends RecyclerView.Adapter<ChapterCreateAdap
             holder.mContent.setText(null);
             holder.mContent.setHint("点击输入章节");
             holder.mCommit.setTag(holder.mContent);
+            holder.mContent.setTextColor(Constant.chapterNormal);
             holder.mCommit.setOnClickListener(mCommitListener);
             if(isFirst)
                 isFirst = false;

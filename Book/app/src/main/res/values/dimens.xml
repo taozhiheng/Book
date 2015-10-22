@@ -93,6 +93,7 @@
     <dimen name="add_item_margin4">5dp</dimen>
     <dimen name="add_item_margin5">2dp</dimen>
     <dimen name="add_item_margin6">36dp</dimen>
+    <dimen name="add_item_margin7">2dp</dimen>
     <dimen name="add_item_width1">58dp</dimen>
     <dimen name="add_item_height">90dp</dimen>
     <dimen name="add_item_height1">83dp</dimen>

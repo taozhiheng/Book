@@ -6,13 +6,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 import util.Constant;
 import util.TimeUtil;
-import web.Web;
 
 /**
  * Created by taozhiheng on 15-3-27.

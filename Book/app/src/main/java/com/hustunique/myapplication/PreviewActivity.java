@@ -2,7 +2,6 @@ package com.hustunique.myapplication;
 
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,7 +10,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
@@ -54,6 +52,8 @@ public class PreviewActivity extends AppCompatActivity {
 
     private int colorSelected = Color.rgb(0xe9, 0x1e, 0x63);
 
+    private final static boolean DEBUG = false;
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -81,7 +81,8 @@ public class PreviewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("detail", "activity onCreate");
+        if(DEBUG)
+            Log.d("detail", "activity onCreate");
         setContentView(R.layout.activity_detail);
 //        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 //            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);

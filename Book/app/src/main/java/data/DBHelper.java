@@ -6,10 +6,6 @@ import android.content.res.AssetManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
-import android.widget.Toast;
-
-import com.hustunique.myapplication.MainActivity;
-import com.hustunique.myapplication.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -127,7 +123,7 @@ public class DBHelper extends SQLiteOpenHelper{
 
         ContentValues values = new ContentValues();
         values.put("local_book_id",id);
-        values.put("type", 0);
+        values.put("type", 1);
         values.put("status", 1);
         values.put("type_status", 0);
 
@@ -135,7 +131,7 @@ public class DBHelper extends SQLiteOpenHelper{
         values.put("name", "与君初相识");
         db.insert(Constant.TABLE_CHAPTER, null, values);
         values.put("id", 2);
-        values.put("name", "犹如明月归");
+        values.put("name", "犹如故人归");
         db.insert(Constant.TABLE_CHAPTER, null, values);
         values.put("id", 3);
         values.put("name", "天涯明月新");

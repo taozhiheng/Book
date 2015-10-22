@@ -2,7 +2,6 @@ package com.hustunique.myapplication;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,23 +9,18 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.readystatesoftware.systembartint.SystemBarTintManager;
-import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 import com.umeng.analytics.MobclickAgent;
 import com.zhuge.analysis.stat.ZhugeSDK;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
 
 import data.UserPref;
 import data.UserReadInfo;
@@ -136,7 +130,7 @@ public class PersonActivity extends AppCompatActivity {
         Picasso.with(this).load(R.drawable.ic_user_icon).resize(146, 146).into(mIcon);
         String picturePath = MyApplication.getUserUrl();
         if (picturePath != null && !picturePath.contains("null")) {
-            Log.d("pic", "url:"+picturePath);
+
             MyApplication.getPicasso().load(Uri.parse(picturePath))
                     .resize(146, 146).into(mIcon);
         }
@@ -164,7 +158,7 @@ public class PersonActivity extends AppCompatActivity {
             {
                 String picturePath = MyApplication.getUserUrl();
                 if (picturePath != null) {
-                    Log.d("pic", "url:"+picturePath);
+
                     MyApplication.getPicasso().load(Uri.parse(picturePath))
                             .memoryPolicy(MemoryPolicy.NO_CACHE)
                             .networkPolicy(NetworkPolicy.NO_CACHE)

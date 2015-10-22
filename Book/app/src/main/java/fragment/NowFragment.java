@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -24,7 +23,6 @@ import com.hustunique.myapplication.DetailActivity;
 import com.hustunique.myapplication.MyApplication;
 import com.hustunique.myapplication.R;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import adapter.MyOnItemClickListener;
 import adapter.MyOnItemLongClickListener;
@@ -65,6 +63,7 @@ public class NowFragment extends Fragment implements NumFragment {
 
     Bundle savedState;
 
+    private final static boolean DEBUG = true;
     public final static String TAG = "life cycle-before";
 
     @Override
@@ -76,7 +75,8 @@ public class NowFragment extends Fragment implements NumFragment {
 
 
     public static NowFragment newInstance() {
-        Log.d(TAG, "now new instance");
+        if(DEBUG)
+                Log.d(TAG, "now new instance");
         if (mFragmentInstance == null) {
             mFragmentInstance = new NowFragment();
             mFragmentInstance.setArguments(new Bundle());
@@ -86,7 +86,8 @@ public class NowFragment extends Fragment implements NumFragment {
 
     @Override
     public void onDetach() {
-        Log.d(TAG, "now on detach");
+        if(DEBUG)
+            Log.d(TAG, "now on detach");
         super.onDetach();
         mHandler.removeCallbacks(null);
     }
@@ -94,7 +95,8 @@ public class NowFragment extends Fragment implements NumFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d(TAG, "now create");
+        if(DEBUG)
+            Log.d(TAG, "now create");
         View root = inflater.inflate(R.layout.fragment_bookshelf_now, container, false);
         mRecycler = (RecyclerView) root;
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -123,7 +125,8 @@ public class NowFragment extends Fragment implements NumFragment {
                                     case 1:
                                         //标记为已读，finishNum = chapterNum
                                         //所有章节标记为完成
-                                        Log.d(TAG, "book to before, local");
+                                        if(DEBUG)
+                                            Log.d(TAG, "book to before, local");
                                         Book book = mBookList.get(mPosition);
                                         book.setType(Constant.TYPE_BEFORE);
                                         book.setFinishNum(book.getChapterNum());
@@ -143,7 +146,8 @@ public class NowFragment extends Fragment implements NumFragment {
                                         break;
                                     case 2:
 
-                                        Log.d(TAG, "book to after, local");
+                                        if(DEBUG)
+                                            Log.d(TAG, "book to after, local");
                                         Book book2 = mBookList.get(mPosition);
                                         book2.setType(Constant.TYPE_AFTER);
                                         book2.setFinishNum(0);
@@ -179,14 +183,16 @@ public class NowFragment extends Fragment implements NumFragment {
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.d(TAG, "start --"+which);
+                if(DEBUG)
+                    Log.d(TAG, "start --"+which);
                 long startTime = TimeUtil.getTimeMillis(mPicker.getYear(), mPicker.getMonth(), mPicker.getDayOfMonth());
                 long days = (mTime.getText().toString().length() <=0)? 1 : Long.parseLong(mTime.getText().toString());
                 if(days == 0)
                     days = 1;
                 long endTime = startTime+days*24*60*60*1000;
                 Book book = mBookList.get(mPosition);
-                Log.d(TAG, "end --"+which);
+                if(DEBUG)
+                    Log.d(TAG, "end --"+which);
                 book.setStartTime(TimeUtil.getNeedTime(startTime));
                 book.setEndTime(TimeUtil.getNeedTime(endTime));
                     //标记为在读
@@ -228,14 +234,16 @@ public class NowFragment extends Fragment implements NumFragment {
     //打印log
     @Override
     public void onStart() {
-        Log.d(TAG, "now start");
+        if(DEBUG)
+            Log.d(TAG, "now start");
         super.onStart();
 
     }
 
     @Override
     public void onResume() {
-        Log.d(TAG, "now resume");
+        if(DEBUG)
+            Log.d(TAG, "now resume");
         super.onResume();
         if (MyApplication.getUpdateFlag(Constant.INDEX_NOW) || !restoreStateFromArguments()) {
             // First Time, Initialize something here
@@ -255,12 +263,14 @@ public class NowFragment extends Fragment implements NumFragment {
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "now pause");
+        if(DEBUG)
+            Log.d(TAG, "now pause");
     }
 
     @Override
     public void onStop() {
-        Log.d(TAG, "now stop");
+        if(DEBUG)
+            Log.d(TAG, "now stop");
         super.onStop();
     }
 
@@ -282,7 +292,8 @@ public class NowFragment extends Fragment implements NumFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.d(TAG, "before destroy");
+        if(DEBUG)
+            Log.d(TAG, "before destroy");
 
         // Save State Here
         saveStateToArguments();
@@ -339,7 +350,8 @@ public class NowFragment extends Fragment implements NumFragment {
         mBookList =  savedInstanceState.getParcelableArrayList(Constant.KEY_BOOKS);
         if(mBookList == null)
             mBookList = new ArrayList<>();
-        Log.d(TAG, "now restore, book list size:"+mBookList.size());
+        if(DEBUG)
+            Log.d(TAG, "now restore, book list size:"+mBookList.size());
         if(mBookList.size() > 0)
             setupAdapter();
         else
@@ -377,13 +389,15 @@ public class NowFragment extends Fragment implements NumFragment {
     //从网络或本地数据库读取数据至list,并创建adapter
     private void load()
     {
-        Log.d(TAG, "now load data");
+        if(DEBUG)
+            Log.d(TAG, "now load data");
         if(mBookList == null)
             mBookList = new ArrayList<>();
         else
             mBookList.clear();
         new QueryBooksTask(mBookList, mHandler).execute(Constant.TYPE_NOW);
-        Log.d(TAG, "now finish load data");
+        if(DEBUG)
+            Log.d(TAG, "now finish load data");
     }
 
     //绑定设置adapter
@@ -394,17 +408,20 @@ public class NowFragment extends Fragment implements NumFragment {
             mAdapter.setOnItemClickListener(mOnItemClickListener);
             mAdapter.setOnItemLongClickListener(mOnItemLongClickListener);
             mRecycler.setAdapter(mAdapter);
-            Log.d(TAG, "now create and set adapter:" + mBookList.size());
+            if(DEBUG)
+                Log.d(TAG, "now create and set adapter:" + mBookList.size());
         }
         else if(mRecycler.getAdapter() == null)
         {
             mRecycler.setAdapter(mAdapter);
-            Log.d(TAG, "now set adapter:"+mBookList.size());
+            if(DEBUG)
+                Log.d(TAG, "now set adapter:"+mBookList.size());
         }
         else
         {
             mAdapter.notifyDataSetChanged();
-            Log.d(TAG, "now adapter notify:"+mBookList.size());
+            if(DEBUG)
+                Log.d(TAG, "now adapter notify:"+mBookList.size());
         }
     }
 
@@ -441,7 +458,8 @@ public class NowFragment extends Fragment implements NumFragment {
 
     public static void executeLoad()
     {
-        Log.d(TAG, "now execute load");
+        if(DEBUG)
+            Log.d(TAG, "now execute load");
         if(mFragmentInstance != null) {
             mFragmentInstance.load();
         }

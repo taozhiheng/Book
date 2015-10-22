@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.ViewGroup;
 
 import fragment.BookshelfFragment;
-import fragment.CalendarFragment;
 import fragment.ReadingFragment;
 
 /**

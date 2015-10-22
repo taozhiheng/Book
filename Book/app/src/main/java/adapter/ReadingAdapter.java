@@ -18,7 +18,6 @@ import java.io.File;
 import java.util.List;
 
 import data.Chapter;
-import util.Constant;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.squareup.picasso.Picasso;

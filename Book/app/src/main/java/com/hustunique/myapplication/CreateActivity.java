@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -33,7 +32,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
@@ -52,7 +50,6 @@ import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
 import service.AddTask;
 import service.EditTask;
 import service.QueryChaptersTask;
-import ui.ColorPickerSeekBar;
 import ui.DividerItemDecoration;
 import ui.StickyLayout;
 import util.Constant;
@@ -99,6 +96,7 @@ public class CreateActivity extends AppCompatActivity {
 
     private RadioGroup mColors;
 
+    private final static boolean DEBUG = false;
 
 
     @Override
@@ -233,7 +231,7 @@ public class CreateActivity extends AppCompatActivity {
                 Chapter chapter;
                 for (int i = 0; i < mChapterList.size(); i++) {
                     chapter = mChapterList.get(i);
-                    mGroupList.add(new ChapterInfo(i, chapter.getName()));
+                    mGroupList.add(new ChapterInfo(i, chapter.getName(), chapter.getType()));
                 }
                 setupAdapter();
             }
@@ -262,7 +260,8 @@ public class CreateActivity extends AppCompatActivity {
                 //getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
             }
             mToolbar.setBackgroundColor(Constant.colors[mColorIndex]);
-            Log.d("net", "read book info from local");
+            if(DEBUG)
+                Log.d("net", "read book info from local");
 //            mChapterList = MyApplication.getDBOperateInstance().getChapters(mBook.getId());
             mChapterList = new ArrayList<>();
             new QueryChaptersTask(mChapterList, mLoadHandler).execute(mBook.getId());
@@ -376,7 +375,8 @@ public class CreateActivity extends AppCompatActivity {
             //增加一项时，chapterNum增加１；若书已完成，则finishNum同步增加１
             @Override
             public void onItemInsert(View v, int position, String str) {
-                Log.d("create", "item insert:" + position);
+                if(DEBUG)
+                    Log.d("create", "item insert:" + position);
                 if(str.compareTo("") == 0)
                 {
                     InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -407,7 +407,8 @@ public class CreateActivity extends AppCompatActivity {
             //若删除不是原有的，但是书已完成，finishNum同步减少１
             @Override
             public void onItemDelete(int position) {
-                Log.d("create", "item delete:" + position);
+                if(DEBUG)
+                    Log.d("create", "item delete:" + position);
 //                Toast.makeText(getBaseContext(), "delete:"+position, Toast.LENGTH_SHORT).show();
                 ChapterInfo chapterInfo = mGroupList.get(position);
                 int index = chapterInfo.getPosition();
@@ -438,7 +439,8 @@ public class CreateActivity extends AppCompatActivity {
 
             @Override
             public void onFocus() {
-                Log.d("create", "onFocus");
+                if(DEBUG)
+                    Log.d("create", "onFocus");
                 int height = mStickyLayout.getHeaderHeight();
                 if(height > 0)
                     mStickyLayout.smoothSetHeaderHeight(height, 0, 300);
@@ -648,8 +650,10 @@ public class CreateActivity extends AppCompatActivity {
                     finish();
                     return true;
                 }
-                Log.d("net", "edit book");
-                Log.d("net", "write book to local");
+                if(DEBUG)
+                    Log.d("net", "edit book");
+                if(DEBUG)
+                    Log.d("net", "write book to local");
                 //保存书籍，章节信息
                 mProgressDialog.setMessage("正在保存...");
                 mProgressDialog.show();
@@ -660,7 +664,8 @@ public class CreateActivity extends AppCompatActivity {
             }
             else
             {
-                Log.d("net", "create book to local");
+                if(DEBUG)
+                    Log.d("net", "create book to local");
                 mDialog.show();
             }
             return true;

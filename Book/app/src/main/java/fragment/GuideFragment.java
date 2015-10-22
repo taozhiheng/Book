@@ -2,7 +2,6 @@ package fragment;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,13 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.hustunique.myapplication.MainActivity;
-import com.hustunique.myapplication.MyApplication;
 import com.hustunique.myapplication.R;
-import com.squareup.picasso.Picasso;
 
 import data.UserPref;
 
@@ -30,6 +26,7 @@ public class GuideFragment extends Fragment {
     private static GuideFragment[] mFragment = new GuideFragment[3];
 
     private final static String TAG = "life cycle-guide";
+    private final static boolean DEBUG = false;
 
 
     public static GuideFragment newInstance(int position) {
@@ -46,13 +43,15 @@ public class GuideFragment extends Fragment {
 
     @Override
     public void onAttach(Activity activity) {
-        Log.d(TAG, "guide on attach");
+        if(DEBUG)
+            Log.d(TAG, "guide on attach");
         super.onAttach(activity);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "guide on create");
+        if(DEBUG)
+            Log.d(TAG, "guide on create");
         super.onCreate(savedInstanceState);
     }
 
@@ -60,7 +59,8 @@ public class GuideFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         position = getArguments().getInt(ARG_POSITION);
         View rootView = null;
-        Log.d(TAG, "guide on create view");
+        if(DEBUG)
+            Log.d(TAG, "guide on create view");
         switch(position)
         {
             case 0:
@@ -93,37 +93,43 @@ public class GuideFragment extends Fragment {
 
     @Override
     public void onResume() {
-        Log.d(TAG, "guide on resume");
+        if(DEBUG)
+            Log.d(TAG, "guide on resume");
         super.onResume();
     }
 
     @Override
     public void onPause() {
-        Log.d(TAG, "guide on pause");
+        if(DEBUG)
+            Log.d(TAG, "guide on pause");
         super.onPause();
     }
 
     @Override
     public void onStop() {
-        Log.d(TAG, "guide on stop");
+        if(DEBUG)
+            Log.d(TAG, "guide on stop");
         super.onStop();
     }
 
     @Override
     public void onDestroyView() {
-        Log.d(TAG, "guide on destroy view");
+        if(DEBUG)
+            Log.d(TAG, "guide on destroy view");
         super.onDestroyView();
     }
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "guide on destroy");
+        if (DEBUG)
+            Log.d(TAG, "guide on destroy");
         super.onDestroy();
     }
 
     @Override
     public void onDetach() {
-        Log.d(TAG, "guide on detach");
+        if(DEBUG)
+            Log.d(TAG, "guide on detach");
         super.onDetach();
     }
 }

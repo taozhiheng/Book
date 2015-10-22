@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.net.http.AndroidHttpClient;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -20,25 +18,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.HttpClientStack;
-import com.android.volley.toolbox.HttpStack;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.picasso.MemoryPolicy;
-import com.squareup.picasso.NetworkPolicy;
-import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 import com.umeng.analytics.MobclickAgent;
 import com.zhuge.analysis.stat.ZhugeSDK;
 
-import net.FileImageUpload;
 import net.MultipartEntity;
 import net.MultipartRequest;
 import net.MyJsonObjectRequest;
@@ -49,7 +37,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Map;
 
 import ui.CircleImageView;
 import util.Constant;
@@ -75,6 +62,8 @@ public class EditActivity extends AppCompatActivity {
 
     private RequestQueue mRequestQueue;
     private ProgressDialog mProgress;
+
+    private final static boolean DEBUG = false;
 
     @Override
     protected void onResume() {
@@ -154,7 +143,8 @@ public class EditActivity extends AppCompatActivity {
         if(user != null)
             mUser.setText(user);
         boolean sex = MyApplication.getUserSex();
-        Log.d("net", "read sex:"+sex);
+        if(DEBUG)
+            Log.d("net", "read sex:"+sex);
         if(!sex)
             mBoy.performClick();
         else
@@ -223,7 +213,8 @@ public class EditActivity extends AppCompatActivity {
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
-                                Log.d("net", "edit:"+response.toString());
+                                if(DEBUG)
+                                    Log.d("net", "edit:"+response.toString());
                                 try {
                                     String username = response.getString("username");
                                     MyApplication.setUser(username);
@@ -254,7 +245,8 @@ public class EditActivity extends AppCompatActivity {
 
                                                             @Override
                                                             public void onResponse(String response) {
-                                                                Log.d("net", "avatar:" + response);
+                                                                if(DEBUG)
+                                                                    Log.d("net", "avatar:" + response);
                                                                 mProgress.dismiss();
                                                                 Toast.makeText(getBaseContext(), "修改成功", Toast.LENGTH_SHORT).show();
                                                                 if(MyApplication.getUserUrl() != null && !MyApplication.getUserUrl().contains("null"))
@@ -282,7 +274,8 @@ public class EditActivity extends AppCompatActivity {
                                                         new Response.ErrorListener() {
                                                             @Override
                                                             public void onErrorResponse(VolleyError error) {
-                                                                Log.d("net", "avatar:" + error);
+                                                                if(DEBUG)
+                                                                    Log.d("net", "avatar:" + error);
                                                                 mProgress.dismiss();
                                                                 Toast.makeText(getBaseContext(), "抱歉，头像修改失败", Toast.LENGTH_SHORT).show();
                                                                 finish();
@@ -299,7 +292,8 @@ public class EditActivity extends AppCompatActivity {
                                                 multi.addBinaryPart("file", FileUtil.getBytesFromFile(new File(mIconPath)));
 //                    multi.addFilePart("file", new File(mIconPath));
                                                 // 将请求添加到队列中
-                                                Log.d("net", "image:" + mIconPath + " auth:" + MyApplication.getAuthorization());
+                                                if(DEBUG)
+                                                    Log.d("net", "image:" + mIconPath + " auth:" + MyApplication.getAuthorization());
                                                 mRequestQueue.add(multipartRequest);
                                             }
                                         }).start();
@@ -315,7 +309,8 @@ public class EditActivity extends AppCompatActivity {
                                     e.printStackTrace();
                                     mProgress.dismiss();
                                     Toast.makeText(getBaseContext(), "修改失败", Toast.LENGTH_SHORT).show();
-                                    Log.d("net", e.toString());
+                                    if(DEBUG)
+                                        Log.d("net", e.toString());
                                 }
                             }
                         },
@@ -324,11 +319,12 @@ public class EditActivity extends AppCompatActivity {
                             public void onErrorResponse(VolleyError error) {
                                 mProgress.dismiss();
                                 Toast.makeText(getBaseContext(), "修改失败", Toast.LENGTH_SHORT).show();
-                                Log.d("net", error.toString());
+                                if(DEBUG)
+                                    Log.d("net", error.toString());
                             }
                         })
         );
-        mRequestQueue.start();
+//        mRequestQueue.start();
     }
 
 

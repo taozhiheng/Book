@@ -48,7 +48,6 @@ import service.QueryChaptersTask;
 import ui.DividerItemDecoration;
 import ui.StickyLayout;
 import util.Constant;
-import util.GuideUtil;
 import util.TimeUtil;
 
 /**
@@ -80,6 +79,8 @@ public class ReadingFragment extends Fragment {
 
     private final static int[] guideResIds = {R.drawable.left_guide, R.drawable.right_guide, R.drawable.add_chapter_guide};
 
+    private RequestQueue mRequestQueue;
+
     Bundle savedState;
 
     public final static String TAG = "life cycle-reading";
@@ -91,6 +92,14 @@ public class ReadingFragment extends Fragment {
             mFragmentInstance.setArguments(new Bundle());
         }
         return mFragmentInstance;
+    }
+
+    public ReadingFragment()
+    {
+        if(mFragmentInstance != null)
+            mFragmentInstance = null;
+        mFragmentInstance = this;
+        mFragmentInstance.setArguments(new Bundle());
     }
 
 
@@ -144,17 +153,17 @@ public class ReadingFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(UserPref.getFirstGuide(0)) {
-            GuideUtil guideUtil = GuideUtil.getInstance();
-            guideUtil.setClearGuideListener(new GuideUtil.ClearGuideListener() {
-                @Override
-                public void clearGuide() {
-                    UserPref.clearFirstGuide(0);
-                }
-            });
-            guideUtil.setFirst(true);
-            guideUtil.initGuide(getActivity(), guideResIds);
-        }
+//        if(UserPref.getFirstGuide(0)) {
+//            GuideUtil guideUtil = GuideUtil.getInstance();
+//            guideUtil.setClearGuideListener(new GuideUtil.ClearGuideListener() {
+//                @Override
+//                public void clearGuide() {
+//                    UserPref.clearFirstGuide(0);
+//                }
+//            });
+//            guideUtil.setFirst(true);
+//            guideUtil.initGuide(getActivity(), guideResIds);
+//        }
         MobclickAgent.onPageStart("Today Reading Fragment");
         checkTime();
         if (MyApplication.getUpdateFlag(Constant.INDEX_READ) || !restoreStateFromArguments()) {
@@ -228,7 +237,8 @@ public class ReadingFragment extends Fragment {
             savedState = saveState();
         if (savedState != null) {
             Bundle b = getArguments();
-            b.putBundle("internalSavedViewState", savedState);
+            if(b != null)
+                b.putBundle("internalSavedViewState", savedState);
         }
     }
 
@@ -299,6 +309,8 @@ public class ReadingFragment extends Fragment {
      * */
     private void checkTime()
     {
+        if(mRequestQueue == null)
+            mRequestQueue = Volley.newRequestQueue(getActivity());
         String time = TimeUtil.getDateTimeString(Calendar.getInstance(), "yyyy.MM.dd");
         if(!time.equals(mDate.getText().toString()))
         {
@@ -314,8 +326,7 @@ public class ReadingFragment extends Fragment {
         String time1 = TimeUtil.getNeedTime(millis + 24 * 60 * 60 * 1000);
         String time2 = TimeUtil.getNeedTime(millis + 24*60*60*1000*2);
         String urlHead = MyApplication.getUrlHead() + Constant.URL_SAYING+"?date=";
-        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
-        requestQueue.add(new JsonObjectRequest(Request.Method.GET, urlHead + time,
+        mRequestQueue.add(new JsonObjectRequest(Request.Method.GET, urlHead + time,
                 null, new WordsListener(0),
                 new Response.ErrorListener() {
                     @Override
@@ -338,13 +349,17 @@ public class ReadingFragment extends Fragment {
                             mPeople.setText(author);
                             mWords.setText("　　" + saying);
                         }
+                        else
+                        {
+                            queryToday();
+                        }
                     }
                 }));
-        requestQueue.add(new JsonObjectRequest(Request.Method.GET, urlHead + time1,
+        mRequestQueue.add(new JsonObjectRequest(Request.Method.GET, urlHead + time1,
                 null, new WordsListener(1), null));
-        requestQueue.add(new JsonObjectRequest(Request.Method.GET, urlHead+time2,
+        mRequestQueue.add(new JsonObjectRequest(Request.Method.GET, urlHead+time2,
                 null, new WordsListener(2), null));
-        requestQueue.start();
+        mRequestQueue.start();
     }
 
     class WordsListener implements Response.Listener<JSONObject>{
@@ -375,8 +390,49 @@ public class ReadingFragment extends Fragment {
             }catch (JSONException e)
             {
                 e.printStackTrace();
+                if(mTimeFlag == 0)
+                {
+                    queryToday();
+                }
             }
         }
+    }
+
+    private void queryToday()
+    {
+        long millis = System.currentTimeMillis();
+        String time = TimeUtil.getNeedTime(millis);
+        String urlHead = MyApplication.getUrlHead() + Constant.URL_SAYING+"?date=";
+        mRequestQueue.add(new JsonObjectRequest(Request.Method.GET, urlHead + time,
+                null, new WordsListener(0),
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //网络查询失败，则重新设置本地数据，并使用本地数据更新名言
+                        long last = UserPref.getTime();
+                        long current = TimeUtil.getTodayAt(0).getTimeInMillis();
+                        int days = (int)(current-last)/(24*60*60*1000);
+                        if(days > 0 && days < 3)
+                        {
+                            UserPref.setTime(current);
+                            UserPref.setWords(0, UserPref.getWords(days));
+                            UserPref.setWords(1, UserPref.getWords(days+1));
+                            UserPref.setWords(2, null);
+                        }
+                        String content = UserPref.getWords(0);
+                        if(content != null) {
+                            String saying = content.substring(0, content.indexOf('&'));
+                            String author = content.substring(content.indexOf('&')+1);
+                            mPeople.setText(author);
+                            mWords.setText("　　" + saying);
+                        }
+                        else
+                        {
+                            queryToday();
+                        }
+                    }
+                }));
+        mRequestQueue.start();
     }
 
     //从网络或本地数据库加载数据至list,并创建adapter

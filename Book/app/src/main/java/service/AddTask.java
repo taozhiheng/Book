@@ -9,7 +9,6 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 import data.Book;
-import data.Chapter;
 import data.ChapterInfo;
 import data.DBOperate;
 import util.Constant;

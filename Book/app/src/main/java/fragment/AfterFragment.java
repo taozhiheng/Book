@@ -59,6 +59,7 @@ public class AfterFragment extends Fragment implements NumFragment {
 
     private static AfterFragment mFragmentInstance;
 
+    private final static boolean DEBUG = false;
     public final static String TAG = "life cycle-after";
 
 
@@ -73,7 +74,8 @@ public class AfterFragment extends Fragment implements NumFragment {
 
     public static AfterFragment newInstance()
     {
-        Log.d(TAG, "after new instance");
+        if(DEBUG)
+            Log.d(TAG, "after new instance");
         if(mFragmentInstance == null) {
             mFragmentInstance = new AfterFragment();
             mFragmentInstance.setArguments(new Bundle());
@@ -83,7 +85,8 @@ public class AfterFragment extends Fragment implements NumFragment {
 
     @Override
     public void onDetach() {
-        Log.d(TAG, "after on detach");
+        if(DEBUG)
+            Log.d(TAG, "after on detach");
         super.onDetach();
         mHandler.removeCallbacks(null);
     }
@@ -91,7 +94,8 @@ public class AfterFragment extends Fragment implements NumFragment {
     @Nullable
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d(TAG, "after create");
+        if(DEBUG)
+            Log.d(TAG, "after create");
         View root = inflater.inflate(R.layout.fragment_bookshelf_after, container, false);
         mRecycler = (RecyclerView) root;
         mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -123,7 +127,8 @@ public class AfterFragment extends Fragment implements NumFragment {
                                         //标记书已读完，finishNum = chapterNum
                                         //设置所有章节为已读状态
 
-                                        Log.d(TAG, "book to before, local");
+                                        if(DEBUG)
+                                            Log.d(TAG, "book to before, local");
                                         Book book = mBookList.get(mPosition);
                                         book.setType(Constant.TYPE_BEFORE);
                                         book.setFinishNum(book.getChapterNum());
@@ -159,7 +164,8 @@ public class AfterFragment extends Fragment implements NumFragment {
                 if(days == 0)
                     days = 1;
                 long endTime = startTime+days*24*60*60*1000;
-                Log.d(TAG, "book to now, days:"+days);
+                if(DEBUG)
+                    Log.d(TAG, "book to now, days:"+days);
                 Book book = mBookList.get(mPosition);
                 book.setType(Constant.TYPE_NOW);
                 book.setStartTime(TimeUtil.getNeedTime(startTime));
@@ -185,7 +191,8 @@ public class AfterFragment extends Fragment implements NumFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //删除此书及所有章节
-                        Log.d(TAG, "delete book, local");
+                        if(DEBUG)
+                            Log.d(TAG, "delete book, local");
                         Book book = mBookList.get(mPosition);
                         DBOperate dbOperate = MyApplication.getDBOperateInstance();
                         dbOperate.setBookDelete(book.getId());
@@ -202,14 +209,16 @@ public class AfterFragment extends Fragment implements NumFragment {
 
     @Override
     public void onStart() {
-        Log.d(TAG, "after start");
+        if(DEBUG)
+            Log.d(TAG, "after start");
         super.onStart();
 
     }
 
     @Override
     public void onResume() {
-        Log.d(TAG, "after resume");
+        if(DEBUG)
+            Log.d(TAG, "after resume");
         super.onResume();
         if (MyApplication.getUpdateFlag(Constant.INDEX_AFTER) || !restoreStateFromArguments()) {
             // First Time, Initialize something here
@@ -220,12 +229,14 @@ public class AfterFragment extends Fragment implements NumFragment {
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(TAG, "after pause");
+        if(DEBUG)
+            Log.d(TAG, "after pause");
     }
 
     @Override
     public void onStop() {
-        Log.d(TAG, "after stop");
+        if(DEBUG)
+            Log.d(TAG, "after stop");
         super.onStop();
     }
 
@@ -249,7 +260,8 @@ public class AfterFragment extends Fragment implements NumFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.d(TAG, "after destroy view");
+        if(DEBUG)
+            Log.d(TAG, "after destroy view");
 
         // Save State Here
         saveStateToArguments();
@@ -298,7 +310,8 @@ public class AfterFragment extends Fragment implements NumFragment {
         mBookList =  savedInstanceState.getParcelableArrayList(Constant.KEY_BOOKS);
         if(mBookList == null)
             mBookList = new ArrayList<>();
-        Log.d(TAG, "after restore, book list size:"+mBookList.size());
+        if(DEBUG)
+            Log.d(TAG, "after restore, book list size:"+mBookList.size());
         if(mBookList.size() > 0)
             setupAdapter();
         else
@@ -336,14 +349,16 @@ public class AfterFragment extends Fragment implements NumFragment {
     //从网络或本地数据库读取数据至list,并创建adapter
     private void load()
     {
-        Log.d(TAG, "after load data");
+        if(DEBUG)
+            Log.d(TAG, "after load data");
         if(mBookList == null)
             mBookList = new ArrayList<>();
         else
             mBookList.clear();
         new QueryBooksTask(mBookList, mHandler).execute(Constant.TYPE_AFTER);
 //        mBookList = MyApplication.getDBOperateInstance().getBooks(Constant.TYPE_AFTER);
-        Log.d(TAG, "after finish start load data task");
+        if(DEBUG)
+            Log.d(TAG, "after finish start load data task");
     }
 
     //绑定设置adapter
@@ -354,17 +369,20 @@ public class AfterFragment extends Fragment implements NumFragment {
             mAdapter.setOnItemClickListener(mOnItemClickListener);
             mAdapter.setOnItemLongClickListener(mOnItemLongClickListener);
             mRecycler.setAdapter(mAdapter);
-            Log.d(TAG, "after create and set adapter:" + mBookList.size());
+            if(DEBUG)
+                Log.d(TAG, "after create and set adapter:" + mBookList.size());
         }
         else if(mRecycler.getAdapter() == null)
         {
             mRecycler.setAdapter(mAdapter);
-            Log.d(TAG, "after set adapter:"+mBookList.size());
+            if(DEBUG)
+                Log.d(TAG, "after set adapter:"+mBookList.size());
         }
         else
         {
             mAdapter.notifyDataSetChanged();
-            Log.d(TAG, "after adapter notify:"+mBookList.size());
+            if(DEBUG)
+                Log.d(TAG, "after adapter notify:"+mBookList.size());
 
         }
 
@@ -391,7 +409,8 @@ public class AfterFragment extends Fragment implements NumFragment {
 
     public static void executeLoad()
     {
-        Log.d(TAG, "after execute load");
+        if(DEBUG)
+            Log.d(TAG, "after execute load");
 
         if(mFragmentInstance != null)
         {

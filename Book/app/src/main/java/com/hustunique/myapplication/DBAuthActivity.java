@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
 import com.zhuge.analysis.stat.ZhugeSDK;
@@ -21,6 +20,7 @@ public class DBAuthActivity extends AppCompatActivity{
 
 
     private WebView mWebView;
+    private final static boolean DEBUG = false;
 
     @Override
     protected void onResume() {
@@ -61,7 +61,8 @@ public class DBAuthActivity extends AppCompatActivity{
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
 //            Toast.makeText(getBaseContext(), url, Toast.LENGTH_SHORT).show();
-            Log.d("net", "url:" + url);
+            if(DEBUG)
+                Log.d("net", "url:" + url);
             if(url.contains(Constant.DB_REDIRECT_URL)) {
                 String code = url.substring(url.indexOf('?') + 1);
                 Intent intent = new Intent();

@@ -18,11 +18,8 @@
         android:background="@drawable/search_border"
         app:iconifiedByDefault="false"
         app:queryBackground="@null"
-        app:submitBackground="@null"
-        app:commitIcon="@mipmap/ic_search"
-        app:searchIcon="@mipmap/ic_search"
         android:theme="@style/Theme.AppCompat.Light"
-        app:defaultQueryHint="书名/作者/ISBN"
+        app:defaultQueryHint="搜索书名/作者/ISBN"
         android:layout_centerHorizontal="true"
         android:layout_width="@dimen/add_width1"
         android:layout_height="@dimen/add_height1"/>

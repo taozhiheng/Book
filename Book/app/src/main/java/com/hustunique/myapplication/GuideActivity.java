@@ -8,7 +8,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RadioGroup;
 
-import com.facebook.drawee.backends.pipeline.Fresco;
 
 import fragment.FragmentCreator;
 import fragment.GuideFragment;

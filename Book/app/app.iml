@@ -81,6 +81,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.facebook.fresco/fresco/0.7.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.facebook.fresco/imagepipeline/0.7.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.zhuge.analysis/zhugeio/1.6.0/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/de.hdodenhof/circleimageview/1.2.2/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/jp.wasabeef/recyclerview-animators/1.2.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jacoco" />
@@ -112,6 +113,7 @@
     <orderEntry type="library" exported="" name="fbcore-0.7.0" level="project" />
     <orderEntry type="library" exported="" name="com.umeng.fb.5.3.0" level="project" />
     <orderEntry type="library" exported="" name="imagepipeline-0.7.0" level="project" />
+    <orderEntry type="library" exported="" name="circleimageview-1.2.2" level="project" />
     <orderEntry type="library" exported="" name="zhugeio-1.6.0" level="project" />
     <orderEntry type="library" exported="" name="fresco-0.7.0" level="project" />
     <orderEntry type="library" exported="" name="systembartint-1.0.3" level="project" />
@@ -122,8 +124,6 @@
     <orderEntry type="library" exported="" name="analytics-5.6.1" level="project" />
     <orderEntry type="library" exported="" name="drawee-0.7.0" level="project" />
     <orderEntry type="library" exported="" name="design-22.2.0" level="project" />
-    <orderEntry type="module" module-name="lib" exported="" />
-    <orderEntry type="module" module-name="photoview" exported="" />
     <orderEntry type="module" module-name="weiboSDK" exported="" />
   </component>
 </module>

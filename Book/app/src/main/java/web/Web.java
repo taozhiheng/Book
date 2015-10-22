@@ -3,7 +3,6 @@ package web;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.Request;
@@ -24,7 +23,6 @@ import data.Chapter;
 import data.DBOperate;
 import data.TimeInfo;
 import service.BookUtil;
-import service.Counter;
 import util.Constant;
 import util.TimeUtil;
 
