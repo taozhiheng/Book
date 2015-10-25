@@ -60,18 +60,19 @@
     <dimen name="person_height2">42dp</dimen>
     <dimen name="person_height3">48dp</dimen>
 
+    <!--these items use same values-->
     <dimen name="create_margin1">28dp</dimen>
     <dimen name="create_margin2">14dp</dimen>
     <dimen name="create_margin3">43dp</dimen>
     <!--<dimen name="create_margin4">27dp</dimen>-->
     <dimen name="create_margin4">12dp</dimen>
-
     <dimen name="create_margin5">10dp</dimen>
     <dimen name="create_margin6">26dp</dimen>
     <dimen name="create_margin7">40dp</dimen>
     <dimen name="create_margin8">14dp</dimen>
     <dimen name="create_margin9">30dp</dimen>
-
+    <dimen name="create_margin10">20dp</dimen>
+    <dimen name="create_margin11">3dp</dimen>
     <dimen name="create_minWidth">80dp</dimen>
     <dimen name="create_width1">78dp</dimen>
     <dimen name="create_height">144dp</dimen>
@@ -95,12 +96,14 @@
     <dimen name="add_item_height">90dp</dimen>
     <dimen name="add_item_height1">83dp</dimen>
 
+    <!--these items use same values-->
     <dimen name="addbooklist_margin1">34dp</dimen>
     <dimen name="addbooklist_margin2">10dp</dimen>
     <dimen name="addbooklist_width1">9dp</dimen>
     <dimen name="addbooklist_height">63dp</dimen>
     <dimen name="addbooklist_height1">9dp</dimen>
 
+    <!--these items use same values-->
     <dimen name="book_item_margin1">25dp</dimen>
     <dimen name="book_item_margin2">10dp</dimen>
     <dimen name="book_item_margin3">120dp</dimen>
@@ -176,6 +179,7 @@
 
     <dimen name="guide_margin">40dp</dimen>
 
+    <!--these items have not been used-->
     <dimen name="about_width">150dp</dimen>
     <dimen name="about_height">150dp</dimen>
     <dimen name="about_margin1">20dp</dimen>
@@ -206,6 +210,9 @@
     <dimen name="create_text_size3">14sp</dimen>
     <dimen name="create_text_size4">18sp</dimen>
 
+    <dimen name="detail_text_size1">20sp</dimen>
+    <dimen name="detail_text_size2">13sp</dimen>
+    <dimen name="detail_text_size3">14sp</dimen>
 
     <dimen name="title_text_size1">18sp</dimen>
 

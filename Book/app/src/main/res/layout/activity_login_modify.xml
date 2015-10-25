@@ -25,7 +25,7 @@
             android:textSize="@dimen/login_text_size3"
             android:textColor="@color/login_item"
             android:text="@string/login_wb"
-            android:drawablePadding="20dp"
+            android:drawablePadding="@dimen/login_padding"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <TextView
@@ -35,7 +35,7 @@
             android:text="@string/login_db"
             android:textSize="@dimen/login_text_size3"
             android:textColor="@color/login_item"
-            android:drawablePadding="20dp"
+            android:drawablePadding="@dimen/login_padding"
             android:drawableTop="@mipmap/ic_douban"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

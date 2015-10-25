@@ -67,7 +67,7 @@
                         android:id="@+id/detail_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="20sp"
+                        android:textSize="@dimen/detail_text_size1"
                         android:textColor="@color/create_book_name"
                         android:singleLine="true"
                         android:background="@null"
@@ -79,7 +79,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/create_margin5"
-                    android:textSize="13sp"
+                    android:textSize="@dimen/detail_text_size2"
                     android:singleLine="true"
                     android:gravity="center_vertical"
                     android:textColor="@color/create_other_text"
@@ -90,7 +90,7 @@
                     android:layout_height="wrap_content"
                     android:background="@null"
                     android:layout_marginTop="@dimen/create_margin5"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/detail_text_size3"
                     android:singleLine="true"
                     android:textColor="@color/create_other_text" />
                 <TextView
@@ -99,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:background="@null"
                     android:layout_marginTop="@dimen/create_margin5"
-                    android:textSize="14sp"
+                    android:textSize="@dimen/detail_text_size3"
                     android:singleLine="true"
                     android:textColor="@color/create_other_text"/>
             </LinearLayout>
