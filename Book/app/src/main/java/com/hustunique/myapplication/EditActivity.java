@@ -1,11 +1,14 @@
 package com.hustunique.myapplication;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -36,8 +39,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
+import ui.AvatarImageView;
 import ui.CircleImageView;
 import util.Constant;
 import util.FileUtil;
@@ -62,6 +69,8 @@ public class EditActivity extends AppCompatActivity {
 
     private RequestQueue mRequestQueue;
     private ProgressDialog mProgress;
+
+    private AlertDialog dialog;
 
     private final static boolean DEBUG = false;
 
@@ -114,13 +123,26 @@ public class EditActivity extends AppCompatActivity {
             }
         });
 
+        dialog = new AlertDialog.Builder(EditActivity.this)
+                .setTitle("修改头像")
+                .setItems(new String[]{"拍照", "图库"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(which == 0)
+                            startActionCamera(picUri);
+                        else
+                            startActionPickCrop();
+                    }
+                })
+                .create();
 
         mIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(Intent.ACTION_PICK,
-                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
-                        Constant.IMAGE);
+//                startActivityForResult(new Intent(Intent.ACTION_PICK,
+//                                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI),
+//                        Constant.IMAGE);
+                dialog.show();
             }
         });
         mBoy.setOnClickListener(mOnClickListener);
@@ -151,6 +173,8 @@ public class EditActivity extends AppCompatActivity {
             mGirl.performClick();
 
         mRequestQueue = Volley.newRequestQueue(this, new OkHttpStack());
+
+        init();
 
     }
 
@@ -328,29 +352,153 @@ public class EditActivity extends AppCompatActivity {
     }
 
 
+    private final static int REQUEST_IMAGE_BY_CAMERA = 0;
+    private final static int REQUEST_IMAGE_BY_SDCARD = 1;
+    private final static int REQUEST_IMAGE_AFTER_CROP = 2;
+
+    private Uri picUri;
+    private String fileSavePath;
+    private String absolutePicPath;
+    private File absolutePicFile;
+
+    public void init() {
+        fileSavePath = Environment.getExternalStorageDirectory()
+                .getAbsolutePath() + "/avatar";
+        // 判断是否挂载了SD卡
+        String storageState = Environment.getExternalStorageState();
+        // 挂载了SD卡
+        if (storageState.equals(Environment.MEDIA_MOUNTED)) {
+
+            File saveDir = new File(fileSavePath);
+            // 路径是否存在
+            if (!saveDir.exists()) {
+                // 创建路径
+                saveDir.mkdirs();
+            }
+        } else {
+            // 弹提示 错误提示
+            Toast.makeText(this, "无法保存头像，请检查SD卡是否挂载", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // 初始化文件
+        initFile();
+    }
+
+    //设置目录 存放图片
+    public void initFile() {
+
+        // 输出裁剪的临时文件的时间
+        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA).format(new Date());
+        // 照片命名
+        String origFileName = "pic_origin_" + timeStamp + ".jpg";
+        String cropFileName = "pic_after_crop_" + timeStamp + ".jpg";
+
+        fileSavePath = Environment.getExternalStorageDirectory()
+                .getAbsolutePath() + "/avatar";
+        // 裁剪头像的绝对路径
+        absolutePicPath = fileSavePath +"/"+ cropFileName;
+        absolutePicFile = new File(absolutePicPath);
+        picUri = Uri.fromFile(new File(fileSavePath, origFileName));
+    }
+
+    /**
+     * 选择图片 图片相册
+     */
+    private void startActionPickCrop() {
+        Intent intent = new Intent(Intent.ACTION_PICK, null);
+        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+        startActivityForResult(intent,
+                REQUEST_IMAGE_BY_SDCARD);
+    }
+
+    /**
+     * 调用相机拍照
+     */
+    private void startActionCamera(Uri output) {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);// 调用系统照相机
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, output);
+        startActivityForResult(intent,
+                REQUEST_IMAGE_BY_CAMERA);
+    }
+
+    public void startActionCrop(Uri input, Uri output) {
+
+        Intent intentCamera = new Intent("com.android.camera.action.CROP");
+        intentCamera.setDataAndType(input, "image/*");// 源文件地址
+        intentCamera.putExtra("crop", true);
+        // intentCamera.putExtra("scale", false);
+        // intentCamera.putExtra("noFaceDetection", true);//不需要人脸识别功能
+        // intentCamera.putExtra("circleCrop", "");//设定此方法选定区域会是圆形区域
+        // aspectX aspectY是宽高比例
+        intentCamera.putExtra("aspectX", 1);
+        intentCamera.putExtra("aspectY", 1);
+        // outputX outputY 是裁剪图片的宽高
+        intentCamera.putExtra("outputX", 400);
+        intentCamera.putExtra("outputY", 120);
+        intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, output);// 输出地址
+        intentCamera.putExtra("return-data", true);
+        startActivityForResult(intentCamera,
+                REQUEST_IMAGE_AFTER_CROP);
+    }
+
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == Constant.IMAGE && resultCode == Activity.RESULT_OK && null != data) {
-            Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-
-            Cursor cursor = getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
-            cursor.moveToFirst();
-
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
-            mIconPath = picturePath;
-            if(mIconPath != null) {
-                MyApplication.getPicasso().load(new File(mIconPath)).resize(137,137).into(mIcon);
-                iconChanged = true;
-            }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_IMAGE_BY_CAMERA:
+                if (Activity.RESULT_OK == resultCode) {
+                    // 拍照后裁剪
+                    startActionCrop(picUri, Uri.fromFile(absolutePicFile));
+                }
+                break;
+            case REQUEST_IMAGE_BY_SDCARD:
+                // 请求相册后，裁剪
+                if (data != null) {
+                    Uri uri = data.getData();
+                    if (uri != null) {
+                        startActionCrop(uri, Uri.fromFile(absolutePicFile));
+                    }
+                }
+                break;
+            case REQUEST_IMAGE_AFTER_CROP:
+                //更新头像
+                if (data != null && data.getExtras() != null) {
+                    Bitmap photo = data.getExtras().getParcelable("data");
+                    mIcon.setImageBitmap(photo);
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    intent.setData(Uri.fromFile(absolutePicFile));
+                    sendBroadcast(intent);
+                    mIconPath = absolutePicPath;
+//                    Toast.makeText(getBaseContext(), "裁剪已保存至:"+absolutePicPath, Toast.LENGTH_SHORT).show();
+                    //压缩图片
+                }
+                break;
         }
     }
+
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (requestCode == Constant.IMAGE && resultCode == Activity.RESULT_OK && null != data) {
+//            Uri selectedImage = data.getData();
+//            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+//
+//            Cursor cursor = getContentResolver().query(selectedImage,
+//                    filePathColumn, null, null, null);
+//            cursor.moveToFirst();
+//
+//            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+//            String picturePath = cursor.getString(columnIndex);
+//            cursor.close();
+//            mIconPath = picturePath;
+//            if(mIconPath != null) {
+//                MyApplication.getPicasso().load(new File(mIconPath)).resize(137,137).into(mIcon);
+//                iconChanged = true;
+//            }
+//        }
+//    }
 
 
 

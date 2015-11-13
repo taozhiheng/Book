@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SlideBar">
+        <attr name="MinVelocityXToSlide" format="integer"/>
+        <attr name="LeftAnimationDuratioin" format="integer"/>
+        <attr name="RightAnimationDuratioin" format="integer"/>
+    </declare-styleable>
+
+</resources>
