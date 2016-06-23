@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/recycler_item_background0"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/chapter_item_height">
+    <View
+        android:id="@+id/chapter_icon"
+        android:layout_width="@dimen/chapter_item_width1"
+        android:layout_height="@dimen/chapter_item_height1"
+        android:background="@drawable/chapter_background0"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/chapter_item_margin1"
+        />
+    <HorizontalScrollView
+        android:layout_gravity="center_vertical"
+        android:layout_toRightOf="@id/chapter_icon"
+        android:layout_toLeftOf="@+id/chapter_flag"
+        android:layout_centerVertical="true"
+        android:scrollbars="none"
+        android:layout_marginLeft="@dimen/chapter_item_margin3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/chapter_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/chapter_item_text_size1"
+            android:textColor="@color/create_chapter_text"
+            android:background="@null"
+            android:singleLine="true"
+            />
+    </HorizontalScrollView>
+
+    <ImageView
+        android:id="@+id/chapter_flag"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/chapter_icon_background0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true" />
+</RelativeLayout>

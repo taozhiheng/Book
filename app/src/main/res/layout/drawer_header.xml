@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:id="@+id/header"
+    android:background="@color/drawer_header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/drawer_width1">
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/drawer_user_icon"
+
+            android:layout_width="@dimen/drawer_width2"
+            android:layout_height="@dimen/drawer_height1"
+            android:layout_marginTop="@dimen/drawer_margin1"
+            android:layout_marginBottom="@dimen/drawer_margin1"
+
+            android:layout_marginLeft="@dimen/drawer_margin1" />
+        <TextView
+            android:id="@+id/drawer_user_name"
+            android:layout_toRightOf="@id/drawer_user_icon"
+            android:layout_centerVertical="true"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/drawer_text_size1"
+            android:text="请登录"
+            android:textColor="@color/white"
+            android:gravity="center_horizontal|top"
+            android:singleLine="true"/>
+        <!--<TextView-->
+            <!--android:textSize="@dimen/drawer_text_size2"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/drawer_user_email"-->
+            <!--android:layout_below="@id/drawer_user_name"-->
+            <!--android:layout_toRightOf="@id/drawer_user_icon"-->
+            <!--android:singleLine="true"-->
+            <!--android:textColor="@color/drawer_user_email"-->
+            <!--android:gravity="center_horizontal|bottom"-->
+             <!--/>-->
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/drawer_height2"
+        android:background="@color/drawer_line"
+        />
+</LinearLayout>

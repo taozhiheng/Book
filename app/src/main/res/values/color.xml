@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
+    <color name="alpha_black">#20000000</color>
+    <color name="alpha_white">#20FFFFFF</color>
+
+    <color name="actionbar_bg">#263238</color>
+    <color name="main_bg">#263238</color>
+    <color name="toolbar_bg">#333333</color>
+
+    <color name="holo_blue_light">#ff33b5e5</color>
+    <color name="holo_blue_dark">#ff0099cc</color>
+
+    <color name="holo_green_light">#ff99cc00</color>
+    <color name="holo_green_dark">#ff669900</color>
+
+    <color name="red">#bf360c</color>
+    <color name="ripple_red">#ffbf5232</color>
+
+    <color name="logout">#ffffc0cb</color>
+    <color name="orange">#ffff8f55</color>
+    
+    <color name="orange_light">#a0ffefd5</color>
+
+    <color name="pink">#ffc0cb</color>
+
+    <color name="material_teal">@color/material_deep_teal_500</color>
+    <color name="ripple_material_teal">#ff149691</color>
+
+    <color name="blue">#304f9f</color>
+    <color name="grey">@color/material_blue_grey_800</color>
+    <color name="light">@color/primary_material_light</color>
+
+    <color name="colorPrimaryDark">@color/material_deep_teal_500</color>
+
+    <color name="windowBackgroundColor">#333333</color>
+    <color name="black_translucent">#80000000</color>
+
+    <color name="light_grey">#80778899</color>
+
+    <color name="text_gray">#8555</color>
+
+
+    <color name="result_view">#b0000000</color>
+    <color name="viewfinder_mask">#60000000</color>
+    <color name="possible_result_points">#c0ffff00</color>
+    <color name="alltextcolor">#555</color>
+    <color name="layout_background">#fff</color>
+    <color name="theme_color">#25dcca</color>
+    <color name="previous_theme_color">#3151b5</color>
+
+    <color name="drawer_header">#2f9656</color>
+    <color name="drawer_user_circle">#6eb488</color>
+    <color name="drawer_user_email">#bed9c7</color>
+    <color name="drawer_line">#88dda8</color>
+    <color name="drawer_main">#41b876</color>
+
+    <color name="login_btn">#5bda8b</color>
+    <color name="login_main">#ffffff</color>
+    <color name="login_border_text">#cfcfcf</color>
+    <color name="login_item">#aaaaaa</color>
+    <color name="login_title">#737373</color>
+
+    <color name="register_border_text">#cecece</color>
+    <color name="register_btn">#5bda8b</color>
+
+
+    <color name="person_user_circle">#f2f2f2</color>
+    <color name="person_text">#7a7a7a</color>
+    <color name="person_num">#4dbc77</color>
+    <color name="toolbar">#4dbc77</color>
+    <color name="status">#72d572</color>
+
+    <color name="reading_chapter_text">#323232</color>
+    <color name="reading_finish">#c8e6d3</color>
+    <color name="reading_top">#ffc674</color>
+    <color name="reading_delete">#fca5a5</color>
+    <color name="reading_book_text">#919191</color>
+    <color name="reading_divider">#cecece</color>
+    <color name="reading_main">#80cd9d</color>
+    <color name="reading_shadow">#593c3c3c</color>
+    
+    <color name="bookshelf_title_check">#7bc898</color>
+    <color name="bookshelf_title">#4d4d4d</color>
+    <color name="bookshelf_title_num">#919191</color>
+    <color name="bookshelf_line">#7bc898</color>
+    <color name="bookshelf_plan_title">#4dbc77</color>
+    <color name="bookshelf_plan_hint_text">#b1b1b1</color>
+    <color name="bookshelf_plan_divider">#cecece</color>
+    <color name="bookshelf_plan_day">#515151</color>
+    <color name="bookshelf_dialog_divider">#cecece</color>
+    <color name="bookshelf_dialog_text">#7a7a7a</color>
+
+    <color name="detail_unselected">#ffffff</color>
+    <color name="detail_selected0">#e91e63</color>
+    <color name="detail_selected1">#f44336</color>
+    <color name="detail_selected2">#7fd68b</color>
+    <color name="detail_selected3">#2196f3</color>
+    <color name="detail_selected4">#86a8f8</color>
+    <color name="detail_selected5">#cb8ef6</color>
+
+
+
+    <color name="add_dialog_title">#4dbc77</color>
+    <color name="add_dialog_text">#919191</color>
+    <color name="add_dialog_divider">#cecece</color>
+
+    <color name="create_book_name">#4e4e4e</color>
+    <color name="create_other_text">#323232</color>
+    <color name="create_chapter_icon">#c8e6d3</color>
+    <color name="create_chapter_text">#4e4e4e</color>
+
+    <color name="search_icon">#cecece</color>
+    <color name="search_hint">#7a7a7a</color>
+    <color name="search_book_name">#323232</color>
+    <color name="search_other_text">#919191</color>
+
+    <color name="input">#000000</color>
+
+    <color name="white_dark">@color/dim_foreground_material_dark</color>
+
+    <color name="book_red">#e91e63</color>
+    <color name="book_orange">#f44336</color>
+    <color name="book_green">#7fd68b</color>
+    <color name="book_blue">#2196f3</color>
+    <color name="book_blue_light">#86a8f8</color>
+    <color name="book_purple">#cb8ef6</color>
+    
+    <color name="about_title">#222222</color>
+    <color name="about_describe">#5f5f5f</color>
+    <color name="about_table">#5f5f5f</color>
+    <color name="about_divider">#cecece</color>
+
+    <color name="chapter_normal">#4e4e4e</color>
+    <color name="chapter_finish">#c8c8c8</color>
+
+</resources>

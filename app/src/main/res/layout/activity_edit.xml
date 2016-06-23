@@ -1,0 +1,107 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:focusable="true"
+    android:fitsSystemWindows="true"
+    android:focusableInTouchMode="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    >
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/edit_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/toolbar" />
+    <ui.CircleImageView
+        android:id="@+id/edit_icon"
+        android:layout_width="@dimen/edit_width1"
+        android:layout_height="@dimen/edit_height1"
+        android:scaleType="centerCrop"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/ic_user_icon"
+        android:layout_marginTop="@dimen/edit_margin1"
+        app:border_width="@dimen/edit_border_width"
+        app:border_color="@color/person_user_circle"
+        android:layout_below="@id/edit_toolbar" />
+    <EditText
+        android:id="@+id/edit_user"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="@dimen/edit_margin3"
+        android:layout_marginRight="@dimen/edit_margin3"
+        android:layout_height="@dimen/edit_height2"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/edit_margin2"
+        android:background="@drawable/gray_border"
+        android:gravity="center"
+        android:hint="@string/user"
+        android:maxLength="16"
+        android:singleLine="true"
+        android:textSize="@dimen/edit_text_size1"
+        android:textColor="@color/bookshelf_title"
+        android:textColorHint="@color/person_text"
+        android:layout_below="@id/edit_icon"/>
+    <TextView
+        android:id="@+id/edit_useless"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/edit_user"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content" />
+    <RelativeLayout
+        android:layout_below="@id/edit_user"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="@dimen/edit_margin3"
+        android:layout_marginTop="@dimen/edit_margin4"
+        android:layout_toLeftOf="@id/edit_useless"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/edit_height2">
+        <TextView
+            android:id="@+id/edit_boy"
+            android:text="男"
+            android:textColor="@color/person_text"
+            android:textSize="@dimen/edit_text_size2"
+            android:background="@drawable/boy_background"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <ImageView
+            android:src="@mipmap/ic_finish"
+            android:layout_alignTop="@id/edit_boy"
+            android:layout_alignBottom="@id/edit_boy"
+            android:id="@+id/edit_boy_icon"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_marginLeft="-1dp"
+        android:layout_marginRight="@dimen/edit_margin3"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/edit_useless"
+        android:layout_below="@id/edit_user"
+        android:layout_marginTop="@dimen/edit_margin4"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/edit_height2">
+        <TextView
+            android:id="@+id/edit_girl"
+            android:gravity="center"
+            android:text="女"
+            android:textColor="@color/person_text"
+            android:textSize="@dimen/edit_text_size2"
+            android:background="@drawable/girl_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <ImageView
+            android:id="@+id/edit_girl_icon"
+            android:src="@mipmap/ic_sex"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@id/edit_girl"
+            android:layout_alignBottom="@id/edit_girl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+
+
+</RelativeLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/chapter_item_height"
+	android:orientation="horizontal" >
+
+	<ui.Pointwithcolor
+		android:id="@+id/preview_pointwithcolor"
+		android:layout_width="@dimen/chapter_item_width1"
+		android:layout_height="@dimen/chapter_item_height1"
+		android:layout_gravity="center_vertical"
+		android:layout_marginLeft="@dimen/chapter_item_margin1"
+		/>
+	<HorizontalScrollView
+		android:layout_gravity="center_vertical"
+		android:scrollbars="none"
+		android:layout_width="match_parent"
+		android:layout_marginRight="@dimen/chapter_item_margin2"
+		android:layout_height="wrap_content">
+		<TextView
+			android:id="@+id/preview_name"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textColor="@color/create_chapter_text"
+			android:background="@null"
+			android:textSize="18sp"
+			android:layout_gravity="center_vertical"
+			android:singleLine="true"
+			android:layout_marginLeft="@dimen/chapter_item_margin3"
+			android:text=""/>
+	</HorizontalScrollView>
+
+</LinearLayout>

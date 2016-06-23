@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.daimajia.swipe.SwipeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:clickToClose="true">
+
+    <LinearLayout
+        android:tag="Bottom1"
+        android:id="@+id/bottom_wrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/reading_item_finish"
+            android:src="@drawable/ic_finish_l"
+            android:background="@color/reading_finish"
+            android:layout_width="@dimen/reading_item_width1"
+            android:layout_height="@dimen/reading_item_height1" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:tag="Bottom2"
+        android:id="@+id/bottom_wrapper_2"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/reading_item_height1">
+
+        <ImageView
+            android:id="@+id/reading_item_top"
+            android:src="@drawable/ic_top_l"
+            android:background="@color/reading_top"
+            android:layout_width="@dimen/reading_item_width1"
+            android:layout_height="@dimen/reading_item_height1" />
+
+        <ImageView
+            android:id="@+id/reading_item_delete"
+            android:src="@drawable/ic_delete_l"
+            android:background="@color/reading_delete"
+            android:layout_width="@dimen/reading_item_width1"
+            android:layout_height="@dimen/reading_item_height1" />
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/reading_item_height1">
+        <FrameLayout
+            android:id="@+id/reading_item_icons"
+            android:layout_centerVertical="true"
+            android:layout_width="@dimen/reading_item_width2"
+            android:layout_height="@dimen/reading_item_height2"
+            android:layout_marginLeft="@dimen/reading_margin1">
+            <ImageView
+                android:id="@+id/reading_item_icon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter" />
+            <TextView
+                android:id="@+id/reading_item_icon_text"
+                android:textSize="@dimen/reading_item_text_size1"
+                android:layout_marginTop="@dimen/reading_item_margin6"
+                android:layout_marginLeft="@dimen/reading_item_margin7"
+                android:singleLine="true"
+                android:textColor="@color/white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/reading_item_content"
+            android:textSize="@dimen/reading_item_text_size2"
+            android:textColor="@color/reading_chapter_text"
+            android:layout_width="match_parent"
+            android:layout_marginTop="@dimen/reading_item_margin3"
+            android:singleLine="true"
+            android:layout_toRightOf="@id/reading_item_icons"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/reading_item_margin4"
+            android:gravity="bottom"
+            />
+        <TextView
+            android:id="@+id/reading_item_book_name"
+            android:layout_toRightOf="@id/reading_item_icons"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:textSize="@dimen/reading_item_text_size3"
+            android:singleLine="true"
+            android:layout_marginLeft="@dimen/reading_item_margin4"
+            android:layout_marginBottom="@dimen/reading_item_margin5"
+            android:textColor="@color/reading_book_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+</com.daimajia.swipe.SwipeLayout>

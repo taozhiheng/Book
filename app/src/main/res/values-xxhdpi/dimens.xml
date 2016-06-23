@@ -1,0 +1,252 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <dimen name="login_margin1">52dp</dimen>
+    <dimen name="login_margin2">32dp</dimen>
+    <dimen name="login_margin3">156dp</dimen>
+    <dimen name="login_margin4">23dp</dimen>
+    <dimen name="login_margin5">17dp</dimen>
+    <dimen name="login_margin6">160dp</dimen>
+    <dimen name="login_margin7">80dp</dimen>
+    <dimen name="login_margin8">150dp</dimen>
+    <dimen name="login_padding">20dp</dimen>
+    <dimen name="login_width1">292dp</dimen>
+    <dimen name="login_width2">230dp</dimen>
+    <dimen name="login_width3">129dp</dimen>
+    <dimen name="login_height1">51dp</dimen>
+    <dimen name="login_height2">48dp</dimen>
+    <dimen name="login_height3">32dp</dimen>
+    <dimen name="login_height4">32dp</dimen>
+    <dimen name="login_height5">36dp</dimen>
+
+    <dimen name="register_padding">10dp</dimen>
+    <dimen name="register_margin1">53dp</dimen>
+    <dimen name="register_margin2">35dp</dimen>
+    <dimen name="register_width1">295dp</dimen>
+    <dimen name="register_width2">230dp</dimen>
+    <dimen name="register_height1">51dp</dimen>
+    <dimen name="register_height2">48dp</dimen>
+    <dimen name="register_height3">42dp</dimen>
+
+
+    <dimen name="edit_margin1">29dp</dimen>
+    <dimen name="edit_margin2">23dp</dimen>
+    <dimen name="edit_margin3">20dp</dimen>
+    <dimen name="edit_margin4">25dp</dimen>
+
+    <dimen name="edit_border_width">9dp</dimen>
+    <dimen name="edit_width1">146dp</dimen>
+    <dimen name="edit_height1">146dp</dimen>
+    <dimen name="edit_height2">48dp</dimen>
+
+    <dimen name="drawer_margin1">20dp</dimen>
+    <dimen name="drawer_width">273dp</dimen>
+    <dimen name="drawer_width1">140dp</dimen>
+    <dimen name="drawer_width2">100dp</dimen>
+    <dimen name="drawer_border_width">6dp</dimen>
+    <dimen name="drawer_height1">100dp</dimen>
+    <dimen name="drawer_height2">10dp</dimen>
+
+    <dimen name="person_margin1">29dp</dimen>
+    <dimen name="person_margin2">234dp</dimen>
+    <dimen name="person_margin3">27dp</dimen>
+    <dimen name="person_margin4">15dp</dimen>
+    <dimen name="person_border_width">9dp</dimen>
+    <dimen name="person_width1">146dp</dimen>
+    <dimen name="person_width2">230dp</dimen>
+    <dimen name="person_height1">146dp</dimen>
+    <dimen name="person_height2">42dp</dimen>
+    <dimen name="person_height3">48dp</dimen>
+
+    <!--these items use same values-->
+    <dimen name="create_margin1">28dp</dimen>
+    <dimen name="create_margin2">14dp</dimen>
+    <dimen name="create_margin3">43dp</dimen>
+    <!--<dimen name="create_margin4">27dp</dimen>-->
+    <dimen name="create_margin4">12dp</dimen>
+    <dimen name="create_margin5">10dp</dimen>
+    <dimen name="create_margin6">26dp</dimen>
+    <dimen name="create_margin7">40dp</dimen>
+    <dimen name="create_margin8">14dp</dimen>
+    <dimen name="create_margin9">30dp</dimen>
+    <dimen name="create_margin10">20dp</dimen>
+    <dimen name="create_margin11">3dp</dimen>
+    <dimen name="create_minWidth">80dp</dimen>
+    <dimen name="create_width1">78dp</dimen>
+    <dimen name="create_height">144dp</dimen>
+    <dimen name="create_height1">116dp</dimen>
+
+    <dimen name="add_margin1">20dp</dimen>
+    <dimen name="add_width1">251dp</dimen>
+    <dimen name="add_height1">46dp</dimen>
+
+    <dimen name="title_margin">2dp</dimen>
+    <dimen name="title_width">75dp</dimen>
+
+    <dimen name="add_item_margin1">29dp</dimen>
+    <dimen name="add_item_margin2">3dp</dimen>
+    <dimen name="add_item_margin3">27dp</dimen>
+    <dimen name="add_item_margin4">5dp</dimen>
+    <dimen name="add_item_margin5">2dp</dimen>
+    <dimen name="add_item_margin6">36dp</dimen>
+    <dimen name="add_item_margin7">2dp</dimen>
+    <dimen name="add_item_width1">58dp</dimen>
+    <dimen name="add_item_height">90dp</dimen>
+    <dimen name="add_item_height1">83dp</dimen>
+
+    <!--these items use same values-->
+    <dimen name="addbooklist_margin1">34dp</dimen>
+    <dimen name="addbooklist_margin2">10dp</dimen>
+    <dimen name="addbooklist_width1">9dp</dimen>
+    <dimen name="addbooklist_height">63dp</dimen>
+    <dimen name="addbooklist_height1">9dp</dimen>
+
+    <!--these items use same values-->
+    <dimen name="book_item_margin1">25dp</dimen>
+    <dimen name="book_item_margin2">10dp</dimen>
+    <dimen name="book_item_margin3">120dp</dimen>
+    <dimen name="book_item_margin4">5dp</dimen>
+    <dimen name="book_item_margin5">7dp</dimen>
+    <dimen name="book_item_margin6">3dp</dimen>
+    <dimen name="book_item_margin7">22dp</dimen>
+    <dimen name="book_item_margin8">20dp</dimen>
+    <dimen name="book_item_margin9">10dp</dimen>
+    <dimen name="book_item_margin10">22dp</dimen>
+    <dimen name="book_item_width1">58dp</dimen>
+    <dimen name="book_item_width2">35dp</dimen>
+    <dimen name="book_item_height">105dp</dimen>
+    <dimen name="book_item_height1">83dp</dimen>
+
+
+    <dimen name="chapter_item_margin1">34dp</dimen>
+    <dimen name="chapter_item_margin2">9dp</dimen>
+    <dimen name="chapter_item_margin3">10dp</dimen>
+    <dimen name="chapter_item_width1">9dp</dimen>
+    <dimen name="chapter_item_height">63dp</dimen>
+    <dimen name="chapter_item_height1">9dp</dimen>
+
+    <dimen name="feedback_margin1">8dp</dimen>
+    <dimen name="feedback_width1">72dp</dimen>
+    <dimen name="feedback_height1">32dp</dimen>
+    <dimen name="feedback_padding1">8dp</dimen>
+    <dimen name="feedback_padding2">4dp</dimen>
+
+    <dimen name="fab_margin1">10dp</dimen>
+    <dimen name="fab_margin2">20dp</dimen>
+    <dimen name="bookshelf_height1">4dp</dimen>
+    <dimen name="bookshelf_height2">2dp</dimen>
+
+    <dimen name="reading_margin1">10dp</dimen>
+    <dimen name="reading_margin2">31dp</dimen>
+    <dimen name="reading_margin3">10dp</dimen>
+
+    <dimen name="reading_height1">160dp</dimen>
+
+    <dimen name="dev_margin1">4dp</dimen>
+    <dimen name="dev_margin2">64dp</dimen>
+    <dimen name="dev_width1">42dp</dimen>
+    <dimen name="dev_width2">16dp</dimen>
+    <dimen name="dev_height1">42dp</dimen>
+    <dimen name="dev_height2">16dp</dimen>
+    <dimen name="dev_padding1">12dp</dimen>
+    <dimen name="dev_padding2">16dp</dimen>
+    <dimen name="dev_padding3">4dp</dimen>
+    <dimen name="dev_padding4">8dp</dimen>
+
+    <dimen name="plan_margin1">15dp</dimen>
+    <!--<dimen name="plan_margin1">0dp</dimen>-->
+
+    <dimen name="plan_margin2">15dp</dimen>
+    <dimen name="plan_margin3">5dp</dimen>
+    <dimen name="plan_margin4">20dp</dimen>
+    <dimen name="plan_width1">230dp</dimen>
+    <dimen name="plan_width2">60dp</dimen>
+    <dimen name="plan_height1">40dp</dimen>
+
+    <dimen name="reading_item_margin1">29dp</dimen>
+    <dimen name="reading_item_margin2">3dp</dimen>
+    <dimen name="reading_item_margin3">20dp</dimen>
+    <dimen name="reading_item_margin4">6dp</dimen>
+    <dimen name="reading_item_margin5">17dp</dimen>
+    <dimen name="reading_item_margin6">10dp</dimen>
+    <dimen name="reading_item_margin7">22dp</dimen>
+    <dimen name="reading_item_width1">90dp</dimen>
+    <dimen name="reading_item_width2">58dp</dimen>
+    <dimen name="reading_item_height1">90dp</dimen>
+    <dimen name="reading_item_height2">83dp</dimen>
+
+    <dimen name="guide_margin">40dp</dimen>
+
+    <!--these items have not been used-->
+    <dimen name="about_width">150dp</dimen>
+    <dimen name="about_height">150dp</dimen>
+    <dimen name="about_margin1">20dp</dimen>
+    <dimen name="about_margin2">20dp</dimen>
+    <dimen name="about_margin3">60dp</dimen>
+    <dimen name="about_margin4">50dp</dimen>
+
+
+    <!--字体大小-->
+    <dimen name="login_text_size1">22sp</dimen>
+    <dimen name="login_text_size2">17sp</dimen>
+    <dimen name="login_text_size3">18sp</dimen>
+    <dimen name="login_text_size4">22sp</dimen>
+
+
+    <dimen name="edit_text_size1">27sp</dimen>
+    <dimen name="edit_text_size2">22sp</dimen>
+
+    <dimen name="drawer_text_size1">21sp</dimen>
+    <dimen name="drawer_text_size2">11sp</dimen>
+
+    <dimen name="person_text_size1">27sp</dimen>
+    <dimen name="person_text_size2">22sp</dimen>
+    <dimen name="person_text_size3">32sp</dimen>
+
+    <dimen name="create_text_size1">20sp</dimen>
+    <dimen name="create_text_size2">13sp</dimen>
+    <dimen name="create_text_size3">14sp</dimen>
+    <dimen name="create_text_size4">18sp</dimen>
+
+    <dimen name="detail_text_size1">20sp</dimen>
+    <dimen name="detail_text_size2">13sp</dimen>
+    <dimen name="detail_text_size3">14sp</dimen>
+
+    <dimen name="title_text_size1">18sp</dimen>
+
+    <dimen name="add_item_text_size1">19sp</dimen>
+    <dimen name="add_item_text_size2">13sp</dimen>
+
+    <dimen name="addbooklist_text_size1">18sp</dimen>
+
+    <dimen name="book_item_text_size1">15sp</dimen>
+    <dimen name="book_item_text_size2">13sp</dimen>
+    <dimen name="book_item_text_size3">19sp</dimen>
+
+    <dimen name="chapter_item_text_size1">18sp</dimen>
+
+    <dimen name="feedback_text_size1">14sp</dimen>
+
+    <dimen name="reading_text_size1">22sp</dimen>
+    <dimen name="reading_text_size2">14sp</dimen>
+
+    <dimen name="dev_text_size1">12sp</dimen>
+    <dimen name="dev_text_size2">14sp</dimen>
+
+    <dimen name="plan_text_size1">18sp</dimen>
+    <dimen name="plan_text_size2">12sp</dimen>
+
+    <dimen name="reading_item_text_size1">15sp</dimen>
+    <dimen name="reading_item_text_size2">22sp</dimen>
+    <dimen name="reading_item_text_size3">15sp</dimen>
+
+    <dimen name="about_text_size1">26sp</dimen>
+    <dimen name="about_text_size2">23sp</dimen>
+    <dimen name="about_text_size3">22sp</dimen>
+
+    <dimen name="circle_radius">30dp</dimen>
+
+
+</resources>
